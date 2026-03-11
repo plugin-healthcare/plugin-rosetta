@@ -1,0 +1,27 @@
+---
+id: https://w3id.org/plugin-rosetta/plugin-rosetta
+name: plugin_rosetta
+title: Plugin Rosetta - FHIR-to-OMOP Integration Schema
+description: >-
+  Main entry-point schema for plugin-rosetta.  Imports the three OMOP CDM 5.4
+  sub-schemas (clinical, vocabulary, results) and the FHIR R4 resource subset
+  schema, providing a unified namespace for FHIR-to-OMOP translation.
+
+license: MIT
+version: "0.1.0"
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  omop: https://athena.ohdsi.org/search-terms/terms#
+  fhir: http://hl7.org/fhir/
+  plugin_rosetta: https://w3id.org/plugin-rosetta/
+
+default_prefix: https://w3id.org/plugin-rosetta/
+default_range: string
+
+imports:
+  - linkml:types
+  - omop_cdm
+  - omop_vocabulary
+  - omop_results
+  - fhir_resources

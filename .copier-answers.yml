@@ -1,0 +1,16 @@
+# Changes here will be overwritten by Copier
+_commit: v0.4.2
+_src_path: https://github.com/linkml/linkml-project-copier
+add_example: false
+copyright_year: '2026'
+email: daniel.kapitan@gmail.com
+full_name: Daniel Kapitan
+gh_action_docs_preview: true
+gh_action_pypi: false
+github_org: plugin-healthcare
+license: MIT
+project_description: Integration of information models, schemas and mappings in the
+    healthcare domain
+project_name: plugin-rosetta
+project_slug: plugin_rosetta
+

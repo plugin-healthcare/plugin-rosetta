@@ -1,0 +1,527 @@
+id: https://w3id.org/plugin-rosetta/fhir-resources
+name: fhir_resources
+title: FHIR R4 Resources (OMOP-mapped subset)
+description: Minimal LinkML representation of the FHIR R4 resource fields that are mapped to OMOP CDM 5.4 by the HL7 fhir-omop-ig
+  (tag 1.0.0-ballot). Only includes slots referenced in the FML structure maps.
+license: MIT
+version: 4.0.1
+prefixes:
+  linkml: https://w3id.org/linkml/
+  fhir: http://hl7.org/fhir/
+  plugin_rosetta: https://w3id.org/plugin-rosetta/
+default_prefix: https://w3id.org/plugin-rosetta/fhir-resources/
+default_range: string
+imports:
+- linkml:types
+classes:
+  Coding:
+    description: A Coding is a representation of a defined concept using a symbol from a defined code system (FHIR R4 Coding
+      datatype).
+    attributes:
+      system:
+        range: uri
+        required: false
+        slot_uri: fhir:Coding.system
+        description: Identity of the terminology system.
+      code:
+        range: string
+        required: false
+        slot_uri: fhir:Coding.code
+        description: Symbol in the syntax defined by the system.
+      display:
+        range: string
+        required: false
+        slot_uri: fhir:Coding.display
+        description: Representation defined by the system.
+  CodeableConcept:
+    description: A CodeableConcept represents a value that is usually supplied by providing a reference to one or more terminologies
+      or ontologies but may also be defined by the provision of text.
+    attributes:
+      coding:
+        range: Coding
+        multivalued: true
+        required: false
+        slot_uri: fhir:CodeableConcept.coding
+        description: Code defined by a terminology system.
+      text:
+        range: string
+        required: false
+        slot_uri: fhir:CodeableConcept.text
+        description: Plain text representation of the concept.
+  CodeableReference:
+    description: A CodeableReference is a reference to either a resource or a concept from a terminology (FHIR R4 CodeableReference
+      datatype).
+    attributes:
+      concept:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:CodeableReference.concept
+        description: Reference to a concept from a terminology.
+  Period:
+    description: A time period defined by a start and end date/time (FHIR R4 Period datatype).
+    attributes:
+      start:
+        range: datetime
+        required: false
+        slot_uri: fhir:Period.start
+        description: Starting time with inclusive boundary.
+      end:
+        range: datetime
+        required: false
+        slot_uri: fhir:Period.end
+        description: End time with inclusive boundary, if not ongoing.
+  Quantity:
+    description: A measured or measurable amount (FHIR R4 Quantity datatype).
+    attributes:
+      value:
+        range: float
+        required: false
+        slot_uri: fhir:Quantity.value
+        description: Numerical value (with implicit precision).
+      unit:
+        range: string
+        required: false
+        slot_uri: fhir:Quantity.unit
+        description: Unit representation.
+      system:
+        range: uri
+        required: false
+        slot_uri: fhir:Quantity.system
+        description: System that defines coded unit form.
+      code:
+        range: string
+        required: false
+        slot_uri: fhir:Quantity.code
+        description: Coded form of the unit.
+  Annotation:
+    description: A text note that also contains information about who made the statement and when (FHIR R4 Annotation datatype).
+    attributes:
+      text:
+        range: string
+        required: true
+        slot_uri: fhir:Annotation.text
+        description: The annotation - text content (as markdown).
+  AllergyReactionComponent:
+    description: Details about each adverse reaction event linked to an AllergyIntolerance.
+    attributes:
+      manifestation:
+        range: CodeableReference
+        multivalued: true
+        required: false
+        slot_uri: fhir:AllergyIntolerance.reaction.manifestation
+        description: Clinical symptoms/signs associated with the event.
+  Patient:
+    description: Demographics and other administrative information about an individual or animal receiving care or other health-related
+      services. Mapped to OMOP Person table via PersonMap.fml.
+    class_uri: fhir:Patient
+    attributes:
+      id:
+        range: string
+        identifier: true
+        required: false
+        slot_uri: fhir:Resource.id
+        description: Logical id of this artifact.
+      gender:
+        range: string
+        required: false
+        slot_uri: fhir:Patient.gender
+        description: male | female | other | unknown
+        exact_mappings:
+        - omop:gender_concept_id
+        - omop:gender_source_value
+      birthDate:
+        range: date
+        required: false
+        slot_uri: fhir:Patient.birthDate
+        description: The date of birth for the individual.
+        exact_mappings:
+        - omop:birth_datetime
+        - omop:year_of_birth
+        - omop:month_of_birth
+        - omop:day_of_birth
+  Encounter:
+    description: An interaction between a patient and healthcare provider(s) for the purpose of providing healthcare service(s)
+      or assessing the health status of a patient. Mapped to OMOP VisitOccurrence table via EncounterVisit.fml.
+    class_uri: fhir:Encounter
+    attributes:
+      id:
+        range: string
+        identifier: true
+        required: false
+        slot_uri: fhir:Resource.id
+        description: Logical id of this artifact.
+      class:
+        range: CodeableConcept
+        multivalued: true
+        required: false
+        slot_uri: fhir:Encounter.class
+        description: Classification of patient encounter context.
+        exact_mappings:
+        - omop:visit_concept_id
+        - omop:visit_source_value
+        - omop:visit_source_concept_id
+      actualPeriod:
+        range: Period
+        required: false
+        slot_uri: fhir:Encounter.actualPeriod
+        description: The actual start and end time of the encounter.
+        exact_mappings:
+        - omop:visit_start_date
+        - omop:visit_start_datetime
+        - omop:visit_end_date
+        - omop:visit_end_datetime
+      admission:
+        range: EncounterAdmission
+        required: false
+        slot_uri: fhir:Encounter.admission
+        description: Details about the admission to a healthcare service.
+  EncounterAdmission:
+    description: Details about the admission component of an Encounter.
+    attributes:
+      admitSource:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:Encounter.admission.admitSource
+        description: From where patient was admitted (physician referral, transfer).
+        exact_mappings:
+        - omop:admitted_from_concept_id
+        - omop:admitted_from_source_value
+      dischargeDisposition:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:Encounter.admission.dischargeDisposition
+        description: Category or kind of location after discharge.
+        exact_mappings:
+        - omop:discharged_to_concept_id
+        - omop:discharged_to_source_value
+  Condition:
+    description: A clinical condition, problem, diagnosis, or other event, situation, issue, or clinical concept that has
+      risen to a level of concern. Mapped to OMOP ConditionOccurrence table via condition.fml.
+    class_uri: fhir:Condition
+    attributes:
+      id:
+        range: string
+        identifier: true
+        required: false
+        slot_uri: fhir:Resource.id
+        description: Logical id of this artifact.
+      code:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:Condition.code
+        description: Identification of the condition, problem or diagnosis.
+        exact_mappings:
+        - omop:condition_concept_id
+      recordedDate:
+        range: date
+        required: false
+        slot_uri: fhir:Condition.recordedDate
+        description: Date condition was first recorded.
+        exact_mappings:
+        - omop:condition_start_date
+        - omop:condition_start_datetime
+      onsetDateTime:
+        range: datetime
+        required: false
+        slot_uri: fhir:Condition.onsetDateTime
+        description: Estimated or actual date/time the condition began.
+        exact_mappings:
+        - omop:condition_start_datetime
+        - omop:condition_start_date
+      abatementDateTime:
+        range: datetime
+        required: false
+        slot_uri: fhir:Condition.abatementDateTime
+        description: When in resolution/remission.
+        exact_mappings:
+        - omop:condition_end_datetime
+        - omop:condition_end_date
+      category:
+        range: CodeableConcept
+        multivalued: true
+        required: false
+        slot_uri: fhir:Condition.category
+        description: problem-list-item | encounter-diagnosis
+        exact_mappings:
+        - omop:condition_type_concept_id
+      clinicalStatus:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:Condition.clinicalStatus
+        description: active | recurrence | relapse | inactive | remission | resolved
+        exact_mappings:
+        - omop:condition_status_concept_id
+      evidence:
+        range: ConditionEvidence
+        multivalued: true
+        required: false
+        slot_uri: fhir:Condition.evidence
+        description: Supporting evidence.
+  ConditionEvidence:
+    description: Supporting evidence for a Condition.
+    attributes:
+      concept:
+        range: CodeableConcept
+        multivalued: true
+        required: false
+        slot_uri: fhir:Condition.evidence.concept
+        description: Manifestation/symptom.
+        exact_mappings:
+        - omop:condition_source_concept_id
+  Observation:
+    description: 'Measurements and simple assertions made about a patient, device or other subject. Mapped to OMOP Observation
+      table via Observation.fml (non-measurement categories: social-history, imaging, survey, exam, therapy, activity, procedure).'
+    class_uri: fhir:Observation
+    attributes:
+      id:
+        range: string
+        identifier: true
+        required: false
+        slot_uri: fhir:Resource.id
+        description: Logical id of this artifact.
+      code:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:Observation.code
+        description: Type of observation (code / type).
+        exact_mappings:
+        - omop:observation_concept_id
+      category:
+        range: CodeableConcept
+        multivalued: true
+        required: false
+        slot_uri: fhir:Observation.category
+        description: Classification of type of observation.
+      effectiveDateTime:
+        range: datetime
+        required: false
+        slot_uri: fhir:Observation.effectiveDateTime
+        description: Clinically relevant time/time-period for observation.
+        exact_mappings:
+        - omop:observation_datetime
+        - omop:observation_date
+      effectivePeriod:
+        range: Period
+        required: false
+        slot_uri: fhir:Observation.effectivePeriod
+        description: Clinically relevant period for observation.
+        exact_mappings:
+        - omop:observation_datetime
+        - omop:observation_date
+      issued:
+        range: datetime
+        required: false
+        slot_uri: fhir:Observation.issued
+        description: Date/Time this version was made available.
+        exact_mappings:
+        - omop:observation_source_value
+      valueQuantity:
+        range: Quantity
+        required: false
+        slot_uri: fhir:Observation.valueQuantity
+        description: Actual result (Quantity).
+        exact_mappings:
+        - omop:value_as_number
+        - omop:unit_concept_id
+      valueCodeableConcept:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:Observation.valueCodeableConcept
+        description: Actual result (CodeableConcept).
+        exact_mappings:
+        - omop:value_as_concept_id
+      valueString:
+        range: string
+        required: false
+        slot_uri: fhir:Observation.valueString
+        description: Actual result (string).
+        exact_mappings:
+        - omop:value_as_string
+      note:
+        range: Annotation
+        multivalued: true
+        required: false
+        slot_uri: fhir:Observation.note
+        description: Comments about the observation.
+        exact_mappings:
+        - omop:observation_source_value
+  Procedure:
+    description: An action that is or was performed on or for a patient, practitioner, device, organization, or location.
+      Mapped to OMOP ProcedureOccurrence table via Procedure.fml.
+    class_uri: fhir:Procedure
+    attributes:
+      id:
+        range: string
+        identifier: true
+        required: false
+        slot_uri: fhir:Resource.id
+        description: Logical id of this artifact.
+      code:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:Procedure.code
+        description: Identification of the procedure.
+        exact_mappings:
+        - omop:procedure_concept_id
+        - omop:procedure_source_value
+        - omop:procedure_source_concept_id
+      occurrenceDateTime:
+        range: datetime
+        required: false
+        slot_uri: fhir:Procedure.occurrenceDateTime
+        description: When the procedure was performed (dateTime).
+        exact_mappings:
+        - omop:procedure_datetime
+        - omop:procedure_date
+      occurrencePeriod:
+        range: Period
+        required: false
+        slot_uri: fhir:Procedure.occurrencePeriod
+        description: When the procedure was performed (Period).
+        exact_mappings:
+        - omop:procedure_datetime
+        - omop:procedure_date
+        - omop:procedure_end_datetime
+        - omop:procedure_end_date
+  MedicationStatement:
+    description: A record of a medication that is being consumed by a patient. Mapped to OMOP DrugExposure table via medication.fml.
+    class_uri: fhir:MedicationStatement
+    attributes:
+      id:
+        range: string
+        identifier: true
+        required: false
+        slot_uri: fhir:Resource.id
+        description: Logical id of this artifact.
+      medication:
+        range: CodeableReference
+        required: false
+        slot_uri: fhir:MedicationStatement.medication
+        description: What medication was taken.
+        exact_mappings:
+        - omop:drug_concept_id
+      effectiveDateTime:
+        range: datetime
+        required: false
+        slot_uri: fhir:MedicationStatement.effectiveDateTime
+        description: The date/time when the medication was taken (dateTime).
+        exact_mappings:
+        - omop:drug_exposure_start_datetime
+        - omop:drug_exposure_start_date
+      effectivePeriod:
+        range: Period
+        required: false
+        slot_uri: fhir:MedicationStatement.effectivePeriod
+        description: The date/time period when the medication was taken (Period).
+        exact_mappings:
+        - omop:drug_exposure_start_datetime
+        - omop:drug_exposure_start_date
+        - omop:drug_exposure_end_datetime
+        - omop:drug_exposure_end_date
+        - omop:verbatim_end_date
+      category:
+        range: CodeableConcept
+        multivalued: true
+        required: false
+        slot_uri: fhir:MedicationStatement.category
+        description: Type of medication usage.
+        exact_mappings:
+        - omop:drug_type_concept_id
+      reason:
+        range: CodeableReference
+        multivalued: true
+        required: false
+        slot_uri: fhir:MedicationStatement.reason
+        description: Reason for why the medication is being/was taken.
+        exact_mappings:
+        - omop:stop_reason
+  Immunization:
+    description: Describes the event of a patient being administered a vaccine or a record of an immunization as reported
+      by a patient, a clinician or another party. Mapped to OMOP DrugExposure table via ImmunizationMap.fml.
+    class_uri: fhir:Immunization
+    attributes:
+      id:
+        range: string
+        identifier: true
+        required: false
+        slot_uri: fhir:Resource.id
+        description: Logical id of this artifact.
+      vaccineCode:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:Immunization.vaccineCode
+        description: Vaccine product administered.
+        exact_mappings:
+        - omop:drug_concept_id
+        - omop:drug_source_value
+        - omop:drug_source_concept_id
+      occurrenceDateTime:
+        range: datetime
+        required: false
+        slot_uri: fhir:Immunization.occurrenceDateTime
+        description: Vaccine administration date.
+        exact_mappings:
+        - omop:drug_exposure_start_date
+        - omop:drug_exposure_start_datetime
+        - omop:drug_exposure_end_date
+        - omop:drug_exposure_end_datetime
+      doseQuantity:
+        range: Quantity
+        required: false
+        slot_uri: fhir:Immunization.doseQuantity
+        description: Amount of vaccine administered.
+        exact_mappings:
+        - omop:quantity
+        - omop:dose_unit_source_value
+      route:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:Immunization.route
+        description: How vaccine entered body.
+        exact_mappings:
+        - omop:route_concept_id
+        - omop:route_source_value
+      lotNumber:
+        range: string
+        required: false
+        slot_uri: fhir:Immunization.lotNumber
+        description: Vaccine lot number.
+        exact_mappings:
+        - omop:lot_number
+  AllergyIntolerance:
+    description: Risk of harmful or undesirable physiological response which is specific to an individual and associated with
+      exposure to a substance. Mapped to OMOP Observation table via Allergy.fml.
+    class_uri: fhir:AllergyIntolerance
+    attributes:
+      id:
+        range: string
+        identifier: true
+        required: false
+        slot_uri: fhir:Resource.id
+        description: Logical id of this artifact.
+      code:
+        range: CodeableConcept
+        required: false
+        slot_uri: fhir:AllergyIntolerance.code
+        description: Code that identifies the allergy or intolerance.
+        exact_mappings:
+        - omop:observation_concept_id
+        - omop:observation_source_value
+        - omop:observation_source_concept_id
+      onsetDateTime:
+        range: datetime
+        required: false
+        slot_uri: fhir:AllergyIntolerance.onsetDateTime
+        description: When allergy or intolerance was identified.
+        exact_mappings:
+        - omop:observation_date
+        - omop:observation_datetime
+      reaction:
+        range: AllergyReactionComponent
+        multivalued: true
+        required: false
+        slot_uri: fhir:AllergyIntolerance.reaction
+        description: Adverse reaction events linked to exposure to substance.
+        exact_mappings:
+        - omop:value_as_concept_id
+        - omop:value_source_value

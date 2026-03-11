@@ -1,0 +1,83 @@
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
+
+[project]
+name = "plugin_rosetta"
+description = "Integration of information models, schemas and mappings in the healthcare domain"
+authors = [
+  {name = "Daniel Kapitan", email = "daniel.kapitan@gmail.com"},
+]
+license = "MIT"
+license-files = ["LICENSE"]
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dynamic = ["version"]
+
+dependencies = [
+  "linkml-runtime>=1.9.4",
+  "pydantic>=2.12.5",
+  "polars>=1.38",
+  "orjson>=3.10",
+  "pyyaml>=6.0",
+  # nyctea is installed separately via 'just install-nyctea' because its
+  # pyproject.toml contains an erroneous requires-python = ">=3.14" (should
+  # be ">=3.10").  See: https://github.com/yannick-vinkesteijn/nyctea
+  # Track the fix: open a PR to correct the requires-python typo.
+]
+
+[dependency-groups]
+dev = [
+    "linkml>=1.9.3",
+    "zensical",
+    "mkdocstrings[python]",
+    "pytest>=8.0",
+    "pytest-cov",
+]
+
+# See https://hatch.pypa.io/latest/config/build/#file-selection for how to
+# explicitly include files other than default into the build distributions.
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+# Ref.: https://github.com/ninoseki/uv-dynamic-versioning/
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "pep440"
+fallback-version = "0.0.0"
+
+# Ref.: https://docs.pytest.org/en/stable/reference/reference.html#configuration-options
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# Ref.: https://github.com/codespell-project/codespell
+[tool.codespell]
+skip = [
+  "LICENSE",
+  "pyproject.toml",
+  "uv.lock",
+  "project/*",
+  "src/plugin_rosetta/datamodel/*",
+  "sources/*",
+]
+
+# Reminder: words have to be lowercased for the ignore-words-list
+ignore-words-list = "linke"
+quiet-level = 3
+
+# Ref.: https://github.com/crate-ci/typos (spell checker)
+[tool.typos.default.extend-words]
+linke = "linke"
+[tool.typos.files]
+extend-exclude = [
+  "LICENSE",
+  "uv.lock",
+  "pyproject.toml",
+  "project/*",
+  "src/plugin_rosetta/datamodel/*",
+  "sources/*",
+]

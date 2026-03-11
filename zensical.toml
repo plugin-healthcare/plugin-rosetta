@@ -1,0 +1,41 @@
+[project]
+site_name = "plugin-rosetta"
+site_url = "https://plugin-healthcare.github.io/plugin-rosetta"
+repo_url = "https://github.com/plugin-healthcare/plugin-rosetta"
+docs_dir = "docs"
+
+[project.theme]
+features = [
+  "content.tabs.link",
+  "header.autohide",
+  "navigation.expand",
+  "navigation.instant",
+  "navigation.instant.progress",
+  "navigation.tracking",
+  "search.suggest",
+  "content.code.copy",
+]
+
+[project.nav]
+Home = "index.md"
+Schema = "elements/index.md"
+About = "about.md"
+
+[project.plugins.search]
+
+[project.plugins.mkdocstrings]
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src"]
+inventories = ["https://docs.python.org/3/objects.inv"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+show_source = true
+inherited_members = false
+
+[project.watch]
+paths = ["src/plugin_rosetta/schema"]
+
+[project.exclude_docs]
+patterns = ["/templates-linkml/"]

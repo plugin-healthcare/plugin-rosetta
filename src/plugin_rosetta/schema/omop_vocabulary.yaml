@@ -1,0 +1,417 @@
+---
+id: https://w3id.org/plugin-rosetta/omop-vocabulary
+name: omop_vocabulary
+title: OMOP CDM Vocabulary Tables
+description: >-
+  LinkML representation of OMOP CDM 5.4 vocabulary (VOCAB schema) tables.
+  Generated from OHDSI CommonDataModel v5.4.2.
+
+license: MIT
+version: "5.4.2"
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  omop: https://athena.ohdsi.org/search-terms/terms#
+  plugin_rosetta: https://w3id.org/plugin-rosetta/
+
+default_prefix: https://w3id.org/plugin-rosetta/omop-vocabulary/
+default_range: string
+
+imports:
+  - linkml:types
+
+subsets:
+  required_table:
+    description: >-
+      OMOP CDM tables that must be present in a conformant database.
+
+classes:
+
+  Concept:
+    class_uri: omop:Concept
+    description: "The Standardized Vocabularies contains records, or Concepts, that uniquely identify each fundamental unit of meaning used to express clinical information in all domain tables of the CDM. Concepts are derived from vocabularies, which represent clinical information across a domain (e.g. conditions, drugs, procedures) through the use of codes and associated descriptions. Some Concepts are designated Standard Concepts, meaning these Concepts can be used as normative expressions of a clinical entity within the OMOP Common Data Model and standardized analytics. Each Standard Concept belongs to one Domain, which defines the location where the Concept would be expected to occur within the data tables of the CDM. Concepts can represent broad categories ('Cardiovascular disease'), detailed clinical elements ('Myocardial infarction of the anterolateral wall'), or modifying characteristics and attributes that define Concepts at various levels of detail (severity of a disease, associated morphology, etc.). Records in the Standardized Vocabularies tables are derived from national or international vocabularies such as SNOMED-CT, RxNorm, and LOINC, or custom OMOP Concepts defined to cover various aspects of observational data analysis."
+    comments:
+      - "The primary purpose of the CONCEPT table is to provide a standardized representation of medical Concepts, allowing for consistent querying and analysis across the healthcare databases. Users can join the CONCEPT table with other tables in the CDM to enrich clinical data with standardized Concept information or use the CONCEPT table as a reference for mapping clinical data from source terminologies to Standard Concepts."
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      concept_id:
+        range: integer
+        identifier: true
+        required: true
+        slot_uri: omop:concept_id
+        description: "A unique identifier for each Concept across all domains."
+      concept_name:
+        range: string
+        required: true
+        slot_uri: omop:concept_name
+        description: "An unambiguous, meaningful and descriptive name for the Concept."
+      domain_id:
+        range: Domain
+        required: true
+        slot_uri: omop:domain_id
+        description: "A foreign key to the [DOMAIN](https://ohdsi.github.io/CommonDataModel/cdm531.html#domain) table the Concept belongs to."
+      vocabulary_id:
+        range: Vocabulary
+        required: true
+        slot_uri: omop:vocabulary_id
+        description: "A foreign key to the [VOCABULARY](https://ohdsi.github.io/CommonDataModel/cdm531.html#vocabulary) table indicating from which source the Concept has been adapted."
+      concept_class_id:
+        range: ConceptClass
+        required: true
+        slot_uri: omop:concept_class_id
+        description: "The attribute or concept class of the Concept. Examples are 'Clinical Drug', 'Ingredient', 'Clinical Finding' etc."
+      standard_concept:
+        range: string
+        required: false
+        slot_uri: omop:standard_concept
+        description: "This flag determines where a Concept is a Standard Concept, i.e. is used in the data, a Classification Concept, or a non-standard Source Concept. The allowable values are 'S' (Standard Concept) and 'C' (Classification Concept), otherwise the content is NULL."
+      concept_code:
+        range: string
+        required: true
+        slot_uri: omop:concept_code
+        description: "The concept code represents the identifier of the Concept in the source vocabulary, such as SNOMED-CT concept IDs, RxNorm RXCUIs etc. Note that concept codes are not unique across vocabularies."
+      valid_start_date:
+        range: date
+        required: true
+        slot_uri: omop:valid_start_date
+        description: "The date when the Concept was first recorded. The default value is 1-Jan-1970, meaning, the Concept has no (known) date of inception."
+      valid_end_date:
+        range: date
+        required: true
+        slot_uri: omop:valid_end_date
+        description: "The date when the Concept became invalid because it was deleted or superseded (updated) by a new concept. The default value is 31-Dec-2099, meaning, the Concept is valid until it becomes deprecated."
+      invalid_reason:
+        range: string
+        required: false
+        slot_uri: omop:invalid_reason
+        description: "Reason the Concept was invalidated. Possible values are D (deleted), U (replaced with an update) or NULL when valid_end_date has the default value."
+
+  Vocabulary:
+    class_uri: omop:Vocabulary
+    description: "The VOCABULARY table includes a list of the Vocabularies integrated from various sources or created de novo in OMOP CDM. This reference table contains a single record for each Vocabulary and includes a descriptive name and other associated attributes for the Vocabulary."
+    comments:
+      - "The primary purpose of the VOCABULARY table is to provide explicit information about specific vocabulary versions and the references to the sources from which they are asserted. Users can identify the version of a particular vocabulary used in the database, enabling consistency and reproducibility in data analysis. Besides, users can check the vocabulary release version in their CDM which refers to the vocabulary_id = 'None'."
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      vocabulary_id:
+        range: string
+        identifier: true
+        required: true
+        slot_uri: omop:vocabulary_id
+        description: "A unique identifier for each Vocabulary, such as ICD9CM, SNOMED, Visit."
+      vocabulary_name:
+        range: string
+        required: true
+        slot_uri: omop:vocabulary_name
+        description: "The name describing the vocabulary, for example, International Classification of Diseases, Ninth Revision, Clinical Modification, Volume 1 and 2 (NCHS) etc."
+      vocabulary_reference:
+        range: string
+        required: false
+        slot_uri: omop:vocabulary_reference
+        description: "External reference to documentation or available download of the about the vocabulary."
+      vocabulary_version:
+        range: string
+        required: false
+        slot_uri: omop:vocabulary_version
+        description: "Version of the Vocabulary as indicated in the source."
+      vocabulary_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:vocabulary_concept_id
+        description: "A Concept that represents the Vocabulary the VOCABULARY record belongs to."
+
+  Domain:
+    class_uri: omop:Domain
+    description: "The DOMAIN table includes a list of OMOP-defined Domains to which the Concepts of the Standardized Vocabularies can belong. A Domain represents a clinical definition whereby we assign matching Concepts for the standardized fields in the CDM tables. For example, the Condition Domain contains Concepts that describe a patient condition, and these Concepts can only be used in the condition_concept_id field of the CONDITION_OCCURRENCE and CONDITION_ERA tables. This reference table is populated with a single record for each Domain, including a Domain ID and a descriptive name for every Domain."
+    comments:
+      - "Users can leverage the DOMAIN table to explore the full spectrum of health-related data Domains available in the Standardized Vocabularies. Also, the information in the DOMAIN table may be used as a reference for mapping source data to OMOP domains, facilitating data harmonization and interoperability."
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      domain_id:
+        range: string
+        identifier: true
+        required: true
+        slot_uri: omop:domain_id
+        description: "A unique key for each domain."
+      domain_name:
+        range: string
+        required: true
+        slot_uri: omop:domain_name
+        description: "The name describing the Domain, e.g. Condition, Procedure, Measurement etc."
+      domain_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:domain_concept_id
+        description: "A Concept representing the Domain Concept the DOMAIN record belongs to."
+
+  ConceptClass:
+    class_uri: omop:ConceptClass
+    description: "The CONCEPT_CLASS table includes semantic categories that reference the source structure of each Vocabulary. Concept Classes represent so-called horizontal (e.g. MedDRA, RxNorm) or vertical levels (e.g. SNOMED) of the vocabulary structure. Vocabularies without any Concept Classes, such as HCPCS, use the vocabulary_id as the Concept Class. This reference table is populated with a single record for each Concept Class, which includes a Concept Class ID and a fully specified Concept Class name."
+    comments:
+      - "Users can utilize the CONCEPT_CLASS table to explore the different classes or categories of concepts within the OHDSI vocabularies."
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      concept_class_id:
+        range: string
+        identifier: true
+        required: true
+        slot_uri: omop:concept_class_id
+        description: "A unique key for each class."
+      concept_class_name:
+        range: string
+        required: true
+        slot_uri: omop:concept_class_name
+        description: "The name describing the Concept Class, e.g. Clinical Finding, Ingredient, etc."
+      concept_class_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:concept_class_concept_id
+        description: "A Concept that represents the Concept Class."
+
+  ConceptRelationship:
+    class_uri: omop:ConceptRelationship
+    description: "The CONCEPT_RELATIONSHIP table contains records that define relationships between any two Concepts and the nature or type of the relationship. This table captures various types of relationships, including hierarchical, associative, and other semantic connections, enabling comprehensive analysis and interpretation of clinical concepts. Every kind of relationship is defined in the RELATIONSHIP table."
+    comments:
+      - "The CONCEPT_RELATIONSHIP table can be used to explore hierarchical or attribute relationships between concepts to understand the hierarchical structure of clinical concepts and uncover implicit connections and associations within healthcare data. For example, users can utilize mapping relationships ('Maps to') to harmonize data from different sources and terminologies, enabling interoperability and data integration across disparate datasets."
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      concept_id_1:
+        range: Concept
+        required: true
+        slot_uri: omop:concept_id_1
+      concept_id_2:
+        range: Concept
+        required: true
+        slot_uri: omop:concept_id_2
+      relationship_id:
+        range: Relationship
+        required: true
+        slot_uri: omop:relationship_id
+        description: "The relationship between CONCEPT_ID_1 and CONCEPT_ID_2. Please see the [Vocabulary Conventions](https://ohdsi.github.io/CommonDataModel/dataModelConventions.html#concept_relationships). for more information."
+      valid_start_date:
+        range: date
+        required: true
+        slot_uri: omop:valid_start_date
+        description: "The date when the relationship is first recorded."
+      valid_end_date:
+        range: date
+        required: true
+        slot_uri: omop:valid_end_date
+        description: "The date when the relationship is invalidated."
+      invalid_reason:
+        range: string
+        required: false
+        slot_uri: omop:invalid_reason
+        description: "Reason the relationship was invalidated. Possible values are 'D' (deleted), 'U' (updated) or NULL."
+
+  Relationship:
+    class_uri: omop:Relationship
+    description: "The RELATIONSHIP table provides a reference list of all types of relationships that can be used to associate any two concepts in the CONCEPT_RELATIONSHP table."
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      relationship_id:
+        range: string
+        identifier: true
+        required: true
+        slot_uri: omop:relationship_id
+        description: "The type of relationship captured by the relationship record."
+      relationship_name:
+        range: string
+        required: true
+        slot_uri: omop:relationship_name
+      is_hierarchical:
+        range: string
+        required: true
+        slot_uri: omop:is_hierarchical
+        description: "Defines whether a relationship defines concepts into classes or hierarchies. Values are 1 for hierarchical relationship or 0 if not."
+      defines_ancestry:
+        range: string
+        required: true
+        slot_uri: omop:defines_ancestry
+        description: "Defines whether a hierarchical relationship contributes to the concept_ancestor table. These are subsets of the hierarchical relationships. Valid values are 1 or 0."
+      reverse_relationship_id:
+        range: string
+        required: true
+        slot_uri: omop:reverse_relationship_id
+        description: "The identifier for the relationship used to define the reverse relationship between two concepts."
+      relationship_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:relationship_concept_id
+        description: "A foreign key that refers to an identifier in the [CONCEPT](https://ohdsi.github.io/CommonDataModel/cdm531.html#concept) table for the unique relationship concept."
+
+  ConceptSynonym:
+    class_uri: omop:ConceptSynonym
+    description: "The CONCEPT_SYNONYM table is used to store alternate names and descriptions for Concepts."
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:concept_id
+      concept_synonym_name:
+        range: string
+        required: true
+        slot_uri: omop:concept_synonym_name
+      language_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:language_concept_id
+
+  ConceptAncestor:
+    class_uri: omop:ConceptAncestor
+    description: "The CONCEPT_ANCESTOR table is designed to simplify observational analysis by providing the complete hierarchical relationships between Concepts. Only direct parent-child relationships between Concepts are stored in the CONCEPT_RELATIONSHIP table. To determine higher level ancestry connections, all individual direct relationships would have to be navigated at analysis time. The CONCEPT_ANCESTOR table includes records for all parent-child relationships, as well as grandparent-grandchild relationships and those of any other level of lineage. Using the CONCEPT_ANCESTOR table allows for querying for all descendants of a hierarchical concept. For example, drug ingredients and drug products are all descendants of a drug class ancestor. This table is entirely derived from the CONCEPT, CONCEPT_RELATIONSHIP and RELATIONSHIP tables."
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      ancestor_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:ancestor_concept_id
+        description: "The Concept Id for the higher-level concept that forms the ancestor in the relationship."
+      descendant_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:descendant_concept_id
+        description: "The Concept Id for the lower-level concept that forms the descendant in the relationship."
+      min_levels_of_separation:
+        range: integer
+        required: true
+        slot_uri: omop:min_levels_of_separation
+        description: "The minimum separation in number of levels of hierarchy between ancestor and descendant concepts. This is an attribute that is used to simplify hierarchic analysis."
+      max_levels_of_separation:
+        range: integer
+        required: true
+        slot_uri: omop:max_levels_of_separation
+        description: "The maximum separation in number of levels of hierarchy between ancestor and descendant concepts. This is an attribute that is used to simplify hierarchic analysis."
+
+  SourceToConceptMap:
+    class_uri: omop:SourceToConceptMap
+    description: "The source to concept map table is recommended for use in ETL processes to maintain local source codes which are not available as Concepts in the Standardized Vocabularies, and to establish mappings for each source code into a Standard Concept as target_concept_ids that can be used to populate the Common Data Model tables. The SOURCE_TO_CONCEPT_MAP table is no longer populated with content within the Standardized Vocabularies published to the OMOP community. **There are OHDSI tools to help you populate this table; [Usagi](https://github.com/OHDSI/Usagi) and [Perseus](https://github.com/ohdsi/Perseus). You can read more about OMOP vocabulary mapping in [The Book of OHDSI Chapter 6.3](https://ohdsi.github.io/TheBookOfOhdsi/ExtractTransformLoad.html#step-2-create-the-code-mappings).**"
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      source_code:
+        range: string
+        required: true
+        slot_uri: omop:source_code
+        description: "The source code being translated into a Standard Concept."
+      source_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:source_concept_id
+        description: "A foreign key to the Source Concept that is being translated into a Standard Concept."
+        comments:
+          - "This is either 0 or should be a number above 2 billion, which are the Concepts reserved for site-specific codes and mappings."
+      source_vocabulary_id:
+        range: string
+        required: true
+        slot_uri: omop:source_vocabulary_id
+        description: "A foreign key to the VOCABULARY table defining the vocabulary of the source code that is being translated to a Standard Concept."
+      source_code_description:
+        range: string
+        required: false
+        slot_uri: omop:source_code_description
+        description: "An optional description for the source code. This is included as a convenience to compare the description of the source code to the name of the concept."
+      target_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:target_concept_id
+        description: "The target Concept to which the source code is being mapped."
+      target_vocabulary_id:
+        range: Vocabulary
+        required: true
+        slot_uri: omop:target_vocabulary_id
+        description: "The Vocabulary of the target Concept."
+      valid_start_date:
+        range: date
+        required: true
+        slot_uri: omop:valid_start_date
+        description: "The date when the mapping instance was first recorded."
+      valid_end_date:
+        range: date
+        required: true
+        slot_uri: omop:valid_end_date
+        description: "The date when the mapping instance became invalid because it was deleted or superseded (updated) by a new relationship. Default value is 31-Dec-2099."
+      invalid_reason:
+        range: string
+        required: false
+        slot_uri: omop:invalid_reason
+        description: "Reason the mapping instance was invalidated. Possible values are D (deleted), U (replaced with an update) or NULL when valid_end_date has the default value."
+
+  DrugStrength:
+    class_uri: omop:DrugStrength
+    description: "The DRUG_STRENGTH table contains structured content about the amount or concentration and associated units of a specific ingredient contained within a particular drug product. This table is supplemental information to support standardized analysis of drug utilization."
+    annotations:
+      omop_schema: VOCAB
+    attributes:
+      drug_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:drug_concept_id
+        description: "The Concept representing the Branded Drug or Clinical Drug Product."
+      ingredient_concept_id:
+        range: Concept
+        required: true
+        slot_uri: omop:ingredient_concept_id
+        description: "The Concept representing the active ingredient contained within the drug product."
+        comments:
+          - "Combination Drugs will have more than one record in this table, one for each active Ingredient."
+      amount_value:
+        range: float
+        required: false
+        slot_uri: omop:amount_value
+        description: "The numeric value or the amount of active ingredient contained within the drug product."
+      amount_unit_concept_id:
+        range: Concept
+        required: false
+        slot_uri: omop:amount_unit_concept_id
+        description: "The Concept representing the Unit of measure for the amount of active ingredient contained within the drug product."
+      numerator_value:
+        range: float
+        required: false
+        slot_uri: omop:numerator_value
+        description: "The concentration of the active ingredient contained within the drug product."
+      numerator_unit_concept_id:
+        range: Concept
+        required: false
+        slot_uri: omop:numerator_unit_concept_id
+        description: "The Concept representing the Unit of measure for the concentration of active ingredient."
+      denominator_value:
+        range: float
+        required: false
+        slot_uri: omop:denominator_value
+        description: "The amount of total liquid (or other divisible product, such as ointment, gel, spray, etc.)."
+      denominator_unit_concept_id:
+        range: Concept
+        required: false
+        slot_uri: omop:denominator_unit_concept_id
+        description: "The Concept representing the denominator unit for the concentration of active ingredient."
+      box_size:
+        range: integer
+        required: false
+        slot_uri: omop:box_size
+        description: "The number of units of Clinical Branded Drug or Quantified Clinical or Branded Drug contained in a box as dispensed to the patient."
+      valid_start_date:
+        range: date
+        required: true
+        slot_uri: omop:valid_start_date
+        description: "The date when the Concept was first recorded. The default value is 1-Jan-1970."
+      valid_end_date:
+        range: date
+        required: true
+        slot_uri: omop:valid_end_date
+        description: "The date when then Concept became invalid."
+      invalid_reason:
+        range: string
+        required: false
+        slot_uri: omop:invalid_reason
+        description: "Reason the concept was invalidated. Possible values are D (deleted), U (replaced with an update) or NULL when valid_end_date has the default value."
+
