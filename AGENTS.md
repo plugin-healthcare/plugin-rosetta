@@ -287,6 +287,6 @@ Steps 3-5 are required because the generated files are git-ignored.
 
 - **No git submodules** — upstream sources are downloaded at build time via `just download-sources` and stored in `sources/` (git-ignored)
 - **No linkml-map** — direct Python translation in each translator module, no mapping framework
-- **No MkDocs** — Zensical replaces MkDocs; `mkdocs.yml` was deleted; `zensical.toml` is the docs config
+- **No MkDocs** — Zensical replaces MkDocs; `mkdocs.yml` was deleted; `zensical.toml` is the docs config; deployment to GitHub Pages is handled by `peaceiris/actions-gh-pages` (Zensical has no `gh-deploy` command)
 - **MedicationStatement not MedicationRequest** — the HL7 FML structure maps use `MedicationStatement`
 - **uv sync --group dev** (not `--dev`) — required for uv >= 0.4

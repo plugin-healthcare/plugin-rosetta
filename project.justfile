@@ -67,4 +67,4 @@ zensical-serve:
 # NOTE: to override the main justfile's deploy, add this to the bottom of justfile
 [group('documentation')]
 zensical-deploy:
-    uv run --no-sync zensical gh-deploy
+    uv run --no-sync zensical build
