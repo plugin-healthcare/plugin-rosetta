@@ -54,7 +54,7 @@ plugin-rosetta/
 
 ### Prerequisites
 
-- Python >= 3.10
+- Python >= 3.14
 - [`uv`](https://docs.astral.sh/uv/) (package manager)
 - [`just`](https://just.systems/) task runner — install with `uv tool install rust-just`
 
@@ -270,7 +270,7 @@ uv run --no-sync ruff format src/ tests/
 
 ## CI pipeline summary
 
-The CI workflow (`.github/workflows/main.yaml`) runs on Python 3.10-3.13 and executes:
+The CI workflow (`.github/workflows/main.yaml`) runs on Python 3.14 and executes:
 
 1. `uv sync --group dev`
 2. `just install-nyctea`
