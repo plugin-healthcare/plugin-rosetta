@@ -11,6 +11,10 @@
         <link rel="canonical" href="https://plugin-healthcare.github.io/plugin-rosetta/api-reference/">
       
       
+        <link rel="prev" href="../mappings/">
+      
+      
+        <link rel="next" href="../elements/index.md">
       
       
         
@@ -194,14 +198,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../Home" class="md-nav__link">
+      <a href="./.." class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    none
+    Home
   
 
     
@@ -221,14 +225,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../Getting Started" class="md-nav__link">
+      <a href="../getting-started/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    none
+    Getting Started
   
 
     
@@ -248,14 +252,633 @@
   
   
     <li class="md-nav__item">
-      <a href="../Mappings" class="md-nav__link">
+      <a href="../mappings/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    none
+    Mappings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#base-translator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Base translator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.base.FhirToOmopTranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FhirToOmopTranslator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.base.FhirToOmopTranslator.translate_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        translate_dict
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.base.FhirToOmopTranslator.translate_ndjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        translate_ndjson
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.base.FhirToOmopTranslator.translate_parquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        translate_parquet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.base.FhirToOmopTranslator.translate_record" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        translate_record
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#translators" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Translators
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Translators">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#patienttranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PatientTranslator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.fhir_to_omop.patient.PatientTranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PatientTranslator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PatientTranslator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#encountertranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EncounterTranslator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.fhir_to_omop.encounter.EncounterTranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EncounterTranslator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EncounterTranslator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conditiontranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ConditionTranslator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.fhir_to_omop.condition.ConditionTranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ConditionTranslator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ConditionTranslator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#observationtranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ObservationTranslator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.fhir_to_omop.observation.ObservationTranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ObservationTranslator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ObservationTranslator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proceduretranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ProcedureTranslator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.fhir_to_omop.procedure.ProcedureTranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ProcedureTranslator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ProcedureTranslator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#medicationtranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MedicationTranslator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.fhir_to_omop.medication.MedicationTranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MedicationTranslator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MedicationTranslator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#immunizationtranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ImmunizationTranslator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.fhir_to_omop.immunization.ImmunizationTranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ImmunizationTranslator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ImmunizationTranslator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#allergytranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AllergyTranslator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.fhir_to_omop.allergy.AllergyTranslator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AllergyTranslator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#io-ndjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I/O — NDJSON
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.ndjson_reader.iter_ndjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        iter_ndjson
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.ndjson_reader.read_ndjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        read_ndjson
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#io-parquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        I/O — Parquet
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="I&#x2f;O — Parquet">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.parquet_reader.ParquetReadResult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ParquetReadResult
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.parquet_reader.read_parquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        read_parquet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.parquet_reader.read_parquet_validated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        read_parquet_validated
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="read_parquet_validated">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.parquet_writer.write_parquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        write_parquet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.parquet_writer.rows_to_dataframe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rows_to_dataframe
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.omop_validator.ValidationResult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ValidationResult
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.omop_validator.validate_omop_parquet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_omop_parquet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plugin_rosetta.translators.io.omop_validator.validate_omop_dataframe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        validate_omop_dataframe
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema registry
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Schema registry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#omop-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OMOP schemas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fhir-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FHIR schemas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../elements/index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schema
   
 
     
@@ -275,68 +898,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../API Reference" class="md-nav__link">
+      <a href="../about/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    none
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../Schema" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    none
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../About" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    none
+    About
   
 
     
