@@ -18,6 +18,9 @@ features = [
 
 [project.nav]
 Home = "index.md"
+"Getting Started" = "getting-started.md"
+Mappings = "mappings.md"
+"API Reference" = "api-reference.md"
 Schema = "elements/index.md"
 About = "about.md"
 
