@@ -221,6 +221,87 @@
   
   
     <li class="md-nav__item">
+      <a href="./Getting Started" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    none
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./Mappings" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    none
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./API Reference" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    none
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="./Schema" class="md-nav__link">
         
   
@@ -289,6 +370,47 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#supported-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-go-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where to go next
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -306,10 +428,94 @@
 
 
 <h1 id="plugin-rosetta">plugin-rosetta<a class="headerlink" href="#plugin-rosetta" title="Permanent link">&para;</a></h1>
-<p>Integration of information models, schemas and mappings in the healthcare domain</p>
+<p><strong>plugin-rosetta</strong> translates FHIR R4 clinical data into <a href="https://ohdsi.github.io/CommonDataModel/">OMOP CDM 5.4</a> format. It uses <a href="https://linkml.io/">LinkML</a> schemas to formally describe both models and to validate output — giving data engineers, clinical informaticians, and data stewards a transparent, auditable FHIR-to-OMOP pipeline.</p>
+<p>Mappings are derived directly from the <a href="https://build.fhir.org/ig/HL7/fhir-omop-ig/">HL7 FHIR-OMOP Implementation Guide</a> FML structure maps, ensuring alignment with the published standard rather than ad-hoc field-by-field decisions.</p>
+<hr />
+<h2 id="supported-resources">Supported resources<a class="headerlink" href="#supported-resources" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>FHIR R4 resource</th>
+<th>OMOP CDM 5.4 table</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Patient</td>
+<td>Person</td>
+</tr>
+<tr>
+<td>Encounter</td>
+<td>VisitOccurrence</td>
+</tr>
+<tr>
+<td>Condition</td>
+<td>ConditionOccurrence</td>
+</tr>
+<tr>
+<td>Observation (non-measurement)</td>
+<td>Observation</td>
+</tr>
+<tr>
+<td>Procedure</td>
+<td>ProcedureOccurrence</td>
+</tr>
+<tr>
+<td>MedicationStatement</td>
+<td>DrugExposure</td>
+</tr>
+<tr>
+<td>Immunization</td>
+<td>DrugExposure</td>
+</tr>
+<tr>
+<td>AllergyIntolerance</td>
+<td>Observation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="where-to-go-next">Where to go next<a class="headerlink" href="#where-to-go-next" title="Permanent link">&para;</a></h2>
+<div class="grid cards">
 <ul>
-<li>Auto-generated <a href="elements/">schema documentation</a></li>
+<li>
+<p><strong>New to plugin-rosetta?</strong></p>
+<p>Install the library and translate your first FHIR record in minutes.</p>
+<p><a href="getting-started/">Getting Started</a></p>
+</li>
+<li>
+<p><strong>Auditing the mappings?</strong></p>
+<p>See exactly which FHIR fields map to which OMOP columns, with caveats.</p>
+<p><a href="mappings/">Mappings</a></p>
+</li>
+<li>
+<p><strong>Integrating the library?</strong></p>
+<p>Full API reference for translators, I/O helpers, and validators.</p>
+<p><a href="api-reference/">API Reference</a></p>
+</li>
+<li>
+<p><strong>Exploring the schemas?</strong></p>
+<p>Browse the generated LinkML schema documentation for all OMOP and FHIR classes.</p>
+<p><a href="elements/">Schema</a></p>
+</li>
 </ul>
+</div>
+<hr />
+<h2 id="known-limitations">Known limitations<a class="headerlink" href="#known-limitations" title="Permanent link">&para;</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Concept IDs are not resolved</p>
+<p>All <code>*_concept_id</code> fields in translator output are set to <code>0</code>. Mapping source
+codes (SNOMED, LOINC, RxNorm, etc.) to OMOP standard concepts requires a
+running OMOP vocabulary database or API — this is not yet implemented.
+The raw source code is always preserved in the corresponding <code>*_source_value</code>
+field.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Measurement table not yet supported</p>
+<p>FHIR Observations with <code>category</code> = <code>laboratory</code> or <code>vital-signs</code> are
+intentionally skipped. They belong in the OMOP <code>Measurement</code> table, which
+is planned for a future release.</p>
+</div>
 
 
 

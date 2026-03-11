@@ -21,7 +21,7 @@
     
     
       
-        <title>About plugin-rosetta - plugin-rosetta</title>
+        <title>About - plugin-rosetta</title>
       
     
     
@@ -65,7 +65,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#about-plugin-rosetta" class="md-skip">
+        <a href="#about" class="md-skip">
           Skip to content
         </a>
       
@@ -101,7 +101,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              About plugin-rosetta
+              About
             
           </span>
         </div>
@@ -221,6 +221,87 @@
   
   
     <li class="md-nav__item">
+      <a href="../Getting Started" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    none
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Mappings" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    none
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API Reference" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    none
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../Schema" class="md-nav__link">
         
   
@@ -289,6 +370,69 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-plugin-rosetta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is plugin-rosetta?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design principles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#source-pins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source pins
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contributing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        License
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -305,8 +449,67 @@
   
 
 
-<h1 id="about-plugin-rosetta">About plugin-rosetta<a class="headerlink" href="#about-plugin-rosetta" title="Permanent link">&para;</a></h1>
-<p>Integration of information models, schemas and mappings in the healthcare domain</p>
+<h1 id="about">About<a class="headerlink" href="#about" title="Permanent link">&para;</a></h1>
+<h2 id="what-is-plugin-rosetta">What is plugin-rosetta?<a class="headerlink" href="#what-is-plugin-rosetta" title="Permanent link">&para;</a></h2>
+<p>plugin-rosetta is a Python library for translating <a href="https://hl7.org/fhir/R4/">FHIR R4</a>
+clinical data into <a href="https://ohdsi.github.io/CommonDataModel/">OMOP CDM 5.4</a> format.
+It is part of the <a href="https://github.com/plugin-healthcare">plugin-healthcare</a> ecosystem —
+a suite of composable, open-source data integration components for healthcare data
+engineering.</p>
+<p>The name "rosetta" refers to the Rosetta Stone — the artefact that made it possible
+to translate between previously incompatible writing systems. plugin-rosetta plays
+an analogous role: it provides a transparent, standards-grounded translation layer
+between the two dominant healthcare data models in use today.</p>
+<hr />
+<h2 id="design-principles">Design principles<a class="headerlink" href="#design-principles" title="Permanent link">&para;</a></h2>
+<p><strong>Grounded in authoritative sources.</strong> OMOP schemas are generated directly from the
+<a href="https://github.com/OHDSI/CommonDataModel">OHDSI CommonDataModel</a> CSV definitions.
+FHIR-to-OMOP field mappings are derived from the
+<a href="https://build.fhir.org/ig/HL7/fhir-omop-ig/">HL7 FHIR-OMOP Implementation Guide</a>
+FML structure maps. Neither model is interpreted ad hoc.</p>
+<p><strong>Transparent and auditable.</strong> Both data models are expressed as
+<a href="https://linkml.io/">LinkML</a> schemas. The <code>exact_mappings</code> annotations in
+<code>fhir_resources.yaml</code> are machine-readable and link every mapped FHIR field to its
+OMOP counterpart. Data stewards can inspect the mappings directly in the schema
+files or on the <a href="../mappings/">Mappings</a> page.</p>
+<p><strong>No black-box mapping framework.</strong> Translations are implemented as plain Python
+classes — one per FHIR resource — with no intermediate mapping DSL. The code is
+straightforward to read, test, and extend.</p>
+<p><strong>Three-layer validation.</strong> Output is validated at the columnar level (nyctea +
+Polars), the record level (Pydantic v2), and the semantic level (LinkML <code>validate()</code>).</p>
+<hr />
+<h2 id="source-pins">Source pins<a class="headerlink" href="#source-pins" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Upstream source</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/OHDSI/CommonDataModel">OHDSI CommonDataModel</a></td>
+<td>tag <code>v5.4.2</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/HL7/fhir-omop-ig">HL7 fhir-omop-ig</a></td>
+<td>tag <code>1.0.0-ballot</code></td>
+</tr>
+<tr>
+<td><a href="https://github.com/yannick-vinkesteijn/nyctea">nyctea</a></td>
+<td>commit <code>6b113f1</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Permanent link">&para;</a></h2>
+<p>Contributions are welcome. Please open an issue or pull request on
+<a href="https://github.com/plugin-healthcare/plugin-rosetta">GitHub</a>.</p>
+<p>See <a href="https://github.com/plugin-healthcare/plugin-rosetta/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>
+for guidelines.</p>
+<hr />
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>plugin-rosetta is released under the <a href="https://github.com/plugin-healthcare/plugin-rosetta/blob/main/LICENSE">MIT License</a>.</p>
 
 
 
