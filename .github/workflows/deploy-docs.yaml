@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        pyversion: ["3.14"]
+        pyversion: ["3.13"]
 
     # Grant GITHUB_TOKEN the permissions required to make a gh-pages deployment
     permissions:
@@ -55,9 +55,6 @@ jobs:
 
       - name: Install dependencies
         run: uv sync --group dev --no-progress
-
-      - name: Install nyctea (requires-python workaround)
-        run: just install-nyctea
 
       - name: Generate schema documentation
         run: |

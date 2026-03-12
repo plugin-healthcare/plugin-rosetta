@@ -9,7 +9,8 @@
 # Load environment variables from config.public.mk or specified file
 set dotenv-load := true
 # set dotenv-filename := env_var_or_default("LINKML_ENVIRONMENT_FILENAME", "config.public.mk")
-set dotenv-filename := x'${LINKML_ENVIRONMENT_FILENAME:-config.public.mk}'
+# NOTE: x'' shell expansion requires just >= 1.39; hardcoded for compatibility
+set dotenv-filename := "config.public.mk"
 
 # Set shebang line for cross-platform Python recipes (assumes presence of launcher on Windows)
 shebang := if os() == 'windows' {

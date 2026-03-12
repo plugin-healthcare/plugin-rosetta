@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.14"]
+        python-version: ["3.13"]
       fail-fast: false
 
     steps:
@@ -50,9 +50,6 @@ jobs:
 
       - name: Install project
         run: uv sync --group dev
-
-      - name: Install nyctea (requires-python workaround)
-        run: just install-nyctea
 
       - name: Download upstream sources
         run: just download-sources

@@ -6,7 +6,7 @@ This guide walks you through installing plugin-rosetta and translating your firs
 
 ## Prerequisites
 
-- Python >= 3.14
+- Python >= 3.13
 - `pip` or [`uv`](https://docs.astral.sh/uv/)
 
 ---
@@ -19,18 +19,6 @@ Install plugin-rosetta from PyPI:
 pip install plugin-rosetta
 ```
 
-### nyctea (required additional step)
-
-[nyctea](https://github.com/yannick-vinkesteijn/nyctea) — the columnar validation library used for Parquet I/O — has an upstream packaging issue that prevents standard installation. Install it separately with `--no-deps`:
-
-```bash
-pip install --no-deps "nyctea @ git+https://github.com/yannick-vinkesteijn/nyctea.git@6b113f17c2d9fd578e56ca8c89555ac9a71f7130"
-```
-
-!!! note
-    This extra step is needed because nyctea's `pyproject.toml` incorrectly
-    declares `requires-python = ">=3.14"` (it should be `>=3.10`).
-    The `--no-deps` flag bypasses that check without affecting functionality.
 
 ---
 
@@ -204,11 +192,10 @@ Available table names: `person`, `visit_occurrence`, `condition_occurrence`,
 If you are contributing to plugin-rosetta or need to regenerate the schemas:
 
 ```bash
-# Prerequisites: Python >= 3.14, uv, just
+# Prerequisites: Python >= 3.13, uv, just
 uv tool install rust-just
 
 uv sync --group dev
-just install-nyctea
 
 # Download OHDSI CSVs + HL7 FML mapping files
 just download-sources

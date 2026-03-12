@@ -155,12 +155,11 @@ Slots in `fhir_resources.yaml` carry `exact_mappings` to their OMOP counterparts
 ## Development setup
 
 ```bash
-# Prerequisites: Python >= 3.14, uv, just
+# Prerequisites: Python >= 3.13, uv, just
 uv tool install rust-just
 
 # Install dependencies
 uv sync --group dev
-just install-nyctea        # required — see note above
 
 # Download upstream OMOP CSVs and HL7 FML files
 just download-sources
