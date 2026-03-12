@@ -20,7 +20,7 @@ dependencies = [
   "polars>=1.38",
   "orjson>=3.10",
   "pyyaml>=6.0",
-  "nyctea @ git+https://github.com/yannick-vinkesteijn/nyctea.git@main",
+  "nyctea @ git+https://github.com/yannick-vinkesteijn/nyctea.git@3eb5e9d104d17a6a2351758b2771d1bae392e76a",
 ]
 
 [dependency-groups]
