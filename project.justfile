@@ -4,15 +4,9 @@
 # Pinned upstream source versions
 omop_cdm_tag := "v5.4.2"
 fhir_omop_ig_tag := "1.0.0-ballot"
-nyctea_commit := "6b113f17c2d9fd578e56ca8c89555ac9a71f7130"
 
 omop_base_url := "https://raw.githubusercontent.com/OHDSI/CommonDataModel/" + omop_cdm_tag + "/inst/csv"
 fhir_omop_base_url := "https://raw.githubusercontent.com/HL7/fhir-omop-ig/" + fhir_omop_ig_tag + "/input/maps"
-
-# Install nyctea separately (its pyproject.toml has an erroneous requires-python >= 3.14)
-[group('project management')]
-install-nyctea:
-    uv pip install --no-deps "nyctea @ git+https://github.com/yannick-vinkesteijn/nyctea.git@{{nyctea_commit}}"
 
 # Download upstream source files (OHDSI OMOP CSVs + HL7 FHIR-OMOP FML maps)
 [group('schema generation')]

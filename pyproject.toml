@@ -11,7 +11,7 @@ authors = [
 license = "MIT"
 license-files = ["LICENSE"]
 readme = "README.md"
-requires-python = ">=3.14,<4.0"
+requires-python = ">=3.13,<4.0"
 dynamic = ["version"]
 
 dependencies = [
@@ -20,10 +20,7 @@ dependencies = [
   "polars>=1.38",
   "orjson>=3.10",
   "pyyaml>=6.0",
-  # nyctea is installed separately via 'just install-nyctea' because its
-  # pyproject.toml contains an erroneous requires-python = ">=3.14" (should
-  # be ">=3.10").  See: https://github.com/yannick-vinkesteijn/nyctea
-  # Track the fix: open a PR to correct the requires-python typo.
+  "nyctea @ git+https://github.com/yannick-vinkesteijn/nyctea.git@main",
 ]
 
 [dependency-groups]

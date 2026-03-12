@@ -54,7 +54,7 @@ plugin-rosetta/
 
 ### Prerequisites
 
-- Python >= 3.14
+- Python >= 3.13
 - [`uv`](https://docs.astral.sh/uv/) (package manager)
 - [`just`](https://just.systems/) task runner — install with `uv tool install rust-just`
 
@@ -62,7 +62,6 @@ plugin-rosetta/
 
 ```bash
 uv sync --group dev
-just install-nyctea    # critical — see nyctea note below
 just download-sources  # downloads OHDSI CSVs + HL7 FML files into sources/
 just gen-omop-schema   # generates omop_cdm.yaml / omop_vocabulary.yaml / omop_results.yaml
 just gen-pydantic      # generates src/plugin_rosetta/datamodel/plugin_rosetta_pydantic.py
@@ -74,26 +73,11 @@ just gen-pydantic      # generates src/plugin_rosetta/datamodel/plugin_rosetta_p
 uv run --no-sync python -m pytest
 ```
 
-All `uv run` invocations in this project use `--no-sync` (see nyctea workaround below).
+All `uv run` invocations in this project use `--no-sync` to avoid unnecessary resolution overhead.
 
 ---
 
 ## Critical constraints and known issues
-
-### nyctea workaround (MUST follow)
-
-`nyctea` has an upstream bug: `requires-python = ">=3.14"` in its `pyproject.toml` (should be `>=3.10`). It is therefore **not listed** in `pyproject.toml` dependencies and **must be installed separately**:
-
-```bash
-just install-nyctea
-# equivalent to:
-# uv pip install --no-deps "nyctea @ git+https://github.com/yannick-vinkesteijn/nyctea.git@6b113f17c2d9fd578e56ca8c89555ac9a71f7130"
-```
-
-Consequences:
-- Always use `uv run --no-sync` to avoid `uv` overwriting the manually installed nyctea
-- Do **not** add nyctea to `pyproject.toml` dependencies until the upstream bug is fixed
-- The pinned commit is `6b113f17c2d9fd578e56ca8c89555ac9a71f7130`
 
 ### gen-pydantic output must redirect stderr
 
@@ -239,7 +223,7 @@ FHIR choice-type notation (e.g. `fhir:Condition.onset[x]`) is not a valid CURIE/
 |--------|-----|
 | OHDSI CommonDataModel | tag `v5.4.2` |
 | HL7 fhir-omop-ig | tag `1.0.0-ballot` |
-| nyctea | commit `6b113f17c2d9fd578e56ca8c89555ac9a71f7130` |
+| nyctea | `main` branch |
 
 ---
 
@@ -270,16 +254,15 @@ uv run --no-sync ruff format src/ tests/
 
 ## CI pipeline summary
 
-The CI workflow (`.github/workflows/main.yaml`) runs on Python 3.14 and executes:
+The CI workflow (`.github/workflows/main.yaml`) runs on Python 3.13 and executes:
 
 1. `uv sync --group dev`
-2. `just install-nyctea`
-3. `just download-sources`
-4. `just gen-omop-schema`
-5. `just gen-pydantic`
-6. `uv run --no-sync python -m pytest`
+2. `just download-sources`
+3. `just gen-omop-schema`
+4. `just gen-pydantic`
+5. `uv run --no-sync python -m pytest`
 
-Steps 3-5 are required because the generated files are git-ignored.
+Steps 2-4 are required because the generated files are git-ignored.
 
 ---
 
