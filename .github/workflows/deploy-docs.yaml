@@ -56,9 +56,6 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev --no-progress
 
-      - name: Install nyctea (requires-python workaround)
-        run: just install-nyctea
-
       - name: Generate schema documentation
         run: |
           just download-sources
