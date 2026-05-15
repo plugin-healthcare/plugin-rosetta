@@ -51,13 +51,13 @@ Polars), the record level (Pydantic v2), and the semantic level (LinkML `validat
 ## Contributing
 
 Contributions are welcome. Please open an issue or pull request on
-[GitHub](https://github.com/plugin-healthcare/plugin-rosetta).
+[GitHub](https://github.com/plugin-healthcare/linkml-rosetta).
 
-See [CONTRIBUTING.md](https://github.com/plugin-healthcare/plugin-rosetta/blob/main/CONTRIBUTING.md)
+See [CONTRIBUTING.md](https://github.com/plugin-healthcare/linkml-rosetta/blob/main/CONTRIBUTING.md)
 for guidelines.
 
 ---
 
 ## License
 
-plugin-rosetta is released under the [MIT License](https://github.com/plugin-healthcare/plugin-rosetta/blob/main/LICENSE).
+plugin-rosetta is released under the [MIT License](https://github.com/plugin-healthcare/linkml-rosetta/blob/main/LICENSE).
