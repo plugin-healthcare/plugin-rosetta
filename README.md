@@ -23,6 +23,17 @@ The report command writes Markdown and standalone HTML.
 
 All generated files are standard formats that can be read without Rosetta.
 
+## Fetch ontologies
+
+```shell
+uv run rosetta ontology fetch omop-cdm
+uv run rosetta ontology fetch onz-g
+```
+
+Downloads a configured ontology source's Turtle file into `registry/data/ontologies/<name>/<version>/`,
+skipping the download if it is already cached. Use `--force` to re-download. See `registry/README.md`
+for the source configuration.
+
 ## Explore interactively
 
 ```shell

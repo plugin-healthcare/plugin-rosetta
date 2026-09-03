@@ -12,6 +12,11 @@ from plugin_rosetta.application.mapping import (
     report_mapping_set,
 )
 from plugin_rosetta.application.mapping_sets import list_mapping_sets
+from plugin_rosetta.application.ontology import (
+    DEFAULT_ONTOLOGY_CONFIG,
+    fetch_ontology_source,
+)
+from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR
 
 app = typer.Typer(
     help="Rosetta mapping toolbox.",
@@ -20,6 +25,8 @@ app = typer.Typer(
 )
 mapping_app = typer.Typer(help="Work with authored mapping sets.", rich_markup_mode=None)
 app.add_typer(mapping_app, name="mapping")
+ontology_app = typer.Typer(help="Fetch and cache ontology sources.", rich_markup_mode=None)
+app.add_typer(ontology_app, name="ontology")
 
 
 @app.callback()
@@ -84,3 +91,26 @@ def report_mapping_set_command(
     """Write Markdown and HTML reports."""
     for path in report_mapping_set(key, output_dir=output_dir, config_path=config, root=root):
         typer.echo(path)
+
+
+@ontology_app.command("fetch")
+def fetch_ontology_source_command(
+    name: Annotated[str, typer.Argument(help="Configured ontology source name.")],
+    config: Annotated[
+        Path,
+        typer.Option(help="Path to the ontology source configuration."),
+    ] = DEFAULT_ONTOLOGY_CONFIG,
+    cache_dir: Annotated[
+        Path,
+        typer.Option(help="Base directory used to cache downloaded ontologies."),
+    ] = DEFAULT_CACHE_DIR,
+    force: Annotated[
+        bool,
+        typer.Option(help="Re-download even if the ontology is already cached."),
+    ] = False,
+) -> None:
+    """Download and cache a configured ontology source."""
+    path, report = fetch_ontology_source(name, config_path=config, cache_dir=cache_dir, force=force)
+    typer.echo(path)
+    for issue in report.issues:
+        typer.echo(f"{issue.severity}: {issue.message}")

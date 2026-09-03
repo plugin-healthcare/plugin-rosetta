@@ -133,3 +133,61 @@ SSSOM/TSV, and the rendered Turtle. `tara check` is green with the notebook incl
 - The generated SSSOM model is excluded from Ruff because it is generated code.
 - No authored registry values were changed.
 - No licensed, cached, or generated mapping payloads were added under `registry/data/`.
+
+## E01-S05: ontology source configuration and download (2026-09-03)
+
+Implemented the next planned story: configure and download ontology sources, ported
+from `sssom-rosetta`'s `ontology/sources.py` and `ontology/loader.py` onto this repo's
+conventions (Pydantic instead of dataclasses, `httpx` instead of `requests`,
+`ValidationIssue`/`ValidationReport` instead of logging).
+
+New files:
+
+- `registry/config/ontology-sources.yaml` — the two migrated sources (`omop-cdm` v5.4,
+  `onz-g` v2.8.1), preserving the original explanatory comments about why each
+  download URL is pinned the way it is. Checksums are left unset; backfilling them is
+  a deferred, curator-reviewed follow-up.
+- `src/plugin_rosetta/config/ontology_sources.py` — frozen Pydantic `OntologySource`
+  (name, version, IRI, download URL, checksum) with filesystem-safe-version and
+  absolute-IRI validators, an `OntologySourcesConfig.get(name)` lookup that lists known
+  names on failure (mirrors `config/mapping_sets.py`), and `load_ontology_sources`
+  reusing the shared strict YAML boundary (duplicate keys already rejected there).
+- `src/plugin_rosetta/ontology/download.py` — reusable `download_to_cache(url,
+  destination, expected_checksum=None, label=None, client=None)` using `httpx`, with
+  atomic write-then-replace and SHA-256 verification. A missing checksum yields a
+  warning `ValidationIssue` (not a log line); a mismatch raises before anything is
+  written, so no partial file is ever left in the cache.
+- `src/plugin_rosetta/io/_atomic.py` — added `atomic_write_bytes`, the binary sibling
+  of the existing `atomic_write_text`, reused by `download.py`.
+- `src/plugin_rosetta/ontology/loader.py` — `fetch_ontology`/`load_ontology`, cache
+  path `registry/data/ontologies/<name>/<version>/ontology.ttl`, cache-hit skip,
+  `force` re-download, RDF parse via `rdflib.Graph` with a wrapped parse error.
+- `src/plugin_rosetta/application/ontology.py` — thin `fetch_ontology_source(name,
+  config_path, cache_dir, force)` orchestration returning `(path, ValidationReport)`.
+- `rosetta ontology fetch <name>` Typer command (`--config`, `--cache-dir`, `--force`)
+  and a `just fetch` recipe fetching both configured sources.
+- Tests: `tests/config/test_ontology_sources.py`, `tests/ontology/test_download.py`,
+  `tests/ontology/test_loader.py`, `tests/application/test_ontology.py`, plus a CLI
+  test in `tests/test_cli.py`. All HTTP is stubbed with `httpx.MockTransport` (no real
+  network in the test suite); covers cache-hit, force, checksum match/missing/mismatch,
+  network error, HTTP error status, invalid Turtle, unknown source, duplicate keys, and
+  filesystem-unsafe version strings.
+
+Verification:
+
+- `tara check` fully green (lint, format, types, 56 tests, security).
+- Manually ran `uv run rosetta ontology fetch omop-cdm` against the real network: wrote
+  `registry/data/ontologies/omop-cdm/5.4/ontology.ttl` (264 KB, valid Turtle), printed
+  the expected missing-checksum warning, and a second run hit the cache with no
+  warning and no network call.
+
+Not done yet / deferred:
+
+- Backfilling the pinned checksums for `omop-cdm`/`onz-g` — needs a curator to confirm
+  the downloaded bytes first, per the story.
+- A `rosetta ontology list` command was not added; out of scope for this story (only
+  `.get(name)` lookup was required downstream).
+
+This work is implemented but not staged or committed. The user wants a stacked PR
+later, so this ontology-sources slice should land as its own reviewable layer on top
+of (not squashed into) the foundation + notebook commit.

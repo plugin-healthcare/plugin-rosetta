@@ -35,3 +35,7 @@ Portable artifacts remain in their original open formats and must not require Ro
 `rosetta mapping build` writes deterministic SSSOM/TSV and RDF/Turtle files under `registry/data/`.
 
 `rosetta mapping report` writes Markdown and standalone HTML reports beside those artifacts.
+
+`config/ontology-sources.yaml` pins each ontology source's version, canonical IRI, and download URL, migrated unchanged from `sssom-rosetta`'s `ontology/sources.py`. Checksums are left unset until a curator confirms the downloaded bytes and backfills them as a reviewed change.
+
+`rosetta ontology fetch <name>` downloads (or reuses a cached copy of) a configured source into `registry/data/ontologies/<name>/<version>/ontology.ttl`. Use `--force` to re-download and `just fetch` to fetch both configured sources.

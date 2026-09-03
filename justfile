@@ -24,5 +24,10 @@ build mapping_set="omop-onz-g":
 report mapping_set="omop-onz-g":
     uv run rosetta mapping report {{mapping_set}} --output-dir registry/data/mappings/{{mapping_set}}
 
+# Fetch and cache both configured ontology sources (omop-cdm, onz-g).
+fetch:
+    uv run rosetta ontology fetch omop-cdm
+    uv run rosetta ontology fetch onz-g
+
 notebook:
     uv run marimo edit notebooks/quickstart_nb.py
