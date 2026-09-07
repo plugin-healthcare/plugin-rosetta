@@ -34,6 +34,27 @@ Downloads a configured ontology source's Turtle file into `registry/data/ontolog
 skipping the download if it is already cached. Use `--force` to re-download. See `registry/README.md`
 for the source configuration.
 
+## Validate against ontologies
+
+Schema conformance only proves a row is well formed. `--check-references` additionally resolves every
+`subject_id` and `object_id` against the ontology bound to it in `registry/config/mapping-sets.yaml`,
+which catches a term that was valid when authored but has since been removed or renamed upstream.
+
+```shell
+just fetch
+uv run rosetta mapping validate omop-onz-g --check-references
+uv run rosetta mapping build omop-onz-g --output-dir registry/data/mappings/omop-onz-g --check-references
+```
+
+Validation reads the cached ontologies only; it never downloads, and it names the fetch command to run
+if the cache is empty rather than skipping the check. `validate` prints every issue and exits non-zero,
+and `build` writes no artifact at all when any reference is unresolved.
+
+Labels resolved from an ontology are deterministic. Candidate labels are ordered by predicate
+(`rdfs:label` before `skos:prefLabel`), then by language (`en`, then `nl`, then untagged literals, then
+any remaining tag alphabetically), then by the label text itself. A term with no label resolves to an
+explicit absence, never an empty string.
+
 ## Explore interactively
 
 ```shell

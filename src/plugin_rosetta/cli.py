@@ -1,7 +1,7 @@
 """Command-line interface for plugin-rosetta."""
 
 from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 
@@ -16,7 +16,11 @@ from plugin_rosetta.application.ontology import (
     DEFAULT_ONTOLOGY_CONFIG,
     fetch_ontology_source,
 )
+from plugin_rosetta.core.errors import RosettaError
 from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 app = typer.Typer(
     help="Rosetta mapping toolbox.",
@@ -27,6 +31,15 @@ mapping_app = typer.Typer(help="Work with authored mapping sets.", rich_markup_m
 app.add_typer(mapping_app, name="mapping")
 ontology_app = typer.Typer(help="Fetch and cache ontology sources.", rich_markup_mode=None)
 app.add_typer(ontology_app, name="ontology")
+
+
+def _guard[T](operation: Callable[[], T]) -> T:
+    """Report an expected Rosetta failure as a CLI error instead of a traceback."""
+    try:
+        return operation()
+    except RosettaError as error:
+        typer.echo(f"error: {error}", err=True)
+        raise typer.Exit(code=1) from error
 
 
 @app.callback()
@@ -46,7 +59,7 @@ def list_mapping_sets_command(
     ] = Path(),
 ) -> None:
     """List configured mapping sets."""
-    for key, mapping_file in list_mapping_sets(config, root=root):
+    for key, mapping_file in _guard(lambda: list(list_mapping_sets(config, root=root))):
         typer.echo(f"{key}\t{mapping_file}")
 
 
@@ -61,12 +74,35 @@ def validate_mapping_set_command(
         Path,
         typer.Option(help="Root used to resolve configured paths."),
     ] = Path(),
+    check_references: Annotated[
+        bool,
+        typer.Option(help="Also resolve every subject and object against its bound ontology."),
+    ] = False,
+    ontology_config: Annotated[
+        Path,
+        typer.Option(help="Path to the ontology source configuration."),
+    ] = DEFAULT_ONTOLOGY_CONFIG,
+    cache_dir: Annotated[
+        Path,
+        typer.Option(help="Base directory holding cached ontologies."),
+    ] = DEFAULT_CACHE_DIR,
 ) -> None:
-    """Check graph-free mapping schema conformance."""
-    result = read_mapping_set(key, config_path=config, root=root)
+    """Check mapping schema conformance and, optionally, referential integrity."""
+    result = _guard(
+        lambda: read_mapping_set(
+            key,
+            config_path=config,
+            root=root,
+            check_references=check_references,
+            ontology_config_path=ontology_config,
+            cache_dir=cache_dir,
+        )
+    )
     typer.echo(f"{len(result.mapping_set.mappings or [])} conforming rows")
-    if result.report.issues:
-        typer.echo(f"{len(result.report.issues)} input warnings")
+    for issue in result.report.issues:
+        typer.echo(f"{issue.severity}: {issue.location}: {issue.message}")
+    if not result.report.is_valid:
+        raise typer.Exit(code=1)
 
 
 @mapping_app.command("build")
@@ -75,9 +111,32 @@ def build_mapping_set_command(
     output_dir: Annotated[Path, typer.Option(help="Directory for generated artifacts.")],
     config: Annotated[Path, typer.Option(help="Path to the mapping-set configuration.")] = DEFAULT_MAPPING_CONFIG,
     root: Annotated[Path, typer.Option(help="Root used to resolve configured paths.")] = Path(),
+    check_references: Annotated[
+        bool,
+        typer.Option(help="Refuse to write unless every subject and object resolves."),
+    ] = False,
+    ontology_config: Annotated[
+        Path,
+        typer.Option(help="Path to the ontology source configuration."),
+    ] = DEFAULT_ONTOLOGY_CONFIG,
+    cache_dir: Annotated[
+        Path,
+        typer.Option(help="Base directory holding cached ontologies."),
+    ] = DEFAULT_CACHE_DIR,
 ) -> None:
     """Build SSSOM and Turtle artifacts."""
-    for path in build_mapping_artifacts(key, output_dir=output_dir, config_path=config, root=root):
+    artifacts = _guard(
+        lambda: build_mapping_artifacts(
+            key,
+            output_dir=output_dir,
+            config_path=config,
+            root=root,
+            check_references=check_references,
+            ontology_config_path=ontology_config,
+            cache_dir=cache_dir,
+        )
+    )
+    for path in artifacts:
         typer.echo(path)
 
 
@@ -89,7 +148,8 @@ def report_mapping_set_command(
     root: Annotated[Path, typer.Option(help="Root used to resolve configured paths.")] = Path(),
 ) -> None:
     """Write Markdown and HTML reports."""
-    for path in report_mapping_set(key, output_dir=output_dir, config_path=config, root=root):
+    reports = _guard(lambda: report_mapping_set(key, output_dir=output_dir, config_path=config, root=root))
+    for path in reports:
         typer.echo(path)
 
 
@@ -110,7 +170,7 @@ def fetch_ontology_source_command(
     ] = False,
 ) -> None:
     """Download and cache a configured ontology source."""
-    path, report = fetch_ontology_source(name, config_path=config, cache_dir=cache_dir, force=force)
+    path, report = _guard(lambda: fetch_ontology_source(name, config_path=config, cache_dir=cache_dir, force=force))
     typer.echo(path)
     for issue in report.issues:
         typer.echo(f"{issue.severity}: {issue.message}")

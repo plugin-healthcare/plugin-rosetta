@@ -1,6 +1,7 @@
 """Mapping-set configuration."""
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -8,6 +9,18 @@ from pydantic import ValidationError as PydanticValidationError
 
 from plugin_rosetta.core.errors import ConfigurationError
 from plugin_rosetta.io.yaml import load_yaml_mapping
+
+if TYPE_CHECKING:
+    from plugin_rosetta.config.ontology_sources import OntologySourcesConfig
+
+
+class MappingSetOntologies(BaseModel):
+    """Ontology sources that must resolve a mapping set's subjects and objects."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    subject: str
+    object: str
 
 
 class MappingSetConfig(BaseModel):
@@ -20,6 +33,7 @@ class MappingSetConfig(BaseModel):
     mapping_file: Path
     metadata_file: Path
     curie_map: dict[str, str] = Field(min_length=1)
+    ontologies: MappingSetOntologies | None = None
 
     @field_validator("mapping_set_id", "license")
     @classmethod
@@ -63,8 +77,18 @@ class MappingSetsConfig(BaseModel):
             raise ConfigurationError(f"Unknown mapping set {key!r}. Known mapping sets: {known}") from error
 
 
-def load_mapping_sets(path: Path, *, root: Path | None = None) -> MappingSetsConfig:
-    """Load mapping-set configuration and verify referenced files."""
+def load_mapping_sets(
+    path: Path,
+    *,
+    root: Path | None = None,
+    ontology_sources: OntologySourcesConfig | None = None,
+) -> MappingSetsConfig:
+    """Load mapping-set configuration and verify referenced files.
+
+    When `ontology_sources` is supplied, every ontology binding is resolved
+    here so an unconfigured source fails at load time rather than halfway
+    through validation.
+    """
     resolved_root = (root or Path.cwd()).resolve()
     config_path = path if path.is_absolute() else resolved_root / path
     raw_config = load_yaml_mapping(config_path)
@@ -80,4 +104,14 @@ def load_mapping_sets(path: Path, *, root: Path | None = None) -> MappingSetsCon
         ):
             if not referenced_path.is_file():
                 raise ConfigurationError(f"Mapping set {key!r} references missing file: {referenced_path}")
+        if ontology_sources is not None and mapping_set.ontologies is not None:
+            _resolve_bindings(key, mapping_set.ontologies, ontology_sources)
     return config
+
+
+def _resolve_bindings(key: str, bindings: MappingSetOntologies, ontology_sources: OntologySourcesConfig) -> None:
+    for name in (bindings.subject, bindings.object):
+        try:
+            ontology_sources.get(name)
+        except ConfigurationError as error:
+            raise ConfigurationError(f"Mapping set {key!r} binds an unconfigured ontology source: {error}") from error

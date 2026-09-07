@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError as PydanticValidationError
 
 from plugin_rosetta.config.mapping_sets import load_mapping_sets
+from plugin_rosetta.config.ontology_sources import load_ontology_sources
 from plugin_rosetta.core.errors import ConfigurationError
 
 ROOT = Path(__file__).parents[2]
@@ -107,3 +108,33 @@ def _write_config(tmp_path: Path, extra: str = "") -> Path:
         f"{extra}"
     )
     return config_path
+
+
+def test_preserved_mapping_set_binds_subject_and_object_ontologies() -> None:
+    mapping_set = load_mapping_sets(CONFIG_PATH, root=ROOT).get("omop-onz-g")
+
+    assert mapping_set.ontologies is not None
+    assert mapping_set.ontologies.subject == "omop-cdm"
+    assert mapping_set.ontologies.object == "onz-g"
+
+
+def test_mapping_set_without_a_binding_still_loads(tmp_path: Path) -> None:
+    config_path = _write_config(tmp_path)
+
+    assert load_mapping_sets(config_path, root=tmp_path).get("sample").ontologies is None
+
+
+def test_binding_to_a_configured_ontology_source_is_accepted() -> None:
+    ontology_sources = load_ontology_sources(ROOT / "registry/config/ontology-sources.yaml")
+
+    config = load_mapping_sets(CONFIG_PATH, root=ROOT, ontology_sources=ontology_sources)
+
+    assert config.get("omop-onz-g").ontologies is not None
+
+
+def test_binding_to_an_unconfigured_ontology_source_fails_at_load_time(tmp_path: Path) -> None:
+    config_path = _write_config(tmp_path, "    ontologies:\n      subject: missing\n      object: missing\n")
+    ontology_sources = load_ontology_sources(ROOT / "registry/config/ontology-sources.yaml")
+
+    with pytest.raises(ConfigurationError, match=r"sample.*missing.*Known ontology sources"):
+        load_mapping_sets(config_path, root=tmp_path, ontology_sources=ontology_sources)

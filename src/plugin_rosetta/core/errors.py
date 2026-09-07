@@ -13,5 +13,13 @@ class ValidationError(RosettaError):
     """Raised when input does not satisfy a required contract."""
 
 
+class UnresolvableCurieError(ValidationError):
+    """Raised when a CURIE expands to an IRI that its ontology graph does not describe."""
+
+    def __init__(self, curie: str, iri: str) -> None:
+        """Name both the authored CURIE and the IRI it expanded to."""
+        super().__init__(f"CURIE {curie!r} (expands to {iri!r}) was not found in the ontology graph")
+
+
 class RosettaIOError(RosettaError):
     """Raised when an input or output operation fails."""

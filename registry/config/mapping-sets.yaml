@@ -10,3 +10,8 @@ mapping_sets:
       skos: http://www.w3.org/2004/02/skos/core#
       semapv: https://w3id.org/semapv/vocab/
       orcid: https://orcid.org/
+    # Which configured ontology source (see ontology-sources.yaml) must resolve
+    # every subject_id and every object_id when references are checked.
+    ontologies:
+      subject: omop-cdm
+      object: onz-g

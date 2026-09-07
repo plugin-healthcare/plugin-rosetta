@@ -80,3 +80,62 @@ def test_ontology_fetch_writes_path_and_warnings(tmp_path: Path, monkeypatch: py
     assert result.exit_code == 0
     assert str(cached_path) in result.stdout
     assert "No checksum pinned" in result.stdout
+
+
+def test_mapping_validate_with_check_references_succeeds(ontology_cache: Path) -> None:
+    result = CliRunner().invoke(
+        app,
+        ["mapping", "validate", "omop-onz-g", "--check-references", "--cache-dir", str(ontology_cache)],
+    )
+
+    assert result.exit_code == 0
+    assert "8 conforming rows" in result.stdout
+
+
+def test_mapping_validate_exits_non_zero_and_prints_every_referential_issue(
+    drifted_ontology_cache: Path,
+) -> None:
+    result = CliRunner().invoke(
+        app,
+        ["mapping", "validate", "omop-onz-g", "--check-references", "--cache-dir", str(drifted_ontology_cache)],
+    )
+
+    assert result.exit_code == 1
+    assert "row 9, column subject_id" in result.stdout
+    assert "omop:Vocabulary" in result.stdout
+
+
+def test_mapping_build_refuses_to_write_when_a_reference_is_unresolved(
+    tmp_path: Path,
+    drifted_ontology_cache: Path,
+) -> None:
+    output_dir = tmp_path / "build"
+    output_dir.mkdir()
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "mapping",
+            "build",
+            "omop-onz-g",
+            "--output-dir",
+            str(output_dir),
+            "--check-references",
+            "--cache-dir",
+            str(drifted_ontology_cache),
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert list(output_dir.iterdir()) == []
+
+
+def test_mapping_validate_reports_an_empty_cache_without_a_traceback(tmp_path: Path) -> None:
+    result = CliRunner().invoke(
+        app,
+        ["mapping", "validate", "omop-onz-g", "--check-references", "--cache-dir", str(tmp_path)],
+    )
+
+    assert result.exit_code == 1
+    assert isinstance(result.exception, SystemExit)
+    assert "rosetta ontology fetch omop-cdm" in result.output

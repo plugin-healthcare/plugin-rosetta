@@ -21,6 +21,10 @@ check:
 build mapping_set="omop-onz-g":
     uv run rosetta mapping build {{mapping_set}} --output-dir registry/data/mappings/{{mapping_set}}
 
+# Validate a mapping set against its bound ontologies; requires `just fetch` first.
+validate mapping_set="omop-onz-g":
+    uv run rosetta mapping validate {{mapping_set}} --check-references
+
 report mapping_set="omop-onz-g":
     uv run rosetta mapping report {{mapping_set}} --output-dir registry/data/mappings/{{mapping_set}}
 
