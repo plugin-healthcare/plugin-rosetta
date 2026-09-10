@@ -39,7 +39,7 @@ This story closes the epic by comparing outputs, naming every difference, and sh
 ## Acceptance Criteria
 
 - [ ] GIVEN the retained `sssom-rosetta` workflows, WHEN the parity comparison runs, THEN every retained workflow is listed with its `plugin-rosetta` replacement command and its replacement test name.
-- [ ] GIVEN the preserved `omop-onz-g` mapping set, WHEN both projects build SSSOM/TSV and Turtle from it, THEN the outputs are semantically equivalent: the same 8 mappings, the same metadata fields, and the same triples.
+- [ ] GIVEN the preserved `omop-onz-g` mapping set and a pinned `sssom-rosetta` revision, WHEN the automated parity test builds SSSOM/TSV and Turtle with both projects, THEN the outputs are semantically equivalent: the same 8 mappings, the same metadata fields, and the same triples.
 - [ ] GIVEN any difference found in the comparison, WHEN the release is assessed, THEN each difference is either removed or recorded as an approved, dated, justified entry in the capability matrix.
 - [ ] GIVEN a vocabulary graph built from the same ingested release by both projects, WHEN the outputs are compared, THEN the triple sets are equivalent or every difference is an approved documented entry.
 - [ ] GIVEN the CLI, WHEN the command surface is reviewed, THEN every command delegates to an application function and no command body contains parsing, validation, graph, or serialisation logic.
@@ -54,7 +54,7 @@ This story closes the epic by comparing outputs, naming every difference, and sh
 
 - [ ] Build the retained-workflow inventory from `sssom-rosetta/justfile` recipes and `src/sssom_rosetta/cli.py` commands, excluding the deferred `protege` and `gephi` workflows.
 - [ ] For each retained workflow, name the replacement command and the replacement test, and add the test if it does not exist yet.
-- [ ] Run both projects over the preserved mapping set and compare SSSOM/TSV metadata and rows and Turtle triple sets, treating ordering and formatting differences as equivalent and value differences as findings.
+- [ ] Add an executable parity test that runs both projects at pinned revisions over the preserved mapping set and compares parsed SSSOM/TSV metadata and rows plus Turtle triple sets, treating ordering and formatting differences as equivalent and value differences as failures.
 - [ ] Run both projects over one ingested vocabulary release per migrated source and compare triple sets by the same rule.
 - [ ] Record each finding as removed or approved in `docs/capability-matrix.md`, with the reason and the approver.
 - [ ] Review every CLI command for thinness and move any leftover logic into `src/plugin_rosetta/application/`.
@@ -77,6 +77,7 @@ This story closes the epic by comparing outputs, naming every difference, and sh
 
 - Turtle serialisation order and prefix choice differ between libraries, so equivalence must be compared on triple sets rather than file bytes.
 - The SSSOM/TSV YAML header field order can differ, so comparison must be on parsed metadata rather than raw text.
+- The test must record the `sssom-rosetta` revision it executes so a moving legacy branch cannot silently change the expected output.
 - The legacy `mapping_set_id` and `author_label` decisions from E01-S02 will show up as intentional differences and must appear in the matrix rather than as failures.
 - A vocabulary comparison needs a licensed release, so it runs on the curator machine and only counts and findings are recorded in the repository.
 - A clean-environment install can accidentally pick up the working checkout through the current directory, so the check must run from an unrelated directory.
