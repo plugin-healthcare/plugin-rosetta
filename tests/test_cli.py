@@ -1,3 +1,5 @@
+import io
+import zipfile
 from typing import TYPE_CHECKING
 
 import pytest
@@ -80,6 +82,84 @@ def test_ontology_fetch_writes_path_and_warnings(tmp_path: Path, monkeypatch: py
     assert result.exit_code == 0
     assert str(cached_path) in result.stdout
     assert "No checksum pinned" in result.stdout
+
+
+def test_vocabulary_ingest_writes_path_and_warnings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    cached_path = tmp_path / "vocabularies/sample/1.0"
+    warning = ValidationIssue(
+        code="vocabulary.missing-checksum",
+        severity=IssueSeverity.WARNING,
+        location="sample",
+        message="No checksum pinned for vocabulary source 'sample'; computed SHA-256 deadbeef.",
+    )
+
+    def fake_ingest_release(
+        name: str,
+        zip_path: Path,
+        *,
+        config_path: Path,
+        cache_dir: Path,
+        force: bool,
+    ) -> tuple[Path, ValidationReport]:
+        assert name == "sample"
+        assert zip_path.name == "release.zip"
+        assert force is False
+        assert config_path.name == "vocabulary-sources.yaml"
+        assert cache_dir.name == "vocabularies"
+        return cached_path, ValidationReport(issues=(warning,))
+
+    monkeypatch.setattr(cli, "ingest_release", fake_ingest_release)
+
+    result = CliRunner().invoke(app, ["vocabulary", "ingest", "sample", "release.zip"])
+
+    assert result.exit_code == 0
+    assert str(cached_path) in result.stdout
+    assert "No checksum pinned" in result.stdout
+
+
+def test_vocabulary_ingest_command_extracts_synthetic_release(tmp_path: Path) -> None:
+    zip_path = tmp_path / "release.zip"
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr(
+            "CONCEPT.csv",
+            (
+                "concept_id\tconcept_name\tdomain_id\tvocabulary_id\tconcept_class_id\tstandard_concept\t"
+                "concept_code\tvalid_start_date\tvalid_end_date\tinvalid_reason\n"
+                "SYNTHETIC-1\tSynthetic concept\tCondition\tSYNTHETIC\tClass\tS\tCODE-1\t"
+                '20260101\t20991231\t""\n'
+            ),
+        )
+    zip_path.write_bytes(buffer.getvalue())
+    cache_dir = tmp_path / "vocabularies"
+
+    result = CliRunner().invoke(
+        app,
+        ["vocabulary", "ingest", "omop", str(zip_path), "--cache-dir", str(cache_dir)],
+    )
+
+    assert result.exit_code == 0
+    assert str(cache_dir / "omop/unversioned") in result.stdout
+    assert "computed SHA-256" in result.stdout
+    assert (cache_dir / "omop/unversioned/CONCEPT.csv").is_file()
+
+
+def test_vocabulary_ingest_rejects_invalid_table_before_cache_promotion(tmp_path: Path) -> None:
+    zip_path = tmp_path / "release.zip"
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr("CONCEPT.csv", "concept_id\nSYNTHETIC-1\n")
+    zip_path.write_bytes(buffer.getvalue())
+    cache_dir = tmp_path / "vocabularies"
+
+    result = CliRunner().invoke(
+        app,
+        ["vocabulary", "ingest", "omop", str(zip_path), "--cache-dir", str(cache_dir)],
+    )
+
+    assert result.exit_code == 1
+    assert "Missing expected columns" in result.output
+    assert not (cache_dir / "omop/unversioned").exists()
 
 
 def test_mapping_validate_with_check_references_succeeds(ontology_cache: Path) -> None:

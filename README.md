@@ -55,6 +55,22 @@ Labels resolved from an ontology are deterministic. Candidate labels are ordered
 any remaining tag alphabetically), then by the label text itself. A term with no label resolves to an
 explicit absence, never an empty string.
 
+## Ingest vocabulary releases
+
+Vocabulary releases are licence gated and must be downloaded manually from the page recorded in
+`registry/config/vocabulary-sources.yaml`. Ingest verifies a pinned checksum when present and extracts
+the release into a versioned, ignored cache:
+
+```shell
+uv run rosetta vocabulary ingest omop ~/Downloads/athena-release.zip
+# or
+just ingest omop ~/Downloads/athena-release.zip
+```
+
+If the source has no pinned checksum, the command prints the computed SHA-256 for curator review.
+Use `--force` only when the cached release must be replaced. See `registry/README.md` for the source
+catalogue, cache layout, and table contracts.
+
 ## Explore interactively
 
 ```shell

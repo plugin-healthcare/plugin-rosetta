@@ -23,3 +23,15 @@ class UnresolvableCurieError(ValidationError):
 
 class RosettaIOError(RosettaError):
     """Raised when an input or output operation fails."""
+
+
+class VocabularyError(RosettaError):
+    """Base exception for vocabulary release operations."""
+
+
+class VocabularyIngestError(VocabularyError):
+    """Raised when a vocabulary release cannot be safely ingested."""
+
+
+class VocabularyChecksumError(VocabularyError):
+    """Raised when a vocabulary release does not match its pinned checksum."""

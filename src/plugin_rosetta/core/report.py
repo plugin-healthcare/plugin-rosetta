@@ -11,6 +11,7 @@ class IssueSeverity(StrEnum):
 
     ERROR = "error"
     WARNING = "warning"
+    INFO = "info"
 
 
 class ValidationIssue(BaseModel):

@@ -16,8 +16,13 @@ from plugin_rosetta.application.ontology import (
     DEFAULT_ONTOLOGY_CONFIG,
     fetch_ontology_source,
 )
+from plugin_rosetta.application.vocabulary import (
+    DEFAULT_VOCABULARY_CONFIG,
+    ingest_release,
+)
 from plugin_rosetta.core.errors import RosettaError
-from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR
+from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR as DEFAULT_ONTOLOGY_CACHE_DIR
+from plugin_rosetta.vocabulary.ingest import DEFAULT_CACHE_DIR as DEFAULT_VOCABULARY_CACHE_DIR
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -31,6 +36,8 @@ mapping_app = typer.Typer(help="Work with authored mapping sets.", rich_markup_m
 app.add_typer(mapping_app, name="mapping")
 ontology_app = typer.Typer(help="Fetch and cache ontology sources.", rich_markup_mode=None)
 app.add_typer(ontology_app, name="ontology")
+vocabulary_app = typer.Typer(help="Ingest and validate vocabulary releases.", rich_markup_mode=None)
+app.add_typer(vocabulary_app, name="vocabulary")
 
 
 def _guard[T](operation: Callable[[], T]) -> T:
@@ -85,7 +92,7 @@ def validate_mapping_set_command(
     cache_dir: Annotated[
         Path,
         typer.Option(help="Base directory holding cached ontologies."),
-    ] = DEFAULT_CACHE_DIR,
+    ] = DEFAULT_ONTOLOGY_CACHE_DIR,
 ) -> None:
     """Check mapping schema conformance and, optionally, referential integrity."""
     result = _guard(
@@ -122,7 +129,7 @@ def build_mapping_set_command(
     cache_dir: Annotated[
         Path,
         typer.Option(help="Base directory holding cached ontologies."),
-    ] = DEFAULT_CACHE_DIR,
+    ] = DEFAULT_ONTOLOGY_CACHE_DIR,
 ) -> None:
     """Build SSSOM and Turtle artifacts."""
     artifacts = _guard(
@@ -163,7 +170,7 @@ def fetch_ontology_source_command(
     cache_dir: Annotated[
         Path,
         typer.Option(help="Base directory used to cache downloaded ontologies."),
-    ] = DEFAULT_CACHE_DIR,
+    ] = DEFAULT_ONTOLOGY_CACHE_DIR,
     force: Annotated[
         bool,
         typer.Option(help="Re-download even if the ontology is already cached."),
@@ -171,6 +178,30 @@ def fetch_ontology_source_command(
 ) -> None:
     """Download and cache a configured ontology source."""
     path, report = _guard(lambda: fetch_ontology_source(name, config_path=config, cache_dir=cache_dir, force=force))
+    typer.echo(path)
+    for issue in report.issues:
+        typer.echo(f"{issue.severity}: {issue.message}")
+
+
+@vocabulary_app.command("ingest")
+def ingest_vocabulary_release_command(
+    name: Annotated[str, typer.Argument(help="Configured vocabulary source name.")],
+    zip_path: Annotated[Path, typer.Argument(help="Path to the manually downloaded release ZIP.")],
+    config: Annotated[
+        Path,
+        typer.Option(help="Path to the vocabulary source configuration."),
+    ] = DEFAULT_VOCABULARY_CONFIG,
+    cache_dir: Annotated[
+        Path,
+        typer.Option(help="Base directory used to cache vocabulary releases."),
+    ] = DEFAULT_VOCABULARY_CACHE_DIR,
+    force: Annotated[
+        bool,
+        typer.Option(help="Re-extract even if the release is already cached."),
+    ] = False,
+) -> None:
+    """Verify and cache a licence-gated vocabulary release."""
+    path, report = _guard(lambda: ingest_release(name, zip_path, config_path=config, cache_dir=cache_dir, force=force))
     typer.echo(path)
     for issue in report.issues:
         typer.echo(f"{issue.severity}: {issue.message}")

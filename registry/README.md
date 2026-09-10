@@ -39,3 +39,26 @@ Portable artifacts remain in their original open formats and must not require Ro
 `config/ontology-sources.yaml` pins each ontology source's version, canonical IRI, and download URL, migrated unchanged from `sssom-rosetta`'s `ontology/sources.py`. Checksums are left unset until a curator confirms the downloaded bytes and backfills them as a reviewed change.
 
 `rosetta ontology fetch <name>` downloads (or reuses a cached copy of) a configured source into `registry/data/ontologies/<name>/<version>/ontology.ttl`. Use `--force` to re-download and `just fetch` to fetch both configured sources.
+
+## Vocabulary releases
+
+`config/vocabulary-sources.yaml` records the four migrated licence-gated sources, their pinned release
+and format versions, and the page from which a curator obtains each ZIP. Rosetta never downloads these
+releases.
+
+Ingest a manually downloaded release with:
+
+```shell
+uv run rosetta vocabulary ingest <name> <release.zip>
+```
+
+The command verifies the configured SHA-256 when present, rejects unsafe archive paths, locates every
+required table declared for the source, and applies its tracked table contract before promoting the
+extracted directory into the cache. Releases are cached under `data/vocabularies/<name>/<version>/`;
+repeated ingest revalidates and reuses that directory unless `--force` is set. When no checksum is
+pinned, the command prints the computed digest so it can be reviewed and added to the source catalogue.
+
+Contracts under `schemas/vocabularies/` declare the required columns, data types, and nullability for
+the Athena, DHD, and RF2 tables used by later graph builders. Extra columns are retained and reported
+as informational findings, while missing columns, incompatible types, and nulls in required columns
+are errors.

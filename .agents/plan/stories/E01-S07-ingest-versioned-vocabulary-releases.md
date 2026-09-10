@@ -38,34 +38,34 @@ Ingest is the controlled entry point that pins what was loaded, verifies it, and
 
 ## Acceptance Criteria
 
-- [ ] GIVEN `registry/config/vocabulary-sources.yaml`, WHEN it is loaded, THEN it yields the four migrated sources `omop`, `dhd-thesauri` with format version `uitleverformaat4.3`, `loinc-snomed`, and `snomed-international`, each with its download page.
-- [ ] GIVEN an unknown vocabulary source name, WHEN it is looked up, THEN the error lists the known names.
-- [ ] GIVEN a synthetic release ZIP and a source with a matching pinned checksum, WHEN it is ingested, THEN the archive is extracted under `registry/data/vocabularies/<name>/<version>/` and that directory is returned.
-- [ ] GIVEN a source with a pinned checksum and a ZIP whose checksum differs, WHEN it is ingested, THEN a checksum error names the source, the expected value, and the actual value, and nothing is extracted.
-- [ ] GIVEN a source without a pinned checksum, WHEN it is ingested, THEN a warning validation issue reports the computed checksum so a curator can pin it, and the issue is visible in command output.
-- [ ] GIVEN an already-extracted release, WHEN it is ingested again, THEN extraction is skipped and the cached directory is returned.
-- [ ] GIVEN an already-extracted release, WHEN it is ingested with the force option, THEN it is re-extracted.
-- [ ] GIVEN a missing file path or a file that is not a valid ZIP, WHEN it is ingested, THEN an ingest error names the path and the cache is left untouched.
-- [ ] GIVEN an extracted release, WHEN a file is located by prefix and suffix and exactly one matches, THEN that path is returned.
-- [ ] GIVEN an extracted release in which zero or more than one file matches, WHEN a file is located, THEN the error lists what was searched for and, for the ambiguous case, every match found.
-- [ ] GIVEN a release table whose header is missing an expected column, WHEN the release frame is validated, THEN a schema issue names the file and every missing column before any downstream transform runs.
-- [ ] GIVEN a release table with an unexpected extra column, WHEN the release frame is validated, THEN the extra column is reported as an informational issue and does not fail ingest.
-- [ ] GIVEN a source declaring a format version, WHEN an ingested release does not carry that format-version marker, THEN ingest fails with an error naming the expected and the found marker.
-- [ ] GIVEN a synthetic release ZIP, WHEN `rosetta vocabulary ingest omop <zip>` runs, THEN it exits 0, prints the cache directory and any warning issue, and the command body contains no extraction logic.
+- [x] GIVEN `registry/config/vocabulary-sources.yaml`, WHEN it is loaded, THEN it yields the four migrated sources `omop`, `dhd-thesauri` with format version `uitleverformaat4.3`, `loinc-snomed`, and `snomed-international`, each with its download page.
+- [x] GIVEN an unknown vocabulary source name, WHEN it is looked up, THEN the error lists the known names.
+- [x] GIVEN a synthetic release ZIP and a source with a matching pinned checksum, WHEN it is ingested, THEN the archive is extracted under `registry/data/vocabularies/<name>/<version>/` and that directory is returned.
+- [x] GIVEN a source with a pinned checksum and a ZIP whose checksum differs, WHEN it is ingested, THEN a checksum error names the source, the expected value, and the actual value, and nothing is extracted.
+- [x] GIVEN a source without a pinned checksum, WHEN it is ingested, THEN a warning validation issue reports the computed checksum so a curator can pin it, and the issue is visible in command output.
+- [x] GIVEN an already-extracted release, WHEN it is ingested again, THEN extraction is skipped and the cached directory is returned.
+- [x] GIVEN an already-extracted release, WHEN it is ingested with the force option, THEN it is re-extracted.
+- [x] GIVEN a missing file path or a file that is not a valid ZIP, WHEN it is ingested, THEN an ingest error names the path and the cache is left untouched.
+- [x] GIVEN an extracted release, WHEN a file is located by prefix and suffix and exactly one matches, THEN that path is returned.
+- [x] GIVEN an extracted release in which zero or more than one file matches, WHEN a file is located, THEN the error lists what was searched for and, for the ambiguous case, every match found.
+- [x] GIVEN a release table whose header is missing an expected column, WHEN the release frame is validated, THEN a schema issue names the file and every missing column before any downstream transform runs.
+- [x] GIVEN a release table with an unexpected extra column, WHEN the release frame is validated, THEN the extra column is reported as an informational issue and does not fail ingest.
+- [x] GIVEN a source declaring a format version, WHEN an ingested release does not carry that format-version marker, THEN ingest fails with an error naming the expected and the found marker.
+- [x] GIVEN a synthetic release ZIP, WHEN `rosetta vocabulary ingest omop <zip>` runs, THEN it exits 0, prints the cache directory and any warning issue, and the command body contains no extraction logic.
 
 ## Technical Tasks
 
-- [ ] Create `registry/config/vocabulary-sources.yaml` from the legacy registry, preserving the version, kind, description, download page, and format-version fields.
-- [ ] Add `src/plugin_rosetta/config/vocabulary_sources.py` with a frozen Pydantic `VocabularySource` model and lookup that reuses the YAML boundary.
-- [ ] Add `src/plugin_rosetta/vocabulary/ingest.py` with `cache_dir_for`, `ingest_zip`, and `find_file`, defaulting the cache root to `registry/data/vocabularies`.
-- [ ] Extract to a temporary directory next to the target and rename on success, so a failed extraction never leaves a half-populated cache directory.
-- [ ] Reject archive members with absolute paths or parent-directory traversal before extracting.
+- [x] Create `registry/config/vocabulary-sources.yaml` from the legacy registry, preserving the version, kind, description, download page, and format-version fields.
+- [x] Add `src/plugin_rosetta/config/vocabulary_sources.py` with a frozen Pydantic `VocabularySource` model and lookup that reuses the YAML boundary.
+- [x] Add `src/plugin_rosetta/vocabulary/ingest.py` with `cache_dir_for`, `ingest_zip`, and `find_file`, defaulting the cache root to `registry/data/vocabularies`.
+- [x] Extract to a temporary directory next to the target and rename on success, so a failed extraction never leaves a half-populated cache directory.
+- [x] Reject archive members with absolute paths or parent-directory traversal before extracting.
 - [ ] Add `src/plugin_rosetta/vocabulary/frames.py` with Nyctea-backed schema and content validation of a Polars frame against a declared release table contract.
-- [ ] Declare the expected columns per release table as tracked content under `registry/schemas/` rather than Python constants, so a format change is reviewable.
-- [ ] Add synthetic fixtures under `tests/fixtures/vocabulary/` that mimic Athena, DHD `uitleverformaat4.3`, and RF2 layouts with a handful of invented rows.
-- [ ] Add `src/plugin_rosetta/application/vocabulary.py` with `ingest_release(name, zip_path, cache_dir, force)`.
-- [ ] Add the thin `rosetta vocabulary ingest` command and a `justfile` recipe that wraps it.
-- [ ] Add `tests/config/test_vocabulary_sources.py`, `tests/vocabulary/test_ingest.py`, and `tests/vocabulary/test_frames.py`.
+- [x] Declare the expected columns per release table as tracked content under `registry/schemas/` rather than Python constants, so a format change is reviewable.
+- [x] Add synthetic fixtures under `tests/fixtures/vocabulary/` that mimic Athena, DHD `uitleverformaat4.3`, and RF2 layouts with a handful of invented rows.
+- [x] Add `src/plugin_rosetta/application/vocabulary.py` with `ingest_release(name, zip_path, cache_dir, force)`.
+- [x] Add the thin `rosetta vocabulary ingest` command and a `justfile` recipe that wraps it.
+- [x] Add `tests/config/test_vocabulary_sources.py`, `tests/vocabulary/test_ingest.py`, and `tests/vocabulary/test_frames.py`.
 
 ## Migration Notes
 
@@ -93,13 +93,13 @@ Ingest is the controlled entry point that pins what was loaded, verifies it, and
 
 ## Definition of Done
 
-- [ ] Every new behaviour was driven by a failing test written first.
-- [ ] `uv run pytest tests/vocabulary tests/config` passes offline against synthetic fixtures only.
-- [ ] `uv run tara check` passes.
-- [ ] `registry/README.md` documents the vocabulary source configuration, the manual ingest flow, and the cache layout.
-- [ ] Extracted releases stay in their original published formats and remain usable without `plugin_rosetta`.
+- [x] Every new behaviour was driven by a failing test written first.
+- [x] `uv run pytest tests/vocabulary tests/config` passes offline against synthetic fixtures only.
+- [x] `uv run tara check` passes.
+- [x] `registry/README.md` documents the vocabulary source configuration, the manual ingest flow, and the cache layout.
+- [x] Extracted releases stay in their original published formats and remain usable without `plugin_rosetta`.
 - [ ] Acceptance criteria verified with the vocabulary curator on at least one real ingested release, with only the resulting checksum recorded.
-- [ ] No licensed release payload, extracted file, or real vocabulary row is staged; every committed fixture is synthetic.
+- [x] No licensed release payload, extracted file, or real vocabulary row is staged; every committed fixture is synthetic.
 - [ ] The developer reviews and commits; the agent does not commit or push.
 
 ## Notes
@@ -107,3 +107,7 @@ Ingest is the controlled entry point that pins what was loaded, verifies it, and
 Licensed content never enters the repository.
 
 Fixtures imitate the shape of a release, not its content, and any real identifier used in a fixture must be an invented value.
+
+Nyctea integration was deferred on 2026-09-10 while that library is being refactored. The tracked
+contracts and `validate_release_frame` boundary land in this story so the graph-building stories are
+not blocked; replacing the compatibility validator with Nyctea remains outstanding.

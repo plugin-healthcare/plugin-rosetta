@@ -33,5 +33,8 @@ fetch:
     uv run rosetta ontology fetch omop-cdm
     uv run rosetta ontology fetch onz-g
 
+ingest vocabulary="omop" archive:
+    uv run rosetta vocabulary ingest {{vocabulary}} {{archive}}
+
 notebook:
     uv run marimo edit notebooks/quickstart_nb.py
