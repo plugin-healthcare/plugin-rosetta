@@ -21,6 +21,11 @@ _KEY_FIELDS = ("subject_id", "predicate_id", "object_id", "mapping_justification
 
 def write_sssom_tsv(mapping_set: MappingSet, destination: Path) -> None:
     """Write a mapping set as deterministic embedded-metadata SSSOM/TSV."""
+    atomic_write_text(destination, render_sssom_tsv(mapping_set))
+
+
+def render_sssom_tsv(mapping_set: MappingSet) -> str:
+    """Render deterministic embedded-metadata SSSOM/TSV without writing it."""
     mappings = _require_mappings(mapping_set)
     columns = _populated_columns(mappings)
     output = io.StringIO(newline="")
@@ -35,7 +40,7 @@ def write_sssom_tsv(mapping_set: MappingSet, destination: Path) -> None:
     writer.writeheader()
     for mapping in mappings:
         writer.writerow({column: _format_cell(getattr(mapping, column)) for column in columns})
-    atomic_write_text(destination, output.getvalue())
+    return output.getvalue()
 
 
 def read_sssom_tsv(source: Path) -> MappingSet:

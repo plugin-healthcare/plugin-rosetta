@@ -111,3 +111,7 @@ Fixtures imitate the shape of a release, not its content, and any real identifie
 Nyctea integration was deferred on 2026-09-10 while that library is being refactored. The tracked
 contracts and `validate_release_frame` boundary land in this story so the graph-building stories are
 not blocked; replacing the compatibility validator with Nyctea remains outstanding.
+
+Required-table filenames, path filters, reader settings, and contract references live in
+`vocabulary-sources.yaml`. Graph adapters consume those declarations rather than maintaining a second
+source-specific lookup table.

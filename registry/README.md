@@ -2,6 +2,10 @@
 
 This directory is the first local registry for Rosetta configuration, schemas, mappings, and data.
 
+An installed package creates the same layout with `rosetta init <workspace>`. That command lists the
+packaged starter mapping sets, ontology sources, and vocabulary sources, records the selections in
+`rosetta.yaml`, and writes only the selected catalogue entries and required content.
+
 Configuration, schemas, and mappings are tracked so the current setup remains reviewable and reproducible.
 
 Raw source downloads, licensed content, caches, and generated outputs belong under `data/` and are not tracked.
@@ -54,11 +58,19 @@ uv run rosetta vocabulary ingest <name> <release.zip>
 
 The command verifies the configured SHA-256 when present, rejects unsafe archive paths, locates every
 required table declared for the source, and applies its tracked table contract before promoting the
-extracted directory into the cache. Releases are cached under `data/vocabularies/<name>/<version>/`;
-repeated ingest revalidates and reuses that directory unless `--force` is set. When no checksum is
-pinned, the command prints the computed digest so it can be reviewed and added to the source catalogue.
+extracted directory into the cache. Releases are cached under `data/vocabularies/<name>/<version>/`
+with a manifest containing the archive digest and extracted-file digests. For a source with a pinned
+checksum, repeated ingest requires the original ZIP and verifies cached files against that trusted
+artifact rather than trusting the writable manifest. An unpinned source can be reused without the
+ZIP; its manifest detects accidental corruption but is not an authentication boundary. Repeated
+ingest also revalidates the tables and reuses the directory unless `--force` is set. When no checksum
+is pinned, the command prints the computed digest on every run so it can be reviewed and added to the
+source catalogue.
 
 Contracts under `schemas/vocabularies/` declare the required columns, data types, and nullability for
 the Athena, DHD, and RF2 tables used by later graph builders. Extra columns are retained and reported
 as informational findings, while missing columns, incompatible types, and nulls in required columns
 are errors.
+
+The source catalogue owns required-table lookup and reader settings. Vocabulary adapters reuse those
+declarations rather than defining a second set of filenames, separators, or quote behavior.

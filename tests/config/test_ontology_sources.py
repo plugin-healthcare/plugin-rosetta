@@ -79,6 +79,23 @@ def test_rejects_duplicate_ontology_source_keys(tmp_path: Path) -> None:
         load_ontology_sources(config_path)
 
 
+def test_rejects_filesystem_unsafe_ontology_source_name(tmp_path: Path) -> None:
+    config_path = _write_config(tmp_path)
+    config_path.write_text(config_path.read_text().replace("  sample:", "  ../../outside:"))
+
+    with pytest.raises(ConfigurationError, match="portable lowercase"):
+        load_ontology_sources(config_path)
+
+
+@pytest.mark.parametrize("name", ["OMOP", "CON", "source."])
+def test_rejects_non_portable_ontology_source_name(tmp_path: Path, name: str) -> None:
+    config_path = _write_config(tmp_path)
+    config_path.write_text(config_path.read_text().replace("  sample:", f"  {name}:"))
+
+    with pytest.raises(ConfigurationError, match="portable lowercase"):
+        load_ontology_sources(config_path)
+
+
 def _write_config(tmp_path: Path, extra: str = "") -> Path:
     config_path = tmp_path / "ontology-sources.yaml"
     config_path.write_text(

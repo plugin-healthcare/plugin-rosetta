@@ -20,7 +20,8 @@ from plugin_rosetta.application.vocabulary import (
     DEFAULT_VOCABULARY_CONFIG,
     ingest_release,
 )
-from plugin_rosetta.core.errors import RosettaError
+from plugin_rosetta.application.workspace import StarterSelection, initialize_workspace, list_starter_sources
+from plugin_rosetta.core.errors import ConfigurationError, RosettaError
 from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR as DEFAULT_ONTOLOGY_CACHE_DIR
 from plugin_rosetta.vocabulary.ingest import DEFAULT_CACHE_DIR as DEFAULT_VOCABULARY_CACHE_DIR
 
@@ -52,6 +53,66 @@ def _guard[T](operation: Callable[[], T]) -> T:
 @app.callback()
 def main() -> None:
     """Author and publish open mapping artifacts."""
+
+
+def _select_sources(label: str, choices: tuple[str, ...]) -> tuple[str, ...]:
+    typer.echo(f"Select {label}:")
+    for index, choice in enumerate(choices, start=1):
+        typer.echo(f"  {index}. {choice}")
+    response = typer.prompt("Enter comma-separated numbers or names, 'all', or 'none'", default="all")
+    if response.strip().casefold() == "all":
+        return choices
+    if response.strip().casefold() == "none":
+        return ()
+
+    selected: list[str] = []
+    for token in (part.strip() for part in response.split(",")):
+        if token.isdigit() and 1 <= int(token) <= len(choices):
+            name = choices[int(token) - 1]
+        elif token in choices:
+            name = token
+        else:
+            raise ConfigurationError(f"Unknown {label} selection {token!r}")
+        if name not in selected:
+            selected.append(name)
+    return tuple(selected)
+
+
+@app.command("init")
+def initialize_workspace_command(
+    destination: Annotated[
+        Path,
+        typer.Argument(help="Directory in which to create rosetta.yaml and registry/."),
+    ] = Path(),
+    mapping_set: Annotated[
+        list[str] | None,
+        typer.Option("--mapping-set", help="Starter mapping set to include; repeat for multiple."),
+    ] = None,
+    ontology_source: Annotated[
+        list[str] | None,
+        typer.Option("--ontology-source", help="Starter ontology source to include; repeat for multiple."),
+    ] = None,
+    vocabulary_source: Annotated[
+        list[str] | None,
+        typer.Option("--vocabulary-source", help="Starter vocabulary source to include; repeat for multiple."),
+    ] = None,
+) -> None:
+    """Initialize a workspace from selectable packaged starter sources."""
+    if mapping_set is None and ontology_source is None and vocabulary_source is None:
+        sources = _guard(list_starter_sources)
+        selection = StarterSelection(
+            mapping_sets=_guard(lambda: _select_sources("mapping sets", sources.mapping_sets)),
+            ontology_sources=_guard(lambda: _select_sources("ontology sources", sources.ontology_sources)),
+            vocabulary_sources=_guard(lambda: _select_sources("vocabulary sources", sources.vocabulary_sources)),
+        )
+    else:
+        selection = StarterSelection(
+            mapping_sets=tuple(mapping_set or ()),
+            ontology_sources=tuple(ontology_source or ()),
+            vocabulary_sources=tuple(vocabulary_source or ()),
+        )
+    config_path = _guard(lambda: initialize_workspace(destination, selection))
+    typer.echo(config_path)
 
 
 @mapping_app.command("list")

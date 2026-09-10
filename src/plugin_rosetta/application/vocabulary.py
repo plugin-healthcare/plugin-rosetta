@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import polars as pl
 
 from plugin_rosetta.config.vocabulary_sources import load_vocabulary_sources
-from plugin_rosetta.core.report import ValidationReport
+from plugin_rosetta.core.report import IssueSeverity, ValidationIssue, ValidationReport
 from plugin_rosetta.vocabulary.frames import load_table_contract, validate_release_frame
 from plugin_rosetta.vocabulary.ingest import DEFAULT_CACHE_DIR, find_file, ingest_zip
 
@@ -27,6 +27,7 @@ def _validate_release_tables(
     for table in source.tables:
         table_path = find_file(
             release_dir,
+            name=table.name,
             prefix=table.prefix,
             suffix=table.suffix,
             contains=table.contains,
@@ -61,4 +62,21 @@ def ingest_release(
         validator=lambda release_dir: _validate_release_tables(release_dir, source, registry_root),
     )
     checksum_report = ValidationReport(issues=(result.issue,)) if result.issue is not None else ValidationReport()
-    return result.path, checksum_report.merge(result.validation_report)
+    version_report = (
+        ValidationReport(
+            issues=(
+                ValidationIssue(
+                    code="vocabulary.unversioned-release",
+                    severity=IssueSeverity.WARNING,
+                    location=source.name,
+                    message=(
+                        f"Vocabulary source {source.name!r} version is 'unversioned'; "
+                        "pin the curator-confirmed release before publication."
+                    ),
+                ),
+            )
+        )
+        if source.version == "unversioned"
+        else ValidationReport()
+    )
+    return result.path, checksum_report.merge(version_report, result.validation_report)

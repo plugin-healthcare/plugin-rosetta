@@ -73,8 +73,8 @@ def test_checksum_mismatch_leaves_cache_untouched(tmp_path: Path) -> None:
 
 
 def test_ingest_reuses_populated_cache_without_reading_zip(tmp_path: Path) -> None:
-    zip_path, digest = _write_zip(tmp_path, {"concepts.txt": "first"})
-    source = _source(checksum=digest)
+    zip_path, _ = _write_zip(tmp_path, {"concepts.txt": "first"})
+    source = _source()
     cache_dir = tmp_path / "cache"
     first = ingest_zip(source, zip_path, cache_dir=cache_dir)
     zip_path.unlink()
@@ -83,6 +83,64 @@ def test_ingest_reuses_populated_cache_without_reading_zip(tmp_path: Path) -> No
 
     assert second.path == first.path
     assert (second.path / "concepts.txt").read_text() == "first"
+
+
+def test_cache_hit_rejects_checksum_pinned_after_ingest(tmp_path: Path) -> None:
+    zip_path, _ = _write_zip(tmp_path, {"concepts.txt": "first"})
+    cache_dir = tmp_path / "cache"
+    ingest_zip(_source(), zip_path, cache_dir=cache_dir)
+    zip_path.unlink()
+
+    with pytest.raises(VocabularyChecksumError, match="cached archive"):
+        ingest_zip(_source(checksum="0" * 64), zip_path, cache_dir=cache_dir)
+
+
+def test_pinned_cache_requires_original_zip_for_verification(tmp_path: Path) -> None:
+    zip_path, digest = _write_zip(tmp_path, {"concepts.txt": "first"})
+    cache_dir = tmp_path / "cache"
+    ingest_zip(_source(checksum=digest), zip_path, cache_dir=cache_dir)
+    zip_path.unlink()
+
+    with pytest.raises(VocabularyChecksumError, match="requires the original ZIP"):
+        ingest_zip(_source(checksum=digest), zip_path, cache_dir=cache_dir)
+
+
+def test_cache_hit_rejects_modified_extracted_file(tmp_path: Path) -> None:
+    zip_path, digest = _write_zip(tmp_path, {"concepts.txt": "first"})
+    cache_dir = tmp_path / "cache"
+    result = ingest_zip(_source(checksum=digest), zip_path, cache_dir=cache_dir)
+    (result.path / "concepts.txt").write_text("modified")
+
+    with pytest.raises(VocabularyChecksumError, match="cached file.*concepts.txt"):
+        ingest_zip(_source(checksum=digest), zip_path, cache_dir=cache_dir)
+
+
+def test_pinned_cache_verification_does_not_trust_modified_manifest(tmp_path: Path) -> None:
+    zip_path, digest = _write_zip(tmp_path, {"concepts.txt": "first"})
+    cache_dir = tmp_path / "cache"
+    result = ingest_zip(_source(checksum=digest), zip_path, cache_dir=cache_dir)
+    (result.path / "concepts.txt").write_text("modified")
+    manifest_path = result.path / ".rosetta-release.json"
+    manifest = manifest_path.read_text().replace(
+        hashlib.sha256(b"first").hexdigest(),
+        hashlib.sha256(b"modified").hexdigest(),
+    )
+    manifest_path.write_text(manifest)
+
+    with pytest.raises(VocabularyChecksumError, match="cached file.*concepts.txt"):
+        ingest_zip(_source(checksum=digest), zip_path, cache_dir=cache_dir)
+
+
+def test_cache_hit_without_pinned_checksum_repeats_checksum_warning(tmp_path: Path) -> None:
+    zip_path, digest = _write_zip(tmp_path, {"concepts.txt": "first"})
+    cache_dir = tmp_path / "cache"
+    ingest_zip(_source(), zip_path, cache_dir=cache_dir)
+    zip_path.unlink()
+
+    result = ingest_zip(_source(), zip_path, cache_dir=cache_dir)
+
+    assert result.issue is not None
+    assert digest in result.issue.message
 
 
 def test_force_replaces_populated_cache(tmp_path: Path) -> None:
@@ -183,6 +241,14 @@ def test_find_file_filters_by_name_and_path_fragment(tmp_path: Path) -> None:
     result = find_file(tmp_path, prefix="sct2_Concept_", suffix=".txt", contains="/Snapshot/")
 
     assert result == expected
+
+
+def test_find_file_matches_exact_name_among_shared_prefixes(tmp_path: Path) -> None:
+    expected = tmp_path / "CONCEPT.csv"
+    expected.write_text("concept")
+    (tmp_path / "CONCEPT_RELATIONSHIP.csv").write_text("relationship")
+
+    assert find_file(tmp_path, name="CONCEPT.csv") == expected
 
 
 def test_find_file_reports_no_match(tmp_path: Path) -> None:

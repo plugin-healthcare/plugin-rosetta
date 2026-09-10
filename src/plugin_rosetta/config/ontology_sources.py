@@ -4,10 +4,11 @@ import re
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from pydantic import ValidationError as PydanticValidationError
 
-from plugin_rosetta.core.errors import ConfigurationError
+from plugin_rosetta.core.errors import ConfigurationError, RosettaIOError
+from plugin_rosetta.core.paths import validate_portable_source_name
 from plugin_rosetta.io.yaml import load_yaml_mapping
 
 if TYPE_CHECKING:
@@ -54,9 +55,20 @@ class OntologySource(BaseModel):
     download_url: str
     checksum: str | None = None
 
+    @field_validator("name")
+    @classmethod
+    def validate_filesystem_safe_name(cls, value: str) -> str:
+        """Require a name usable as one cache-path segment."""
+        return validate_portable_source_name(value)
+
     def cache_path(self, cache_dir: Path) -> Path:
         """Return the local cache path for this source's ontology file."""
-        return cache_dir / self.name / self.version / "ontology.ttl"
+        path = cache_dir / self.name / self.version / "ontology.ttl"
+        if not path.resolve().is_relative_to(cache_dir.resolve()):
+            raise RosettaIOError(
+                f"Ontology cache path for source {self.name!r} resolves outside cache root {cache_dir}"
+            )
+        return path
 
 
 class OntologySourcesConfig(BaseModel):
@@ -65,6 +77,13 @@ class OntologySourcesConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     ontology_sources: dict[str, OntologySourceEntry]
+
+    @model_validator(mode="after")
+    def validate_source_names(self) -> OntologySourcesConfig:
+        """Reject registry keys that could escape the cache root."""
+        for name in self.ontology_sources:
+            validate_portable_source_name(name)
+        return self
 
     def get(self, name: str) -> OntologySource:
         """Return a configured ontology source by name."""

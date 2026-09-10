@@ -1,7 +1,7 @@
 [project]
 name = "plugin-rosetta"
 version = "0.1.0"
-description = "Add your description here"
+description = "Reusable toolbox for authoring, validating, and publishing open mapping artifacts"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

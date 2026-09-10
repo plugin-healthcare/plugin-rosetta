@@ -49,12 +49,12 @@ The plan of record is [`.agents/plan/20260901_migration_plan.md`](../20260901_mi
 
 ## Stories
 
-- [ ] [E01-S01 Establish the installable package and shared contracts](../stories/E01-S01-establish-the-installable-package-and-shared-contracts.md)
-- [ ] [E01-S02 Preserve and validate mapping set configuration](../stories/E01-S02-preserve-and-validate-mapping-set-configuration.md)
-- [ ] [E01-S03 Read authored CSVW mapping sets](../stories/E01-S03-read-authored-csvw-mapping-sets.md)
-- [ ] [E01-S04 Write open mapping artifacts and reports](../stories/E01-S04-write-open-mapping-artifacts-and-reports.md)
-- [ ] [E01-S05 Configure and download ontology sources](../stories/E01-S05-configure-and-download-ontology-sources.md)
-- [ ] [E01-S06 Validate mappings against ontology catalogs](../stories/E01-S06-validate-mappings-against-ontology-catalogs.md)
+- [x] [E01-S01 Establish the installable package and shared contracts](../stories/E01-S01-establish-the-installable-package-and-shared-contracts.md)
+- [x] [E01-S02 Preserve and validate mapping set configuration](../stories/E01-S02-preserve-and-validate-mapping-set-configuration.md)
+- [x] [E01-S03 Read authored CSVW mapping sets](../stories/E01-S03-read-authored-csvw-mapping-sets.md)
+- [x] [E01-S04 Write open mapping artifacts and reports](../stories/E01-S04-write-open-mapping-artifacts-and-reports.md)
+- [x] [E01-S05 Configure and download ontology sources](../stories/E01-S05-configure-and-download-ontology-sources.md)
+- [x] [E01-S06 Validate mappings against ontology catalogs](../stories/E01-S06-validate-mappings-against-ontology-catalogs.md)
 - [ ] [E01-S07 Ingest versioned vocabulary releases](../stories/E01-S07-ingest-versioned-vocabulary-releases.md)
 - [ ] [E01-S08 Build the OMOP vocabulary graph](../stories/E01-S08-build-the-omop-vocabulary-graph.md)
 - [ ] [E01-S09 Build the DHD thesaurus graphs](../stories/E01-S09-build-the-dhd-thesaurus-graphs.md)

@@ -20,6 +20,7 @@ def test_loads_migrated_vocabulary_sources() -> None:
         "snomed-international",
     }
     assert config.get("omop").download_page == "https://athena.ohdsi.org/"
+    assert config.get("omop").tables[0].name == "CONCEPT.csv"
     assert config.get("loinc-snomed").kind == "rf2"
     assert config.get("snomed-international").version == "20260101"
     assert config.get("dhd-thesauri").format_version == "uitleverformaat4.3"
@@ -62,7 +63,16 @@ def test_rejects_filesystem_unsafe_source_name(tmp_path: Path) -> None:
     config_path = _write_config(tmp_path)
     config_path.write_text(config_path.read_text().replace("  sample:", "  ../../outside:"))
 
-    with pytest.raises(ConfigurationError, match="filesystem safe"):
+    with pytest.raises(ConfigurationError, match="portable lowercase"):
+        load_vocabulary_sources(config_path)
+
+
+@pytest.mark.parametrize("name", ["OMOP", "CON", "source."])
+def test_rejects_non_portable_vocabulary_source_name(tmp_path: Path, name: str) -> None:
+    config_path = _write_config(tmp_path)
+    config_path.write_text(config_path.read_text().replace("  sample:", f"  {name}:"))
+
+    with pytest.raises(ConfigurationError, match="portable lowercase"):
         load_vocabulary_sources(config_path)
 
 

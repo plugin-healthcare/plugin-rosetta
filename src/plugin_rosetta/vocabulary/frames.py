@@ -83,6 +83,7 @@ def validate_release_frame(
             )
         )
 
+    required_columns: list[str] = []
     for name in sorted(expected_columns & actual_columns):
         column = contract.columns[name]
         expected_dtype = _POLARS_DTYPES[column.dtype]
@@ -96,7 +97,12 @@ def validate_release_frame(
                 )
             )
         if not column.nullable:
-            null_count = lazy_frame.select(pl.col(name).null_count()).collect().item()
+            required_columns.append(name)
+
+    if required_columns:
+        null_counts = lazy_frame.select(pl.col(name).null_count().alias(name) for name in required_columns).collect()
+        for name in required_columns:
+            null_count = null_counts.item(0, name)
             if null_count:
                 issues.append(
                     ValidationIssue(

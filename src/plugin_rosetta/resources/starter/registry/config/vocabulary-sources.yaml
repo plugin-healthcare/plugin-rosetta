@@ -1,5 +1,3 @@
-# Licence-gated vocabulary releases are downloaded manually from these pages.
-# Checksums remain unset until a curator ingests and confirms a specific ZIP.
 vocabulary_sources:
   omop:
     version: unversioned

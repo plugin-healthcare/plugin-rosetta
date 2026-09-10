@@ -1,5 +1,6 @@
 """Download-and-cache ontology loader."""
 
+import hashlib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -17,6 +18,7 @@ if TYPE_CHECKING:
     from plugin_rosetta.core.report import ValidationIssue
 
 DEFAULT_CACHE_DIR = Path("registry/data/ontologies")
+_HASH_CHUNK_SIZE = 1024 * 1024
 
 
 @dataclass(frozen=True)
@@ -41,6 +43,7 @@ def fetch_ontology(
     """
     path = source.cache_path(cache_dir)
     if path.exists() and not force:
+        _verify_cached_checksum(path, source)
         return FetchResult(path=path, issue=None)
     result = download_to_cache(
         source.download_url,
@@ -50,6 +53,23 @@ def fetch_ontology(
         client=client,
     )
     return FetchResult(path=result.path, issue=result.issue)
+
+
+def _verify_cached_checksum(path: Path, source: OntologySource) -> None:
+    if source.checksum is None:
+        return
+    digest = hashlib.sha256()
+    try:
+        with path.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(_HASH_CHUNK_SIZE), b""):
+                digest.update(chunk)
+    except OSError as error:
+        raise RosettaIOError(f"Cannot read cached ontology {source.name!r} at {path}: {error}") from error
+    actual = digest.hexdigest()
+    if actual != source.checksum:
+        raise RosettaIOError(
+            f"Cached ontology {source.name!r} checksum mismatch: expected {source.checksum}, actual {actual}"
+        )
 
 
 def _parse_turtle(path: Path, name: str) -> Graph:
@@ -84,4 +104,5 @@ def load_cached_ontology(source: OntologySource, *, cache_dir: Path = DEFAULT_CA
         raise RosettaIOError(
             f"Ontology {source.name!r} is not cached at {path}. Run: rosetta ontology fetch {source.name}"
         )
+    _verify_cached_checksum(path, source)
     return _parse_turtle(path, source.name)

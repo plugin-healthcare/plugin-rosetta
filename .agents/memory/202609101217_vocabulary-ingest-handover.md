@@ -4,7 +4,8 @@
 
 Work continues on `feature/rosetta-foundation-mapping`.
 
-Nothing in this increment has been staged, committed, or pushed.
+The original E01-S07 increment is committed as `8115ec4`. The subsequent full-review fixes and
+workspace initializer are not committed or pushed.
 
 ## Implemented
 
@@ -20,6 +21,28 @@ Nothing in this increment has been staged, committed, or pushed.
 - Added idempotent cache reuse, forced replacement, and deterministic release-file lookup.
 - Added tracked Athena, DHD, and RF2 table contracts plus synthetic release-shaped fixtures.
 - Added the `rosetta vocabulary ingest` command and `just ingest` wrapper.
+- Added an integrity manifest so cache hits recheck the ingested archive identity and every extracted
+  file instead of trusting a populated directory. Pinned sources require the original ZIP and derive
+  expected member checksums from it; unpinned sources can reuse the writable manifest only as an
+  accidental-corruption check.
+- Added exact filename matching for Athena tables, including `CONCEPT.csv`,
+  `CONCEPT_RELATIONSHIP.csv`, and `RELATIONSHIP.csv`.
+
+## Full checkpoint review
+
+A complete branch review was run before E01-S08. It found and fixed:
+
+- vocabulary and ontology source-name traversal outside configured cache roots;
+- checksum bypasses on ontology and vocabulary cache hits;
+- partial mapping builds when Turtle rendering failed after SSSOM had already been written;
+- ambiguous Athena table matching and repeated scans for required-column null counts;
+- installed-wheel defaults that depended on a source checkout.
+
+The installed-wheel decision is recorded in
+`docs/decisions/0001-initialize-workspaces-from-packaged-starter-registry.md`. `rosetta init` now
+lists selectable mapping sets, ontology sources, and vocabulary sources interactively, supports
+repeatable flags for automation, writes `rosetta.yaml`, and generates a filtered writable registry
+from package resources.
 
 ## Nyctea decision
 
@@ -30,9 +53,11 @@ Nyctea types through the public application or CLI interfaces.
 
 ## Validation state
 
-- `uv run tara check` passes: lint, format, types, 134 tests, and dependency audit.
+- `uv run tara check` passes: lint, format, types, 170 tests, and dependency audit.
 - Focused source, ingest, frame, and CLI tests pass entirely offline.
 - The test fixtures contain invented identifiers and release-shaped rows only.
+- A wheel installed into a clean virtual environment from outside the checkout successfully ran
+  `rosetta init` and validated all 8 preserved mapping rows from the generated workspace.
 
 ## Remaining
 

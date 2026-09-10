@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from pydantic import ValidationError as PydanticValidationError
 
 from plugin_rosetta.core.errors import ConfigurationError
+from plugin_rosetta.core.paths import validate_portable_source_name
 from plugin_rosetta.io.yaml import load_yaml_mapping
 
 if TYPE_CHECKING:
@@ -29,6 +30,7 @@ class ReleaseTable(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    name: str = ""
     prefix: str = ""
     suffix: str = ""
     contains: str = ""
@@ -92,7 +94,7 @@ class VocabularySource(VocabularySourceEntry):
     @classmethod
     def validate_filesystem_safe_name(cls, value: str) -> str:
         """Require a name usable as one cache-path segment."""
-        return _validate_filesystem_segment(value)
+        return validate_portable_source_name(value)
 
 
 class VocabularySourcesConfig(BaseModel):
@@ -106,7 +108,7 @@ class VocabularySourcesConfig(BaseModel):
     def validate_source_names(self) -> VocabularySourcesConfig:
         """Reject registry keys that could escape the cache root."""
         for name in self.vocabulary_sources:
-            _validate_filesystem_segment(name)
+            validate_portable_source_name(name)
         return self
 
     def get(self, name: str) -> VocabularySource:

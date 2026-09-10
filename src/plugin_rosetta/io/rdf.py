@@ -27,11 +27,16 @@ def mapping_set_to_graph(mapping_set: MappingSet) -> Graph:
 
 def write_turtle(mapping_set: MappingSet, destination: Path) -> None:
     """Write stable Turtle without relying on graph iteration order."""
+    atomic_write_text(destination, render_turtle(mapping_set))
+
+
+def render_turtle(mapping_set: MappingSet) -> str:
+    """Render stable Turtle without writing it."""
     curie_map = {str(prefix): str(namespace) for prefix, namespace in (mapping_set.curie_map or {}).items()}
     triples = _expanded_triples(mapping_set, curie_map)
     lines = [f"@prefix {prefix}: <{namespace}> ." for prefix, namespace in sorted(curie_map.items())]
     lines.extend(f"<{subject}> <{predicate}> <{object_}> ." for subject, predicate, object_ in sorted(triples))
-    atomic_write_text(destination, "\n".join(lines) + "\n")
+    return "\n".join(lines) + "\n"
 
 
 def _expanded_triples(

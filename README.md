@@ -9,6 +9,18 @@ uv sync --all-groups
 uv run rosetta --help
 ```
 
+After installing the wheel, initialize a writable workspace and select its mapping, ontology, and
+vocabulary sources:
+
+```shell
+rosetta init my-rosetta-workspace
+cd my-rosetta-workspace
+```
+
+The interactive command writes the selections to `rosetta.yaml` and creates a filtered `registry/`
+from starter resources bundled in the wheel. Automation can bypass the prompts with repeatable
+`--mapping-set`, `--ontology-source`, and `--vocabulary-source` options.
+
 ## Build mappings
 
 ```shell
@@ -68,8 +80,11 @@ just ingest omop ~/Downloads/athena-release.zip
 ```
 
 If the source has no pinned checksum, the command prints the computed SHA-256 for curator review.
-Use `--force` only when the cached release must be replaced. See `registry/README.md` for the source
-catalogue, cache layout, and table contracts.
+Cached releases with a pinned checksum require the original ZIP on every ingest so extracted files
+can be verified against a trusted artifact. Unpinned releases can be reused without the ZIP, using
+their local integrity manifest to detect accidental corruption. Use `--force` only when the cached
+release must be replaced. See `registry/README.md` for the source catalogue, cache layout, and table
+contracts.
 
 ## Explore interactively
 

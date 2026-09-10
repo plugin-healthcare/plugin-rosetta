@@ -1,0 +1,15 @@
+mapping_sets:
+  omop-onz-g:
+    mapping_set_id: https://raw.githubusercontent.com/plugin-healthcare/sssom-rosetta/main/build/mappings/omop-onz-g.sssom.tsv
+    license: https://creativecommons.org/publicdomain/zero/1.0/
+    mapping_file: registry/mappings/omop-onz-g.csv
+    metadata_file: registry/mappings/omop-onz-g.metadata.json
+    curie_map:
+      omop: https://w3id.org/omop/ontology/
+      onz-g: http://purl.org/ozo/onz-g#
+      skos: http://www.w3.org/2004/02/skos/core#
+      semapv: https://w3id.org/semapv/vocab/
+      orcid: https://orcid.org/
+    ontologies:
+      subject: omop-cdm
+      object: onz-g

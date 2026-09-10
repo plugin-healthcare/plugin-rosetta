@@ -3,6 +3,7 @@ import zipfile
 from typing import TYPE_CHECKING
 
 import pytest
+import yaml
 from typer.testing import CliRunner
 
 from plugin_rosetta import cli
@@ -18,6 +19,46 @@ def test_cli_displays_help() -> None:
 
     assert result.exit_code == 0
     assert "Rosetta mapping toolbox" in result.stdout
+
+
+def test_init_prompts_for_all_source_categories(tmp_path: Path) -> None:
+    destination = tmp_path / "workspace"
+
+    result = CliRunner().invoke(app, ["init", str(destination)], input="1\nall\n3\n")
+
+    assert result.exit_code == 0
+    assert "omop-onz-g" in result.output
+    assert "omop-cdm" in result.output
+    assert "dhd-thesauri" in result.output
+    workspace = yaml.safe_load((destination / "rosetta.yaml").read_text())
+    assert workspace["mapping_sets"] == ["omop-onz-g"]
+    assert workspace["ontology_sources"] == ["omop-cdm", "onz-g"]
+    assert workspace["vocabulary_sources"] == ["omop"]
+
+
+def test_init_selection_flags_bypass_prompts(tmp_path: Path) -> None:
+    destination = tmp_path / "workspace"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "init",
+            str(destination),
+            "--mapping-set",
+            "omop-onz-g",
+            "--ontology-source",
+            "omop-cdm",
+            "--vocabulary-source",
+            "omop",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert "Select mapping sets" not in result.output
+    workspace = yaml.safe_load((destination / "rosetta.yaml").read_text())
+    assert workspace["mapping_sets"] == ["omop-onz-g"]
+    assert workspace["ontology_sources"] == ["omop-cdm"]
+    assert workspace["vocabulary_sources"] == ["omop"]
 
 
 def test_mapping_list_displays_configured_mapping_sets() -> None:
@@ -130,6 +171,16 @@ def test_vocabulary_ingest_command_extracts_synthetic_release(tmp_path: Path) ->
                 '20260101\t20991231\t""\n'
             ),
         )
+        archive.writestr(
+            "CONCEPT_RELATIONSHIP.csv",
+            "concept_id_1\tconcept_id_2\trelationship_id\tinvalid_reason\n"
+            'SYNTHETIC-1\tSYNTHETIC-2\tSynthetic relationship\t""\n',
+        )
+        archive.writestr(
+            "RELATIONSHIP.csv",
+            "relationship_id\trelationship_name\trelationship_concept_id\n"
+            "Synthetic relationship\tSynthetic relationship\tSYNTHETIC-REL-1\n",
+        )
     zip_path.write_bytes(buffer.getvalue())
     cache_dir = tmp_path / "vocabularies"
 
@@ -141,6 +192,7 @@ def test_vocabulary_ingest_command_extracts_synthetic_release(tmp_path: Path) ->
     assert result.exit_code == 0
     assert str(cache_dir / "omop/unversioned") in result.stdout
     assert "computed SHA-256" in result.stdout
+    assert "version is 'unversioned'" in result.stdout
     assert (cache_dir / "omop/unversioned/CONCEPT.csv").is_file()
 
 
@@ -149,6 +201,16 @@ def test_vocabulary_ingest_rejects_invalid_table_before_cache_promotion(tmp_path
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w") as archive:
         archive.writestr("CONCEPT.csv", "concept_id\nSYNTHETIC-1\n")
+        archive.writestr(
+            "CONCEPT_RELATIONSHIP.csv",
+            "concept_id_1\tconcept_id_2\trelationship_id\tinvalid_reason\n"
+            'SYNTHETIC-1\tSYNTHETIC-2\tSynthetic relationship\t""\n',
+        )
+        archive.writestr(
+            "RELATIONSHIP.csv",
+            "relationship_id\trelationship_name\trelationship_concept_id\n"
+            "Synthetic relationship\tSynthetic relationship\tSYNTHETIC-REL-1\n",
+        )
     zip_path.write_bytes(buffer.getvalue())
     cache_dir = tmp_path / "vocabularies"
 

@@ -17,8 +17,8 @@ from plugin_rosetta.core.errors import ConfigurationError, ValidationError
 from plugin_rosetta.core.report import IssueSeverity
 from plugin_rosetta.io._atomic import atomic_write_text
 from plugin_rosetta.io.csvw import read_mapping_rows
-from plugin_rosetta.io.rdf import write_turtle
-from plugin_rosetta.io.sssom import write_sssom_tsv
+from plugin_rosetta.io.rdf import render_turtle
+from plugin_rosetta.io.sssom import render_sssom_tsv
 from plugin_rosetta.mapping.models.sssom import MappingSet
 from plugin_rosetta.mapping.report import render_html, render_markdown
 from plugin_rosetta.mapping.validate import validate_referential_integrity, validate_schema_conformance
@@ -106,8 +106,10 @@ def build_mapping_artifacts(
     _refuse_invalid(key, result.report)
     sssom_path = output_dir / f"{key}.sssom.tsv"
     turtle_path = output_dir / f"{key}.ttl"
-    write_sssom_tsv(result.mapping_set, sssom_path)
-    write_turtle(result.mapping_set, turtle_path)
+    sssom = render_sssom_tsv(result.mapping_set)
+    turtle = render_turtle(result.mapping_set)
+    atomic_write_text(sssom_path, sssom)
+    atomic_write_text(turtle_path, turtle)
     return sssom_path, turtle_path
 
 

@@ -92,6 +92,16 @@ def test_non_nullable_column_reports_null_content() -> None:
             "\t",
         ),
         (
+            "tests/fixtures/vocabulary/athena/CONCEPT_RELATIONSHIP.csv",
+            "registry/schemas/vocabularies/omop-concept-relationship.yaml",
+            "\t",
+        ),
+        (
+            "tests/fixtures/vocabulary/athena/RELATIONSHIP.csv",
+            "registry/schemas/vocabularies/omop-relationship.yaml",
+            "\t",
+        ),
+        (
             "tests/fixtures/vocabulary/dhd/thesauri/DT/202609_uitleverformaat4.3/SYN_ThesaurusConcept.csv",
             "registry/schemas/vocabularies/dhd-thesaurus-concept.yaml",
             ",",

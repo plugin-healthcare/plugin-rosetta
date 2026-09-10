@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from plugin_rosetta.application import mapping as mapping_application
 from plugin_rosetta.application.mapping import build_mapping_artifacts, read_mapping_set
 from plugin_rosetta.core.errors import ConfigurationError, RosettaIOError, ValidationError
 
@@ -82,6 +83,23 @@ def test_build_writes_artifacts_when_every_reference_resolves(tmp_path: Path, on
 
     assert sssom_path.is_file()
     assert turtle_path.is_file()
+
+
+def test_build_renders_every_artifact_before_writing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    output_dir = tmp_path / "build"
+
+    def fail_render(_mapping_set: object) -> str:
+        raise ValidationError("unknown predicate prefix")
+
+    monkeypatch.setattr(mapping_application, "render_turtle", fail_render)
+
+    with pytest.raises(ValidationError, match="unknown predicate prefix"):
+        build_mapping_artifacts("omop-onz-g", output_dir=output_dir, root=ROOT)
+
+    assert not output_dir.exists()
 
 
 def _write_unbound_config(tmp_path: Path) -> Path:

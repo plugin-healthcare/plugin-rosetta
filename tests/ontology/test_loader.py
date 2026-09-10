@@ -1,3 +1,4 @@
+import hashlib
 from typing import TYPE_CHECKING
 
 import httpx
@@ -51,6 +52,23 @@ def test_fetch_skips_download_on_cache_hit(tmp_path: Path) -> None:
 
     assert calls == []
     assert result.issue is None
+
+
+def test_fetch_verifies_pinned_checksum_on_cache_hit(tmp_path: Path) -> None:
+    source = SOURCE.model_copy(update={"checksum": hashlib.sha256(TURTLE).hexdigest()})
+    cache_path = tmp_path / "sample" / "1.0" / "ontology.ttl"
+    cache_path.parent.mkdir(parents=True)
+    cache_path.write_bytes(b"modified")
+
+    with pytest.raises(RosettaIOError, match="Cached ontology.*checksum"):
+        fetch_ontology(source, cache_dir=tmp_path)
+
+
+def test_source_cache_path_rejects_name_traversal(tmp_path: Path) -> None:
+    source = SOURCE.model_copy(update={"name": "../../outside"})
+
+    with pytest.raises(RosettaIOError, match="outside cache root"):
+        source.cache_path(tmp_path / "cache")
 
 
 def test_fetch_force_redownloads(tmp_path: Path) -> None:

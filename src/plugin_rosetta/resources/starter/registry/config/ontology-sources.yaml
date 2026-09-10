@@ -1,0 +1,9 @@
+ontology_sources:
+  onz-g:
+    version: "2.8.1"
+    iri: http://purl.org/ozo/onz-g
+    download_url: https://widoco.kik-v-credentialsplatform.nl/3f22caac-112b-400c-85c4-c4aefa745760/c623775baf6d15e267179affc997230585bcb0f8f8438d87c280a37b2c4899d6/ontology.ttl
+  omop-cdm:
+    version: "5.4"
+    iri: https://w3id.org/omop/ontology
+    download_url: https://raw.githubusercontent.com/plugin-healthcare/omop-cdm-owl/99d42596d675f0905724883fd35a81775f98bfe5/omop_cdm_v5.ttl
