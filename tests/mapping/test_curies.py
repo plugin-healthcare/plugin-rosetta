@@ -1,6 +1,6 @@
 import pytest
 
-from plugin_rosetta.core.errors import ValidationError
+from plugin_rosetta.errors import ValidationError
 from plugin_rosetta.mapping.curies import expand_curie
 
 CURIE_MAP = {

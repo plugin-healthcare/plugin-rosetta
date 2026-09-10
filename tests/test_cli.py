@@ -1,17 +1,14 @@
 import io
+import shutil
 import zipfile
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pytest
 import yaml
 from typer.testing import CliRunner
 
-from plugin_rosetta import cli
+from plugin_rosetta import IssueSeverity, ValidationIssue, ValidationReport, cli
 from plugin_rosetta.cli import app
-from plugin_rosetta.core.report import IssueSeverity, ValidationIssue, ValidationReport
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def test_cli_displays_help() -> None:
@@ -222,6 +219,34 @@ def test_vocabulary_ingest_rejects_invalid_table_before_cache_promotion(tmp_path
     assert result.exit_code == 1
     assert "Missing expected columns" in result.output
     assert not (cache_dir / "omop/unversioned").exists()
+
+
+def test_vocabulary_build_omop_writes_graph_and_sidecar(tmp_path: Path) -> None:
+    cache_dir = tmp_path / "vocabularies"
+    release_dir = cache_dir / "omop/unversioned"
+    shutil.copytree(
+        Path(__file__).parent / "fixtures/vocabulary/athena",
+        release_dir,
+    )
+    output_dir = tmp_path / "output"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "vocabulary",
+            "build-omop",
+            "--cache-dir",
+            str(cache_dir),
+            "--output-dir",
+            str(output_dir),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert str(output_dir / "omop.ttl") in result.stdout
+    assert str(output_dir / "omop.meta.json") in result.stdout
+    assert (output_dir / "omop.ttl").is_file()
+    assert (output_dir / "omop.meta.json").is_file()
 
 
 def test_mapping_validate_with_check_references_succeeds(ontology_cache: Path) -> None:

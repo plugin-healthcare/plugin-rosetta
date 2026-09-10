@@ -74,3 +74,18 @@ are errors.
 
 The source catalogue owns required-table lookup and reader settings. Vocabulary adapters reuse those
 declarations rather than defining a second set of filenames, separators, or quote behavior.
+
+## OMOP vocabulary graph
+
+Run `rosetta vocabulary build-omop` after ingesting an Athena release. The graph uses
+`https://w3id.org/omop/concept/<concept_id>` for OMOP concept nodes. It links SNOMED CT, LOINC,
+RxNorm, ICD-10, and ICD-10-CM concepts to their percent-encoded native code IRIs with
+`skos:exactMatch`; RxNorm Extension concepts remain OMOP-only because no native namespace exists.
+
+OMOP relationship rows retain their source semantics. Each edge uses the corresponding
+`relationship_concept_id` as an OMOP predicate IRI, and each used predicate receives the
+`relationship_name` as an English `skos:prefLabel`. The builder does not collapse these
+relationships into selected SKOS predicates or label unused relationship types.
+
+The deterministic `data/vocabulary-graphs/omop.ttl` output is accompanied by `omop.meta.json`,
+which records the configured source name, source version, format version, and UTC build time.

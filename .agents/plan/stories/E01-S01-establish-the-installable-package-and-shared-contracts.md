@@ -52,11 +52,12 @@ Nothing else can be migrated, tested, or reviewed until installation, the CLI en
 - [ ] Delete `src/plugin-rosetta/` and create `src/plugin_rosetta/__init__.py` with the package docstring and version export.
 - [ ] Update `pyproject.toml`: add `[project.scripts] rosetta = "plugin_rosetta.cli:app"`, add the direct dependencies listed above, pin `sssom-schema==1.1.0a5`, and keep `maplib` in `[project.dependencies]` rather than behind an extra or a benchmark gate.
 - [ ] Add `src/plugin_rosetta/cli.py` with a `typer.Typer` application, a help string, and no subcommands.
-- [ ] Add `src/plugin_rosetta/core/errors.py` with a `RosettaError` base and the first specialisations needed by later stories (`ConfigurationError`, `ValidationError`, `IOError` equivalent named to avoid shadowing the builtin).
-- [ ] Add `src/plugin_rosetta/core/report.py` with frozen Pydantic `ValidationIssue` (code, severity, location, message) and `ValidationReport` (issues, `is_valid`, merge helper).
-- [ ] Add `src/plugin_rosetta/core/protocols.py` with `runtime_checkable` `Reader`, `Writer`, and `Validator` protocols and no implementations.
+- [ ] Add `src/plugin_rosetta/errors.py` with a `RosettaError` base and the first specialisations needed by later stories (`ConfigurationError`, `ValidationError`, `IOError` equivalent named to avoid shadowing the builtin).
+- [ ] Add `src/plugin_rosetta/reports.py` with frozen Pydantic `ValidationIssue` (code, severity, location, message) and `ValidationReport` (issues, `is_valid`, merge helper).
+- [x] Remove the speculative `Reader`, `Writer`, and `Validator` protocols until a second
+  implementation proves a shared contract.
 - [ ] Add the `justfile` with `install`, `test`, `lint`, `format`, `typecheck`, and `check` recipes, each a thin `uv run ...` wrapper.
-- [ ] Add `tests/test_cli.py`, `tests/core/test_errors.py`, `tests/core/test_report.py`, and `tests/core/test_protocols.py`.
+- [ ] Add `tests/test_cli.py`, `tests/test_errors.py`, and `tests/test_reports.py`.
 - [ ] Update `README.md` with the install and `rosetta --help` quickstart lines only.
 
 ## Migration Notes
@@ -65,7 +66,7 @@ Nothing else can be migrated, tested, or reviewed until installation, the CLI en
 | --- | --- | --- |
 | `sssom-rosetta/pyproject.toml` `[project.scripts]` | `pyproject.toml` `[project.scripts]` | Same `rosetta` script name, new module path `plugin_rosetta.cli:app` |
 | `sssom-rosetta/pyproject.toml` `sssom-schema==1.1.0a5` | `pyproject.toml` | Pin the exact version before E01-S03 regenerates the model |
-| `src/sssom_rosetta/vocabulary/errors.py` (`VocabularyError`) | `src/plugin_rosetta/core/errors.py` | Generalise into the package-wide base error; the vocabulary-specific subclass returns in E01-S07 |
+| `src/sssom_rosetta/vocabulary/errors.py` (`VocabularyError`) | `src/plugin_rosetta/errors.py` | Generalise into the package-wide base error; the vocabulary-specific subclass returns in E01-S07 |
 | `src/sssom_rosetta/cli.py` (`app = typer.Typer(...)`, line 76) | `src/plugin_rosetta/cli.py` | Only the application object and help text move now; commands arrive with their owning story |
 | `sssom-rosetta/justfile` `install` recipe | `justfile` | Same `uv sync --all-groups` behaviour |
 
@@ -79,7 +80,7 @@ Nothing else can be migrated, tested, or reviewed until installation, the CLI en
 ## Definition of Done
 
 - [ ] Every new behaviour was driven by a failing test written first.
-- [ ] `uv run pytest tests/test_cli.py tests/core` passes.
+- [ ] `uv run pytest tests/test_cli.py tests/test_errors.py tests/test_reports.py` passes.
 - [ ] `uv run tara check` passes.
 - [ ] `README.md` documents install and `rosetta --help`.
 - [ ] No published output format is claimed by this story, so the interoperability requirement is satisfied vacuously and recorded as such in the pull request.

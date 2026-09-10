@@ -60,7 +60,7 @@ A local catalogue with content-addressed versions and typed differences turns an
 - [ ] Add `src/plugin_rosetta/artifacts/diff.py` in separate slices: checksum, then schema, then keyed row, then SSSOM mapping, then RDF triple, each with its own tests before the next starts.
 - [ ] Implement the RDF triple diff over a plain RDF parser and document the blank-node handling rule.
 - [ ] Add an impact query that walks manifests and returns dependent artifacts for a changed input.
-- [ ] Add `src/plugin_rosetta/application/artifacts.py` with register, list, and diff use cases, and wire the build commands from E01-S04, E01-S08, E01-S09, and E01-S10 to register what they produce.
+- [ ] Add a public `src/plugin_rosetta/artifacts/` feature package with register, list, and diff operations, and wire the build commands from E01-S04, E01-S08, E01-S09, and E01-S10 to register what they produce.
 - [ ] Add the thin `rosetta artifact` command group and `justfile` recipes.
 - [ ] Extract a storage protocol only after the local catalogue and every diff slice are tested, and only if a second implementation is actually needed.
 - [ ] Add `tests/artifacts/test_identity.py`, `test_manifest.py`, `test_catalog.py`, and `test_diff.py`.

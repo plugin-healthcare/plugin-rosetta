@@ -1,4 +1,4 @@
-from plugin_rosetta.application.mapping import read_mapping_set
+from plugin_rosetta.mapping import read_mapping_set
 from plugin_rosetta.mapping.report import diff_mapping_sets, predicate_counts, render_html, render_markdown
 
 

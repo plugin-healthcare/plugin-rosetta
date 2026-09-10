@@ -6,9 +6,9 @@ from typing import TYPE_CHECKING
 
 import httpx
 
-from plugin_rosetta.core.errors import RosettaIOError, ValidationError
-from plugin_rosetta.core.report import IssueSeverity, ValidationIssue
-from plugin_rosetta.io._atomic import atomic_write_bytes
+from plugin_rosetta.errors import RosettaIOError, ValidationError
+from plugin_rosetta.reports import IssueSeverity, ValidationIssue
+from plugin_rosetta.utils.io.atomic import atomic_write_bytes
 
 if TYPE_CHECKING:
     from pathlib import Path

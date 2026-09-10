@@ -36,5 +36,8 @@ fetch:
 ingest vocabulary="omop" archive:
     uv run rosetta vocabulary ingest {{vocabulary}} {{archive}}
 
+build-omop:
+    uv run rosetta vocabulary build-omop
+
 notebook:
     uv run marimo edit notebooks/quickstart_nb.py

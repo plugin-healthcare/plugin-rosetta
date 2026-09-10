@@ -35,6 +35,26 @@ The report command writes Markdown and standalone HTML.
 
 All generated files are standard formats that can be read without Rosetta.
 
+## Use as a Python library
+
+Import operations from the feature they belong to:
+
+```python
+from pathlib import Path
+
+from plugin_rosetta.mapping import read_mapping_set
+from plugin_rosetta.vocabulary import build_omop_graph
+
+mapping = read_mapping_set("omop-onz-g")
+graph_path, provenance_path = build_omop_graph(
+    Path("registry/data/vocabularies/omop/unversioned"),
+    Path("registry/data/vocabulary-graphs"),
+)
+```
+
+Package-wide errors and validation reports are available directly from `plugin_rosetta`.
+Underscore-prefixed modules are private and may change without compatibility guarantees.
+
 ## Fetch ontologies
 
 ```shell
@@ -86,12 +106,23 @@ their local integrity manifest to detect accidental corruption. Use `--force` on
 release must be replaced. See `registry/README.md` for the source catalogue, cache layout, and table
 contracts.
 
+Build the OMOP graph after ingesting its Athena release:
+
+```shell
+uv run rosetta vocabulary build-omop
+# or
+just build-omop
+```
+
+This writes deterministic `omop.ttl` and `omop.meta.json` artifacts under
+`registry/data/vocabulary-graphs/`.
+
 ## Explore interactively
 
 ```shell
 just notebook
 ```
 
-Opens `notebooks/quickstart_nb.py`, a [marimo](https://marimo.io) notebook that reads the `omop-onz-g`
-mapping set, inspects it with Polars, and builds the same SSSOM/TSV, Turtle, Markdown, and HTML
-artifacts as the CLI commands above.
+Opens `notebooks/quickstart_nb.py`, a [marimo](https://marimo.io) notebook that explores the
+`omop-onz-g` mapping set and builds an OMOP vocabulary graph from synthetic Athena tables. The
+notebook runs offline without a licensed vocabulary release.

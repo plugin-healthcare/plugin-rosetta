@@ -55,7 +55,7 @@ Referential validation is what catches drift: a mapping that was valid when auth
 - [ ] Add `src/plugin_rosetta/mapping/author.py` with `resolve_curie` and `build_mapping` that resolve subject and object against their graphs before constructing a mapping.
 - [ ] Extend `src/plugin_rosetta/mapping/validate.py` with `validate_referential_integrity` returning `ValidationIssue` values on the shared report type instead of a module-local issue dataclass.
 - [ ] Add a mapping-set to ontology binding in `registry/config/mapping-sets.yaml`: which configured ontology source validates subjects and which validates objects.
-- [ ] Extend `src/plugin_rosetta/application/mapping.py` so validation and build load the bound ontologies and refuse to write output when the report is invalid.
+- [ ] Extend `src/plugin_rosetta/mapping/api.py` so validation and build load the bound ontologies and refuse to write output when the report is invalid.
 - [ ] Add the `--check-references` option to `rosetta mapping validate` and wire the same guard into `rosetta mapping build`.
 - [ ] Add `tests/ontology/test_catalog.py`, `tests/mapping/test_author.py`, and referential cases in `tests/mapping/test_validate.py`, all driven by small synthetic Turtle fixtures.
 
@@ -66,8 +66,8 @@ Referential validation is what catches drift: a mapping that was valid when auth
 | `src/sssom_rosetta/ontology/catalog.py` `list_classes`, `list_properties`, `resource_exists` | `src/plugin_rosetta/ontology/catalog.py` | Behaviour preserved |
 | `src/sssom_rosetta/ontology/catalog.py` `resolve_label` | `src/plugin_rosetta/ontology/catalog.py` | Behaviour change: the legacy "first one encountered" is nondeterministic and must become a documented preference order |
 | `src/sssom_rosetta/mapping/author.py` `resolve_curie`, `build_mapping`, `UnresolvableCurieError` | `src/plugin_rosetta/mapping/author.py` | The graph-resolved half of `author.py`, deferred from E01-S03 |
-| `src/sssom_rosetta/mapping/validate.py` `validate_referential_integrity`, `validate_mapping_set`, `ReferentialIntegrityIssue`, `ValidationResult` | `src/plugin_rosetta/mapping/validate.py` plus `src/plugin_rosetta/core/report.py` | Issue and result types collapse into the shared report |
-| `src/sssom_rosetta/cli.py` `mapping validate` ontology-graph wiring (lines 215 to 269) | `src/plugin_rosetta/application/mapping.py` | Graph loading moves out of the CLI |
+| `src/sssom_rosetta/mapping/validate.py` `validate_referential_integrity`, `validate_mapping_set`, `ReferentialIntegrityIssue`, `ValidationResult` | `src/plugin_rosetta/mapping/validate.py` plus `src/plugin_rosetta/reports.py` | Issue and result types collapse into the shared report |
+| `src/sssom_rosetta/cli.py` `mapping validate` ontology-graph wiring (lines 215 to 269) | `src/plugin_rosetta/mapping/api.py` | Graph loading moves out of the CLI |
 | `sssom-rosetta/tests/mapping/test_validate.py`, `tests/mapping/test_author.py`, `tests/ontology/test_catalog.py` | `tests/mapping/test_validate.py`, `tests/mapping/test_author.py`, `tests/ontology/test_catalog.py` | Port the resolution and issue assertions, add the determinism case |
 
 ## Edge Cases

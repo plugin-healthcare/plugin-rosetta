@@ -53,10 +53,10 @@ Reading it correctly, including multivalued columns and preserved values, is the
 - [ ] Regenerate `src/plugin_rosetta/mapping/models/sssom.py` from `sssom-schema==1.1.0a5` using the linkml Pydantic generator, and exclude it from lint and formatting the way `sssom-rosetta/pyproject.toml` excludes `src/sssom_rosetta/models/sssom.py`.
 - [ ] Add a generation note in the module header recording the schema version and the exact generator command, and state that the file is never hand-edited.
 - [ ] Add `src/plugin_rosetta/mapping/curies.py` with `expand_curie` and an unknown-prefix error, backed by `curies` where it removes hand-rolled logic.
-- [ ] Add `src/plugin_rosetta/io/csvw.py` with `read_mapping_rows(csv_path, metadata_path)` returning typed row dicts and a conformance check that runs before conversion.
+- [ ] Add `src/plugin_rosetta/utils/io/csvw.py` with `read_mapping_rows(csv_path, metadata_path)` returning typed row dicts and a conformance check that runs before conversion.
 - [ ] Add `src/plugin_rosetta/mapping/validate.py` with `validate_schema_conformance` raising a package schema conformance error.
 - [ ] Replace the legacy blanket cell drop with explicit handling: distinguish absent columns from empty strings, and emit a `ValidationIssue` when an empty cell is collapsed to a default.
-- [ ] Add `src/plugin_rosetta/application/mapping.py` with `read_mapping_set(key, config_path, root)` composing configuration, CSVW reading, and schema validation.
+- [ ] Add `src/plugin_rosetta/mapping/api.py` with `read_mapping_set(key, config_path, root)` composing configuration, CSVW reading, and schema validation.
 - [ ] Add the thin `rosetta mapping validate` command over the application function.
 - [ ] Add `tests/mapping/test_curies.py`, `tests/io/test_csvw.py`, `tests/mapping/test_validate.py`, and `tests/mapping/test_first_mapping_set.py` covering the preserved eight rows.
 
@@ -64,13 +64,13 @@ Reading it correctly, including multivalued columns and preserved values, is the
 
 | Legacy source | Target | Note |
 | --- | --- | --- |
-| `src/sssom_rosetta/mapping/io.py` `read_mapping_set_csvw` | `src/plugin_rosetta/io/csvw.py` plus `src/plugin_rosetta/application/mapping.py` | Split reading from mapping-set assembly; mapping-set metadata now comes from configuration, not keyword arguments |
-| `src/sssom_rosetta/mapping/io.py` empty-cell drop (`if value not in (None, "")`) | `src/plugin_rosetta/io/csvw.py` | Behaviour change: collapsing an empty cell must be reported, not silent |
+| `src/sssom_rosetta/mapping/io.py` `read_mapping_set_csvw` | `src/plugin_rosetta/utils/io/csvw.py` plus `src/plugin_rosetta/mapping/api.py` | Split reading from mapping-set assembly; mapping-set metadata now comes from configuration, not keyword arguments |
+| `src/sssom_rosetta/mapping/io.py` empty-cell drop (`if value not in (None, "")`) | `src/plugin_rosetta/utils/io/csvw.py` | Behaviour change: collapsing an empty cell must be reported, not silent |
 | `src/sssom_rosetta/mapping/author.py` `expand_curie`, `UnknownPrefixError` | `src/plugin_rosetta/mapping/curies.py` | Graph-free half of `author.py`; `resolve_curie` and `build_mapping` move in E01-S06 |
 | `src/sssom_rosetta/mapping/validate.py` `validate_schema_conformance`, `SchemaConformanceError` | `src/plugin_rosetta/mapping/validate.py` | Referential integrity stays behind until E01-S06 |
 | `src/sssom_rosetta/models/sssom.py` | `src/plugin_rosetta/mapping/models/sssom.py` | Regenerate from the pin, never copy and hand-edit |
 | `sssom-rosetta/tests/mapping/test_io.py`, `tests/mapping/test_first_mapping_set.py` | `tests/io/test_csvw.py`, `tests/mapping/test_first_mapping_set.py` | Port the row-count, CURIE-map, multivalued, and invalid-row assertions |
-| `src/sssom_rosetta/cli.py` `_read_and_validate_csvw` (line 132) and `mapping validate` (line 215) | `src/plugin_rosetta/application/mapping.py` plus `src/plugin_rosetta/cli.py` | The shared read-and-validate helper becomes an application function |
+| `src/sssom_rosetta/cli.py` `_read_and_validate_csvw` (line 132) and `mapping validate` (line 215) | `src/plugin_rosetta/mapping/api.py` plus `src/plugin_rosetta/cli.py` | The shared read-and-validate helper becomes a public feature operation |
 
 ## Edge Cases
 

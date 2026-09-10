@@ -8,7 +8,7 @@ each side, the graph the CURIE must resolve against.
 
 from typing import TYPE_CHECKING, Any
 
-from plugin_rosetta.core.errors import UnresolvableCurieError
+from plugin_rosetta.errors import UnresolvableCurieError
 from plugin_rosetta.mapping.curies import expand_curie
 from plugin_rosetta.mapping.models.sssom import Mapping
 from plugin_rosetta.ontology.catalog import resource_exists

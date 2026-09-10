@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from curies import Converter
 
-from plugin_rosetta.core.errors import ValidationError
+from plugin_rosetta.errors import ValidationError
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

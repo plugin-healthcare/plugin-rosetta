@@ -1,7 +1,7 @@
 import pytest
 from rdflib import Graph
 
-from plugin_rosetta.core.errors import UnresolvableCurieError, ValidationError
+from plugin_rosetta.errors import UnresolvableCurieError, ValidationError
 from plugin_rosetta.mapping.author import build_mapping, resolve_curie
 
 CURIE_MAP = {

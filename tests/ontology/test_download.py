@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING
 import httpx
 import pytest
 
-from plugin_rosetta.core.errors import RosettaIOError, ValidationError
-from plugin_rosetta.core.report import IssueSeverity
+from plugin_rosetta.errors import RosettaIOError, ValidationError
 from plugin_rosetta.ontology.download import download_to_cache
+from plugin_rosetta.reports import IssueSeverity
 
 if TYPE_CHECKING:
     from collections.abc import Callable

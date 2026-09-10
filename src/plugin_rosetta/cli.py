@@ -5,25 +5,27 @@ from typing import TYPE_CHECKING, Annotated
 
 import typer
 
-from plugin_rosetta.application.mapping import (
+from plugin_rosetta.errors import ConfigurationError, RosettaError
+from plugin_rosetta.mapping import (
     DEFAULT_MAPPING_CONFIG,
     build_mapping_artifacts,
+    list_mapping_sets,
     read_mapping_set,
     report_mapping_set,
 )
-from plugin_rosetta.application.mapping_sets import list_mapping_sets
-from plugin_rosetta.application.ontology import (
+from plugin_rosetta.ontology import (
     DEFAULT_ONTOLOGY_CONFIG,
     fetch_ontology_source,
 )
-from plugin_rosetta.application.vocabulary import (
+from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR as DEFAULT_ONTOLOGY_CACHE_DIR
+from plugin_rosetta.vocabulary import (
     DEFAULT_VOCABULARY_CONFIG,
+    DEFAULT_VOCABULARY_OUTPUT_DIR,
+    build_cached_omop_graph,
     ingest_release,
 )
-from plugin_rosetta.application.workspace import StarterSelection, initialize_workspace, list_starter_sources
-from plugin_rosetta.core.errors import ConfigurationError, RosettaError
-from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR as DEFAULT_ONTOLOGY_CACHE_DIR
 from plugin_rosetta.vocabulary.ingest import DEFAULT_CACHE_DIR as DEFAULT_VOCABULARY_CACHE_DIR
+from plugin_rosetta.workspace import StarterSelection, initialize_workspace, list_starter_sources
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -266,3 +268,30 @@ def ingest_vocabulary_release_command(
     typer.echo(path)
     for issue in report.issues:
         typer.echo(f"{issue.severity}: {issue.message}")
+
+
+@vocabulary_app.command("build-omop")
+def build_omop_vocabulary_command(
+    output_dir: Annotated[
+        Path,
+        typer.Option(help="Directory in which to write the OMOP graph."),
+    ] = DEFAULT_VOCABULARY_OUTPUT_DIR,
+    config: Annotated[
+        Path,
+        typer.Option(help="Path to the vocabulary source configuration."),
+    ] = DEFAULT_VOCABULARY_CONFIG,
+    cache_dir: Annotated[
+        Path,
+        typer.Option(help="Base directory holding ingested vocabulary releases."),
+    ] = DEFAULT_VOCABULARY_CACHE_DIR,
+) -> None:
+    """Build an OMOP graph from the configured ingested release."""
+    artifacts = _guard(
+        lambda: build_cached_omop_graph(
+            output_dir,
+            config_path=config,
+            cache_dir=cache_dir,
+        )
+    )
+    for path in artifacts:
+        typer.echo(path)

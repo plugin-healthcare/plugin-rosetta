@@ -52,28 +52,28 @@ Moving them to tracked configuration with pinned version, URL, and checksum make
 ## Technical Tasks
 
 - [ ] Create `registry/config/ontology-sources.yaml` with the two migrated sources, including the comments that explain why each URL is pinned the way it is.
-- [ ] Add `src/plugin_rosetta/config/ontology_sources.py` with a frozen Pydantic `OntologySource` model and a loader that reuses the YAML boundary from E01-S02.
+- [ ] Add `src/plugin_rosetta/ontology/config.py` with a frozen Pydantic `OntologySource` model and a loader that reuses the YAML boundary from E01-S02.
 - [ ] Add `src/plugin_rosetta/ontology/download.py` with a reusable `download_to_cache(url, destination, expected_checksum)` helper that is source-type agnostic.
 - [ ] Add `src/plugin_rosetta/ontology/loader.py` with `fetch_ontology` and `load_ontology` over the download helper, defaulting the cache root to `registry/data/ontologies`.
 - [ ] Write downloads to a temporary file in the destination directory and replace on success so a failed or mismatched download leaves no partial file.
 - [ ] Return missing-checksum findings as `ValidationIssue` values on the result instead of logging only.
 - [ ] Backfill the pinned checksums for `omop-cdm` and `onz-g` as a reviewed change once a curator confirms the downloaded bytes.
-- [ ] Add `src/plugin_rosetta/application/ontology.py` with `fetch_ontology_source(name, config_path, cache_dir, force)`.
+- [ ] Add `src/plugin_rosetta/ontology/api.py` with `fetch_ontology_source(name, config_path, cache_dir, force)`.
 - [ ] Add the thin `rosetta ontology fetch` command and a `justfile` recipe that fetches both configured sources.
-- [ ] Add `tests/config/test_ontology_sources.py` and `tests/ontology/test_loader.py` with a stubbed HTTP client so tests run offline.
+- [ ] Add `tests/ontology/test_config.py` and `tests/ontology/test_loader.py` with a stubbed HTTP client so tests run offline.
 
 ## Migration Notes
 
 | Legacy source | Target | Note |
 | --- | --- | --- |
 | `src/sssom_rosetta/ontology/sources.py` `ONTOLOGY_SOURCES` globals | `registry/config/ontology-sources.yaml` | Source definitions become tracked content; keep the pinned commit SHA and widoco URL comments |
-| `src/sssom_rosetta/ontology/sources.py` `OntologySource`, `get_source`, `UnknownOntologySourceError` | `src/plugin_rosetta/config/ontology_sources.py` | Dataclass becomes a frozen Pydantic model for YAML validation |
+| `src/sssom_rosetta/ontology/sources.py` `OntologySource`, `get_source`, `UnknownOntologySourceError` | `src/plugin_rosetta/ontology/config.py` | Dataclass becomes a frozen Pydantic model for YAML validation |
 | `src/sssom_rosetta/ontology/loader.py` `fetch_ontology`, `load_ontology`, `_cache_path` | `src/plugin_rosetta/ontology/loader.py` | Same cache layout, new default root `registry/data/ontologies` |
 | `src/sssom_rosetta/ontology/loader.py` missing-checksum `logger.info` branch | `src/plugin_rosetta/ontology/loader.py` | Behaviour change: becomes a reported validation issue |
 | `src/sssom_rosetta/ontology/loader.py` `requests.get` | `src/plugin_rosetta/ontology/download.py` | Use the declared HTTP client dependency behind a small helper |
-| `src/sssom_rosetta/cli.py` `ontology fetch` (line 104) | `src/plugin_rosetta/application/ontology.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to the application function |
+| `src/sssom_rosetta/cli.py` `ontology fetch` (line 104) | `src/plugin_rosetta/ontology/api.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to the public feature API |
 | `sssom-rosetta/justfile` `fetch` recipe | `justfile` | Same two sources, driven by configuration |
-| `sssom-rosetta/tests/ontology/test_loader.py`, `tests/ontology/test_sources.py` | `tests/ontology/test_loader.py`, `tests/config/test_ontology_sources.py` | Port cache-hit, force, checksum, and network-error assertions |
+| `sssom-rosetta/tests/ontology/test_loader.py`, `tests/ontology/test_sources.py` | `tests/ontology/test_loader.py`, `tests/ontology/test_config.py` | Port cache-hit, force, checksum, and network-error assertions |
 
 ## Edge Cases
 
@@ -87,7 +87,7 @@ Moving them to tracked configuration with pinned version, URL, and checksum make
 ## Definition of Done
 
 - [ ] Every new behaviour was driven by a failing test written first.
-- [ ] `uv run pytest tests/ontology tests/config` passes and makes no network call.
+- [ ] `uv run pytest tests/ontology` passes and makes no network call.
 - [ ] `uv run tara check` passes.
 - [ ] `registry/README.md` documents the ontology source configuration and the cache layout.
 - [ ] Cached ontology files stay in their original Turtle form and are usable by any RDF tool without `plugin_rosetta`.

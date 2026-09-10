@@ -8,14 +8,14 @@ from typing import TYPE_CHECKING
 from rdflib import Graph
 from rdflib.exceptions import ParserError
 
-from plugin_rosetta.core.errors import RosettaIOError
+from plugin_rosetta.errors import RosettaIOError
 from plugin_rosetta.ontology.download import download_to_cache
 
 if TYPE_CHECKING:
     import httpx
 
-    from plugin_rosetta.config.ontology_sources import OntologySource
-    from plugin_rosetta.core.report import ValidationIssue
+    from plugin_rosetta.ontology.config import OntologySource
+    from plugin_rosetta.reports import ValidationIssue
 
 DEFAULT_CACHE_DIR = Path("registry/data/ontologies")
 _HASH_CHUNK_SIZE = 1024 * 1024

@@ -2,13 +2,13 @@ import pytest
 from linkml_runtime.utils.metamodelcore import URI
 from rdflib import Graph
 
-from plugin_rosetta.core.errors import ValidationError
-from plugin_rosetta.core.report import IssueSeverity
+from plugin_rosetta.errors import ValidationError
 from plugin_rosetta.mapping.models.sssom import Mapping, MappingSet
 from plugin_rosetta.mapping.validate import (
     validate_referential_integrity,
     validate_schema_conformance,
 )
+from plugin_rosetta.reports import IssueSeverity
 
 CURIE_MAP = {
     "omop": "https://w3id.org/omop/ontology/",

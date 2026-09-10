@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from plugin_rosetta.config.vocabulary_sources import VocabularySource
-from plugin_rosetta.core.errors import VocabularyChecksumError, VocabularyIngestError
-from plugin_rosetta.core.report import IssueSeverity
+from plugin_rosetta.errors import VocabularyChecksumError, VocabularyIngestError
+from plugin_rosetta.reports import IssueSeverity
+from plugin_rosetta.vocabulary import VocabularySource
 from plugin_rosetta.vocabulary.ingest import cache_dir_for, find_file, ingest_zip
 
 if TYPE_CHECKING:

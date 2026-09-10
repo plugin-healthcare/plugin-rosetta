@@ -56,28 +56,28 @@ Ingest is the controlled entry point that pins what was loaded, verifies it, and
 ## Technical Tasks
 
 - [x] Create `registry/config/vocabulary-sources.yaml` from the legacy registry, preserving the version, kind, description, download page, and format-version fields.
-- [x] Add `src/plugin_rosetta/config/vocabulary_sources.py` with a frozen Pydantic `VocabularySource` model and lookup that reuses the YAML boundary.
+- [x] Add `src/plugin_rosetta/vocabulary/config.py` with a frozen Pydantic `VocabularySource` model and lookup that reuses the YAML boundary.
 - [x] Add `src/plugin_rosetta/vocabulary/ingest.py` with `cache_dir_for`, `ingest_zip`, and `find_file`, defaulting the cache root to `registry/data/vocabularies`.
 - [x] Extract to a temporary directory next to the target and rename on success, so a failed extraction never leaves a half-populated cache directory.
 - [x] Reject archive members with absolute paths or parent-directory traversal before extracting.
 - [ ] Add `src/plugin_rosetta/vocabulary/frames.py` with Nyctea-backed schema and content validation of a Polars frame against a declared release table contract.
 - [x] Declare the expected columns per release table as tracked content under `registry/schemas/` rather than Python constants, so a format change is reviewable.
 - [x] Add synthetic fixtures under `tests/fixtures/vocabulary/` that mimic Athena, DHD `uitleverformaat4.3`, and RF2 layouts with a handful of invented rows.
-- [x] Add `src/plugin_rosetta/application/vocabulary.py` with `ingest_release(name, zip_path, cache_dir, force)`.
+- [x] Add `src/plugin_rosetta/vocabulary/api.py` with `ingest_release(name, zip_path, cache_dir, force)`.
 - [x] Add the thin `rosetta vocabulary ingest` command and a `justfile` recipe that wraps it.
-- [x] Add `tests/config/test_vocabulary_sources.py`, `tests/vocabulary/test_ingest.py`, and `tests/vocabulary/test_frames.py`.
+- [x] Add `tests/vocabulary/test_config.py`, `tests/vocabulary/test_ingest.py`, and `tests/vocabulary/test_frames.py`.
 
 ## Migration Notes
 
 | Legacy source | Target | Note |
 | --- | --- | --- |
 | `src/sssom_rosetta/vocabulary/sources.py` `VOCABULARY_SOURCES` globals | `registry/config/vocabulary-sources.yaml` | Source definitions become tracked content |
-| `src/sssom_rosetta/vocabulary/sources.py` `VocabularySource`, `get_vocabulary_source`, `UnknownVocabularySourceError` | `src/plugin_rosetta/config/vocabulary_sources.py` | The frozen Pydantic model already anticipated a YAML loader |
+| `src/sssom_rosetta/vocabulary/sources.py` `VocabularySource`, `get_vocabulary_source`, `UnknownVocabularySourceError` | `src/plugin_rosetta/vocabulary/config.py` | The frozen Pydantic model already anticipated a YAML loader |
 | `src/sssom_rosetta/vocabulary/fetch.py` `ingest_zip`, `cache_dir_for`, `find_file`, `_is_extracted` | `src/plugin_rosetta/vocabulary/ingest.py` | Same behaviour, new default cache root, plus safe extraction |
 | `src/sssom_rosetta/vocabulary/fetch.py` missing-checksum `logger.info` branch | `src/plugin_rosetta/vocabulary/ingest.py` | Behaviour change: becomes a reported validation issue |
-| `src/sssom_rosetta/vocabulary/errors.py` `VocabularyError` | `src/plugin_rosetta/core/errors.py` subclass | Vocabulary errors inherit the package base error added in E01-S01 |
+| `src/sssom_rosetta/vocabulary/errors.py` `VocabularyError` | `src/plugin_rosetta/errors.py` subclass | Vocabulary errors inherit the package base error added in E01-S01 |
 | `src/sssom_rosetta/vocabulary/dhd.py` `_EXPECTED_COLUMNS`, `_scan_dhd` header check, `DhdSchemaError` | `registry/schemas/` plus `src/plugin_rosetta/vocabulary/frames.py` | Manual column checks are replaced by declared contracts validated with Nyctea |
-| `src/sssom_rosetta/cli.py` `vocabulary ingest` (line 559) | `src/plugin_rosetta/application/vocabulary.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to the application function |
+| `src/sssom_rosetta/cli.py` `vocabulary ingest` (line 559) | `src/plugin_rosetta/vocabulary/api.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to the public feature API |
 | `sssom-rosetta/justfile` `vocab-ingest` recipe | `justfile` | Same manual-ZIP entry point |
 | `sssom-rosetta/tests/vocabulary/test_sources.py` ingest and find-file cases (lines 208 to 243) | `tests/vocabulary/test_ingest.py` | Port extract, idempotence, missing-file, unique, and ambiguous cases |
 
@@ -94,7 +94,7 @@ Ingest is the controlled entry point that pins what was loaded, verifies it, and
 ## Definition of Done
 
 - [x] Every new behaviour was driven by a failing test written first.
-- [x] `uv run pytest tests/vocabulary tests/config` passes offline against synthetic fixtures only.
+- [x] `uv run pytest tests/vocabulary` passes offline against synthetic fixtures only.
 - [x] `uv run tara check` passes.
 - [x] `registry/README.md` documents the vocabulary source configuration, the manual ingest flow, and the cache layout.
 - [x] Extracted releases stay in their original published formats and remain usable without `plugin_rosetta`.

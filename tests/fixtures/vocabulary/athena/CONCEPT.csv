@@ -1,2 +1,8 @@
-concept_id	concept_name	domain_id	vocabulary_id	concept_class_id	standard_concept	concept_code	valid_start_date	valid_end_date	invalid_reason
-SYNTHETIC-OMOP-1	Synthetic concept	Condition	SYNTHETIC	Class	S	CODE-1	20260101	20991231	""
+concept_id	concept_name	domain_id	vocabulary_id	concept_class_id	standard_concept	concept_code	valid_start_date	invalid_reason	valid_end_date
+SYNTHETIC-OMOP-1	Glucose [Mass/volume]	Measurement	LOINC	Lab Test	S	H&P.SURG PROC	20260101		20991231
+SYNTHETIC-OMOP-2	Type 2 diabetes mellitus	Condition	SNOMED	Clinical Finding	S	123456789012345678	20260101		20991231
+SYNTHETIC-OMOP-3	RxNorm-ext product	Drug	RxNorm Extension	Clinical Drug	S		20260101		20991231
+SYNTHETIC-OMOP-4	Aspirin 81 MG "low dose"	Drug	ICD10CM	Code	S	E11.9	20260101		20991231
+SYNTHETIC-OMOP-5	Aspirin 81 MG Oral Tablet	Drug	RxNorm	Clinical Drug	S	202433	20260101		20991231
+SYNTHETIC-OMOP-6	aspirin	Drug	RxNorm	Ingredient	S	1191	20260101		20991231
+SYNTHETIC-OUTSIDE	Outside target	Metadata	SYNTHETIC	Class	S	CODE-OUT	20260101		20991231

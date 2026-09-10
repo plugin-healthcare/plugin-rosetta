@@ -54,13 +54,13 @@ They must be deterministic, complete, and readable by tools that know SSSOM, Tur
 
 ## Technical Tasks
 
-- [ ] Add `src/plugin_rosetta/io/sssom.py` with `write_sssom_tsv` and `read_sssom_tsv` over `sssom-py`'s `MappingSetDataFrame`, `write_tsv`, and `parse_sssom_table`.
-- [ ] Add `src/plugin_rosetta/io/rdf.py` with `mapping_set_to_graph` and `write_turtle`, binding every configured prefix on the graph.
+- [ ] Add `src/plugin_rosetta/utils/io/sssom.py` with `write_sssom_tsv` and `read_sssom_tsv` over `sssom-py`'s `MappingSetDataFrame`, `write_tsv`, and `parse_sssom_table`.
+- [ ] Add `src/plugin_rosetta/utils/io/rdf.py` with `mapping_set_to_graph` and `write_turtle`, binding every configured prefix on the graph.
 - [ ] Implement writes atomically: write to a temporary file inside the destination directory and replace on success, so a failure leaves no partial file.
 - [ ] Add `src/plugin_rosetta/mapping/report.py` with `diff_mapping_sets`, `predicate_counts`, `render_markdown`, and `render_html`.
 - [ ] Derive the multivalued field list from the generated model fields rather than a hardcoded list, matching the legacy `_LIST_FIELDS` approach.
 - [ ] Fold the legacy documentation-page generator into the report module as an optional output rather than a separate module.
-- [ ] Add `src/plugin_rosetta/application/mapping.py` functions `build_mapping_artifacts` and `report_mapping_set` returning written paths.
+- [ ] Add `src/plugin_rosetta/mapping/api.py` functions `build_mapping_artifacts` and `report_mapping_set` returning written paths.
 - [ ] Add the thin `rosetta mapping build` and `rosetta mapping report` commands, plus `justfile` recipes that wrap them.
 - [ ] Add an independent-reader test that runs a subprocess with only `rdflib` and `sssom-py` imported and asserts the outputs parse.
 - [ ] Add `tests/io/test_sssom.py`, `tests/io/test_rdf.py`, and `tests/mapping/test_report.py`.
@@ -69,12 +69,12 @@ They must be deterministic, complete, and readable by tools that know SSSOM, Tur
 
 | Legacy source | Target | Note |
 | --- | --- | --- |
-| `src/sssom_rosetta/mapping/io.py` `write_sssom_tsv`, `_mapping_row` | `src/plugin_rosetta/io/sssom.py` | Keep the `|`-join and `None`-drop behaviour |
-| `src/sssom_rosetta/mapping/io.py` `mapping_set_to_graph`, `write_ttl` | `src/plugin_rosetta/io/rdf.py` | Keep one triple per mapping; do not reify mapping metadata in this release |
-| `src/sssom_rosetta/mapping/report.py` `load_mapping_set_tsv`, `_parse_list_cell`, `_is_nan` | `src/plugin_rosetta/io/sssom.py` `read_sssom_tsv` | Reading belongs at the I/O boundary, not in the report module |
+| `src/sssom_rosetta/mapping/io.py` `write_sssom_tsv`, `_mapping_row` | `src/plugin_rosetta/utils/io/sssom.py` | Keep the `|`-join and `None`-drop behaviour |
+| `src/sssom_rosetta/mapping/io.py` `mapping_set_to_graph`, `write_ttl` | `src/plugin_rosetta/utils/io/rdf.py` | Keep one triple per mapping; do not reify mapping metadata in this release |
+| `src/sssom_rosetta/mapping/report.py` `load_mapping_set_tsv`, `_parse_list_cell`, `_is_nan` | `src/plugin_rosetta/utils/io/sssom.py` `read_sssom_tsv` | Reading belongs at the I/O boundary, not in the report module |
 | `src/sssom_rosetta/mapping/report.py` `diff_mapping_sets`, `predicate_counts`, `render_markdown`, `render_html` | `src/plugin_rosetta/mapping/report.py` | Keep the diff and render split |
 | `src/sssom_rosetta/mapping/docs_pages.py` | `src/plugin_rosetta/mapping/report.py` | Folded in as an optional documentation output, not a separate module |
-| `src/sssom_rosetta/cli.py` `mapping build` (line 270), `mapping report` (line 322), `docs generate-mapping-pages` (line 367) | `src/plugin_rosetta/application/mapping.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to application functions |
+| `src/sssom_rosetta/cli.py` `mapping build` (line 270), `mapping report` (line 322), `docs generate-mapping-pages` (line 367) | `src/plugin_rosetta/mapping/api.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to public feature operations |
 | `sssom-rosetta/justfile` `build`, `report`, `docs-pages` recipes | `justfile` | Recipes become thin wrappers with no mapping metadata flags |
 | `sssom-rosetta/tests/mapping/test_io.py`, `tests/mapping/test_report.py`, `tests/mapping/test_docs_pages.py` | `tests/io/test_sssom.py`, `tests/io/test_rdf.py`, `tests/mapping/test_report.py` | Port the header, triple, diff, and render assertions |
 

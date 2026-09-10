@@ -5,8 +5,8 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from plugin_rosetta.io._atomic import atomic_write_text
-from plugin_rosetta.io.sssom import read_sssom_tsv
+from plugin_rosetta.utils.io.atomic import atomic_write_text
+from plugin_rosetta.utils.io.sssom import read_sssom_tsv
 
 if TYPE_CHECKING:
     from pathlib import Path

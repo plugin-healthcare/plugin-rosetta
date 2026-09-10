@@ -10,11 +10,11 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError as PydanticValidationError
 
-from plugin_rosetta.core.errors import ValidationError
-from plugin_rosetta.core.report import IssueSeverity, ValidationIssue, ValidationReport
+from plugin_rosetta.errors import ValidationError
 from plugin_rosetta.mapping.curies import expand_curie
 from plugin_rosetta.mapping.models.sssom import Mapping
 from plugin_rosetta.ontology.catalog import resource_exists
+from plugin_rosetta.reports import IssueSeverity, ValidationIssue, ValidationReport
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

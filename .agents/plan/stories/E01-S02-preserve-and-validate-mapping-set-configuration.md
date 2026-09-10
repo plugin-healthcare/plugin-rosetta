@@ -46,13 +46,13 @@ They are now tracked in `registry/config/mapping-sets.yaml`, and the package mus
 
 ## Technical Tasks
 
-- [ ] Add `src/plugin_rosetta/config/mapping_sets.py` with frozen `MappingSetConfig` and `MappingSetsConfig` Pydantic models using `model_config = ConfigDict(frozen=True, extra="forbid")`.
-- [ ] Add a YAML loader in `src/plugin_rosetta/io/yaml.py` that reads a path and returns a plain mapping, with parse failures raised as a configuration error.
+- [ ] Add `src/plugin_rosetta/mapping/config.py` with frozen `MappingSetConfig` and `MappingSetsConfig` Pydantic models using `model_config = ConfigDict(frozen=True, extra="forbid")`.
+- [ ] Add a YAML loader in `src/plugin_rosetta/utils/io/yaml.py` that reads a path and returns a plain mapping, with parse failures raised as a configuration error.
 - [ ] Validate `mapping_set_id` and `license` as absolute IRIs and every `curie_map` value as an absolute IRI that ends in `#` or `/`.
 - [ ] Resolve `mapping_file` and `metadata_file` relative to a caller-supplied root, defaulting to the current working directory, and verify existence at load time.
-- [ ] Add `src/plugin_rosetta/application/mapping_sets.py` with `list_mapping_sets(config_path, root)` returning plain data.
+- [ ] Add `src/plugin_rosetta/mapping/registry.py` with `list_mapping_sets(config_path, root)` returning plain data.
 - [ ] Add the `rosetta mapping list` command in `src/plugin_rosetta/cli.py` as a thin wrapper over the application function.
-- [ ] Add `tests/config/test_mapping_sets.py` covering the preserved tracked file plus each failure case with a synthetic YAML file under `tmp_path`.
+- [ ] Add `tests/mapping/test_config.py` covering the preserved tracked file plus each failure case with a synthetic YAML file under `tmp_path`.
 - [ ] Record the `mapping_set_id` decision: either replace the `sssom-rosetta` build URL with the new canonical identifier and keep the previous value in a documented provenance field, or record in `registry/README.md` that the legacy identifier is deliberately retained.
 - [ ] Record the `author_label` decision: either apply the reviewed correction to `registry/mappings/omop-onz-g.csv` in a separate reviewed change, or document in `registry/README.md` that the legacy value is retained for compatibility.
 
@@ -61,8 +61,8 @@ They are now tracked in `registry/config/mapping-sets.yaml`, and the package mus
 | Legacy source | Target | Note |
 | --- | --- | --- |
 | `sssom-rosetta/justfile` variables `mapping_csv`, `mapping_metadata`, `mapping_set_id`, `mapping_license`, `curie_map` (lines 13 to 18) | `registry/config/mapping-sets.yaml` | Already preserved; this story adds the model that reads them |
-| `sssom-rosetta/justfile` `validate` and `build` recipes passing `--mapping-set-id`, `--license`, `--curie-map` | `justfile` plus `src/plugin_rosetta/config/mapping_sets.py` | Recipes stop passing mapping-set metadata as flags |
-| `src/sssom_rosetta/vocabulary/sources.py` `VocabularySource` (frozen Pydantic model) | `src/plugin_rosetta/config/mapping_sets.py` | Reuse the frozen-model pattern, not the vocabulary content |
+| `sssom-rosetta/justfile` `validate` and `build` recipes passing `--mapping-set-id`, `--license`, `--curie-map` | `justfile` plus `src/plugin_rosetta/mapping/config.py` | Recipes stop passing mapping-set metadata as flags |
+| `src/sssom_rosetta/vocabulary/sources.py` `VocabularySource` (frozen Pydantic model) | `src/plugin_rosetta/mapping/config.py` | Reuse the frozen-model pattern, not the vocabulary content |
 
 ## Edge Cases
 
@@ -75,7 +75,7 @@ They are now tracked in `registry/config/mapping-sets.yaml`, and the package mus
 ## Definition of Done
 
 - [ ] Every new behaviour was driven by a failing test written first.
-- [ ] `uv run pytest tests/config tests/test_cli.py` passes.
+- [ ] `uv run pytest tests/mapping/test_config.py tests/test_cli.py` passes.
 - [ ] `uv run tara check` passes.
 - [ ] `registry/README.md` documents the configuration shape and the two recorded decisions.
 - [ ] `registry/config/mapping-sets.yaml` remains plain YAML that any standard YAML reader can parse without `plugin_rosetta`.

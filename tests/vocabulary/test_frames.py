@@ -3,7 +3,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from plugin_rosetta.core.report import IssueSeverity
+from plugin_rosetta.reports import IssueSeverity
 from plugin_rosetta.vocabulary.frames import load_table_contract, validate_release_frame
 
 ROOT = Path(__file__).parents[2]

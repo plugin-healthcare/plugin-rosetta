@@ -61,7 +61,7 @@ Two working adapters make it possible to extract the shared source-adapter contr
 - [ ] Add `src/plugin_rosetta/vocabulary/dhd.py` with the release scan, the as-of filter, `load_concepts`, `load_snomed_terms`, `load_labels`, `load_icd10`, `load_dbc`, and `build_graph`.
 - [ ] Make label selection explicitly deterministic by ordering on a declared language preference rather than relying on incidental sort order of language codes.
 - [ ] Keep the DBC composite identity in `load_dbc` and add `dbc_iri` alongside the DHD concept IRI helpers in `src/plugin_rosetta/vocabulary/namespaces.py`.
-- [ ] Add the DHD concept and close-match templates to `src/plugin_rosetta/graph/templates.py`.
+- [ ] Add the DHD concept and close-match templates to `src/plugin_rosetta/vocabulary/templates.py`.
 - [ ] Read the format version from the tracked vocabulary source configuration and assert it in `build_from_release`, with no duplicate constant in code.
 - [ ] Validate each loaded DHD frame against its declared table contract from E01-S07 instead of the legacy in-module column set.
 - [ ] Extract the shared adapter contract only after both DHD builds pass: a protocol or small registry describing build from release, write, and provenance, replacing per-source duplication in the application layer.
@@ -79,9 +79,9 @@ Two working adapters make it possible to extract the shared source-adapter contr
 | `src/sssom_rosetta/vocabulary/namespaces.py` `dbc_iri`, `dhd_concept_iri`, `THESAURUS_NAMESPACES`, `UnknownThesaurusError` | `src/plugin_rosetta/vocabulary/namespaces.py` | Keep DT and VT in separate namespaces |
 | `src/sssom_rosetta/vocabulary/dhd.py` `_concept_rows`, `_close_match_rows`, `DhdCrossLinks`, `build_graph`, `write_ttl` | `src/plugin_rosetta/vocabulary/dhd.py` | Keep the optional-parameter drop semantics |
 | `src/sssom_rosetta/vocabulary/dhd.py` `FORMAT_VERSION`, `_find_release_dir`, `_exact_suffix`, `DhdFormatVersionError` | `src/plugin_rosetta/vocabulary/dhd.py` plus `registry/config/vocabulary-sources.yaml` | The format version comes from tracked configuration |
-| `src/sssom_rosetta/vocabulary/templates.py` `DHD_CONCEPT_TEMPLATE`, `DHD_CLOSE_MATCH_TEMPLATE` and their IRIs | `src/plugin_rosetta/graph/templates.py` | Behaviour preserved |
+| `src/sssom_rosetta/vocabulary/templates.py` `DHD_CONCEPT_TEMPLATE`, `DHD_CLOSE_MATCH_TEMPLATE` and their IRIs | `src/plugin_rosetta/vocabulary/templates.py` | Behaviour preserved |
 | `src/sssom_rosetta/vocabulary/pipeline.py` `BuildTarget`, `BUILD_TARGETS`, `get_build_target`, `build_target`, `MissingReleaseError` | `src/plugin_rosetta/vocabulary/adapters.py` | Extracted here, after two adapters prove the contract |
-| `src/sssom_rosetta/cli.py` `vocabulary build-dhd-diagnosethesaurus` (line 638), `build-dhd-verrichtingenthesaurus` (line 649), `_run_build_target` (line 594) | `src/plugin_rosetta/application/vocabulary.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to application functions |
+| `src/sssom_rosetta/cli.py` `vocabulary build-dhd-diagnosethesaurus` (line 638), `build-dhd-verrichtingenthesaurus` (line 649), `_run_build_target` (line 594) | `src/plugin_rosetta/vocabulary/api.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to the public feature API |
 | `sssom-rosetta/tests/vocabulary/test_dhd.py` | `tests/vocabulary/test_dhd.py` | Port the active-window, dedupe, blank-exclusion, specialty-disambiguation, namespace-separation, and Dutch-preference cases |
 
 ## Edge Cases

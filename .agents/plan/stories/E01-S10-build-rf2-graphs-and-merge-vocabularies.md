@@ -61,10 +61,10 @@ This story also makes template behaviour observable by reporting how many triple
 - [ ] Add `src/plugin_rosetta/vocabulary/loinc_snomed.py` with `build_graph` over already-loaded frames and a release-directory entry point.
 - [ ] Add `src/plugin_rosetta/vocabulary/snomed_international.py` that reuses the same graph builder and constrains file lookup to the snapshot English files.
 - [ ] Register both RF2 adapters through the shared adapter contract from E01-S09 and extend the contract tests to cover them.
-- [ ] Add `src/plugin_rosetta/graph/merge.py` with a file-based Maplib merge and an in-memory merge for tests that need triple-level assertions.
-- [ ] Add omission counting to the template mapping path in `src/plugin_rosetta/graph/templates.py`, returning counts as part of the build result and surfacing them in the provenance sidecar.
+- [ ] Add `src/plugin_rosetta/vocabulary/merge.py` with a file-based Maplib merge and an in-memory merge for tests that need triple-level assertions.
+- [ ] Add omission counting to the template mapping path in `src/plugin_rosetta/vocabulary/templates.py`, returning counts as part of the build result and surfacing them in the provenance sidecar.
 - [ ] Add the three thin CLI commands and `justfile` recipes, keeping the RF2 builds opt-in and outside the default vocabulary build.
-- [ ] Add `tests/vocabulary/test_rf2.py`, `tests/vocabulary/test_loinc_snomed.py`, `tests/vocabulary/test_snomed_international.py`, `tests/graph/test_merge.py`, and omission-count cases in `tests/graph/test_templates.py`.
+- [ ] Add `tests/vocabulary/test_rf2.py`, `tests/vocabulary/test_loinc_snomed.py`, `tests/vocabulary/test_snomed_international.py`, `tests/vocabulary/test_merge.py`, and omission-count cases in `tests/vocabulary/test_templates.py`.
 
 ## Migration Notes
 
@@ -73,9 +73,9 @@ This story also makes template behaviour observable by reporting how many triple
 | `src/sssom_rosetta/vocabulary/rf2.py` | `src/plugin_rosetta/vocabulary/rf2.py` | Keep the tab separator, disabled quote character, and text-only schema |
 | `src/sssom_rosetta/vocabulary/loinc_snomed.py` `build_graph`, `build_from_release`, `write_ttl` | `src/plugin_rosetta/vocabulary/loinc_snomed.py` | Keep the RDFLib construction path; only OMOP and DHD use Maplib templates |
 | `src/sssom_rosetta/vocabulary/snomed_international.py` `build_from_release` and its snapshot and English filters | `src/plugin_rosetta/vocabulary/snomed_international.py` | Keep the delegation to the LOINC-SNOMED builder |
-| `src/sssom_rosetta/vocabulary/merge.py` `merge_ttl_files`, `merge_graphs`, `_iter_triples` | `src/plugin_rosetta/graph/merge.py` | Keep Maplib for the file path and the rdflib path for in-memory assertions |
+| `src/sssom_rosetta/vocabulary/merge.py` `merge_ttl_files`, `merge_graphs`, `_iter_triples` | `src/plugin_rosetta/vocabulary/merge.py` | Keep Maplib for the file path and the rdflib path for in-memory assertions |
 | `src/sssom_rosetta/vocabulary/pipeline.py` `merge_candidates` | `src/plugin_rosetta/vocabulary/adapters.py` | Derive merge inputs from the adapter registry, not a second hardcoded list |
-| `src/sssom_rosetta/cli.py` `vocabulary build-loinc-snomed` (line 605), `build-snomed-international` (line 616), `merge` (line 660) | `src/plugin_rosetta/application/vocabulary.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to application functions |
+| `src/sssom_rosetta/cli.py` `vocabulary build-loinc-snomed` (line 605), `build-snomed-international` (line 616), `merge` (line 660) | `src/plugin_rosetta/vocabulary/api.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to the public feature API |
 | `sssom-rosetta/justfile` `vocab-build-loinc-snomed`, `vocab-merge`, `vocab-build` recipes | `justfile` | Keep RF2 builds opt-in and out of the default build |
 | `sssom-rosetta/tests/vocabulary/test_loinc_snomed.py`, `test_snomed_international.py`, `test_merge.py` | matching `tests/` modules | Port the snapshot-constraint, cross-graph connection, and Maplib merge-path assertions |
 
@@ -92,7 +92,7 @@ This story also makes template behaviour observable by reporting how many triple
 ## Definition of Done
 
 - [ ] Every new behaviour was driven by a failing test written first.
-- [ ] `uv run pytest tests/vocabulary tests/graph` passes offline against synthetic fixtures.
+- [ ] `uv run pytest tests/vocabulary` passes offline against synthetic fixtures.
 - [ ] `uv run tara check` passes.
 - [ ] The vocabulary documentation records the RF2 scope limits, the merge behaviour, and how omission counts are reported.
 - [ ] The merged Turtle output parses in a process that does not import `plugin_rosetta`.

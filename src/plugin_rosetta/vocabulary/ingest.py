@@ -14,14 +14,14 @@ from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
 
-from plugin_rosetta.core.errors import VocabularyChecksumError, VocabularyIngestError
-from plugin_rosetta.core.report import IssueSeverity, ValidationIssue, ValidationReport
-from plugin_rosetta.io._atomic import atomic_write_text
+from plugin_rosetta.errors import VocabularyChecksumError, VocabularyIngestError
+from plugin_rosetta.reports import IssueSeverity, ValidationIssue, ValidationReport
+from plugin_rosetta.utils.io.atomic import atomic_write_text
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from plugin_rosetta.config.vocabulary_sources import VocabularySource
+    from plugin_rosetta.vocabulary.config import VocabularySource
 
 DEFAULT_CACHE_DIR = Path("registry/data/vocabularies")
 _FORMAT_VERSION_PATTERN = re.compile(r"uitleverformaat\d+(?:\.\d+)*", re.IGNORECASE)

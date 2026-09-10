@@ -18,7 +18,6 @@ columns:
     dtype: String
   concept_code:
     dtype: String
-    nullable: false
   valid_start_date:
     dtype: String
     nullable: false

@@ -40,21 +40,30 @@ Preferred outputs include SSSOM, CSVW, Parquet, RDF/Turtle, and plain JSON or YA
 
 ```text
 src/plugin_rosetta/
-  core/             # errors, validation reports, and proven shared protocols
-  config/           # Pydantic configuration and source definitions
-  io/               # CSVW, SSSOM, Parquet, YAML, and RDF boundaries
-  mapping/          # authoring, normalization, validation, reports, and diffs
-  ontology/         # source catalogue, loading, caching, and IRI lookup
-  vocabulary/       # ingest and source-specific release-to-graph pipelines
-  graph/            # Maplib graph construction and RDFLib graph I/O
-  artifacts/        # local artifact identities, versions, dependencies, and impact
-  application/      # use cases called by the Python API and CLI
-  cli.py            # thin Typer commands
+  __init__.py       # package errors, reports, and version
+  py.typed          # PEP 561 inline typing marker
+  errors.py         # public exception hierarchy
+  reports.py        # public validation reports
+  workspace.py      # public workspace initialization
+  mapping/          # public mapping API and owned implementation
+  ontology/         # public ontology API and owned implementation
+  vocabulary/       # public vocabulary API and owned implementation
+  utils/
+    io/             # shared CSVW, SSSOM, YAML, and RDF boundaries
+    source_names.py # shared portable source-name validation
+  resources/        # packaged starter registry data
+  cli.py            # thin Typer commands over feature APIs
 ```
 
 Do not create every module or protocol upfront.
 
-Add a shared protocol only when a tested vertical slice needs it or a second implementation proves the common contract.
+Add a shared protocol only when a tested vertical slice needs it and a second implementation proves
+the common contract. Do not retain speculative protocol modules.
+
+Feature packages are the supported Python API. Do not add parallel `application`, `api`, `config`,
+`core`, or `graph` packages. Keep configuration and graph code with the feature that owns it. Put
+only generic code shared by multiple features in focused modules under `utils/`; do not create a
+single `utils.py` dumping ground. See ADR-0002.
 
 ## Local content catalogue
 

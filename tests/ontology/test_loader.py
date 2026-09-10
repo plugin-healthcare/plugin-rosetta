@@ -5,8 +5,8 @@ import httpx
 import pytest
 from rdflib import Graph
 
-from plugin_rosetta.config.ontology_sources import OntologySource
-from plugin_rosetta.core.errors import RosettaIOError
+from plugin_rosetta.errors import RosettaIOError
+from plugin_rosetta.ontology import OntologySource
 from plugin_rosetta.ontology.loader import fetch_ontology, load_ontology
 
 if TYPE_CHECKING:

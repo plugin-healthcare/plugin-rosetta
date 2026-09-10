@@ -14,16 +14,15 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md(
-        """
-        # Rosetta mapping quickstart
+    mo.md("""
+    # Rosetta quickstart
 
-        Reads the `omop-onz-g` mapping set through the graph-free `plugin_rosetta`
-        application layer, validates it, builds SSSOM/TSV and RDF/Turtle
-        artifacts, and renders a Markdown/HTML report — the same steps as
-        `rosetta mapping validate|build|report`, run interactively.
-        """
-    )
+    Reads the `omop-onz-g` mapping set through the graph-free `plugin_rosetta`
+    application layer, validates it, builds SSSOM/TSV and RDF/Turtle
+    artifacts, and renders a Markdown/HTML report. It also builds the OMOP
+    vocabulary graph from the repository's synthetic Athena fixture. These are the same steps as
+    `rosetta mapping validate|build|report`, run interactively.
+    """)
     return
 
 
@@ -31,7 +30,7 @@ def _(mo):
 def _():
     from pathlib import Path
 
-    from plugin_rosetta.application.mapping import read_mapping_set
+    from plugin_rosetta.mapping import read_mapping_set
 
     ROOT = Path(__file__).resolve().parent.parent
     MAPPING_SET_KEY = "omop-onz-g"
@@ -73,7 +72,9 @@ def _(mappings_df, pl):
 
 @app.cell
 def _(mo):
-    mo.md("""## Building portable artifacts""")
+    mo.md("""
+    ## Building portable artifacts
+    """)
     return
 
 
@@ -81,7 +82,7 @@ def _(mo):
 def _(MAPPING_SET_KEY, Path, ROOT):
     import tempfile
 
-    from plugin_rosetta.application.mapping import build_mapping_artifacts, report_mapping_set
+    from plugin_rosetta.mapping import build_mapping_artifacts, report_mapping_set
 
     with tempfile.TemporaryDirectory() as tmp:
         output_dir = Path(tmp)
@@ -108,6 +109,70 @@ def _(mo, turtle_text):
 @app.cell
 def _(mo, report_markdown):
     mo.md(report_markdown)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md("""
+    ## Building an OMOP vocabulary graph
+
+    This example uses synthetic Athena tables, so it runs offline without a licensed vocabulary
+    release. Replace `synthetic_release` with an ingested release directory to inspect curator
+    data locally.
+    """)
+    return
+
+
+@app.cell
+def _(Path, ROOT):
+    import json as _json
+    import tempfile as _tempfile
+
+    from rdflib import Graph as _Graph
+
+    from plugin_rosetta.vocabulary import build_omop_graph
+
+    synthetic_release = ROOT / "tests/fixtures/vocabulary/athena"
+    with _tempfile.TemporaryDirectory() as _omop_tmp:
+        omop_turtle_path, omop_metadata_path = build_omop_graph(
+            synthetic_release,
+            Path(_omop_tmp),
+            config_path=ROOT / "registry/config/vocabulary-sources.yaml",
+        )
+        omop_turtle = omop_turtle_path.read_text()
+        omop_metadata_json = _json.dumps(
+            _json.loads(omop_metadata_path.read_text()),
+            indent=2,
+        )
+    omop_triple_count = len(_Graph().parse(data=omop_turtle, format="turtle"))
+    return (
+        omop_metadata_json,
+        omop_triple_count,
+        omop_turtle,
+        synthetic_release,
+    )
+
+
+@app.cell
+def _(mo, omop_metadata_json, omop_triple_count, synthetic_release):
+    mo.md(
+        f"""
+        Built **{omop_triple_count} triples** from `{synthetic_release}`.
+
+        Provenance:
+
+        ```json
+        {omop_metadata_json}
+        ```
+        """
+    )
+    return
+
+
+@app.cell
+def _(mo, omop_turtle):
+    mo.md(f"""### OMOP vocabulary Turtle\n\n```turtle\n{omop_turtle}\n```""")
     return
 
 

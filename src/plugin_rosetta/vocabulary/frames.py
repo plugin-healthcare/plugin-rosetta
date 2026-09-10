@@ -6,9 +6,9 @@ import polars as pl
 from pydantic import BaseModel, ConfigDict
 from pydantic import ValidationError as PydanticValidationError
 
-from plugin_rosetta.core.errors import ConfigurationError
-from plugin_rosetta.core.report import IssueSeverity, ValidationIssue, ValidationReport
-from plugin_rosetta.io.yaml import load_yaml_mapping
+from plugin_rosetta.errors import ConfigurationError
+from plugin_rosetta.reports import IssueSeverity, ValidationIssue, ValidationReport
+from plugin_rosetta.utils.io.yaml import load_yaml_mapping
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -57,7 +57,7 @@ This story closes the epic by comparing outputs, naming every difference, and sh
 - [ ] Add an executable parity test that runs both projects at pinned revisions over the preserved mapping set and compares parsed SSSOM/TSV metadata and rows plus Turtle triple sets, treating ordering and formatting differences as equivalent and value differences as failures.
 - [ ] Run both projects over one ingested vocabulary release per migrated source and compare triple sets by the same rule.
 - [ ] Record each finding as removed or approved in `docs/capability-matrix.md`, with the reason and the approver.
-- [ ] Review every CLI command for thinness and move any leftover logic into `src/plugin_rosetta/application/`.
+- [ ] Review every CLI command for thinness and move leftover logic into the owning public feature package.
 - [ ] Add `examples/build_preserved_mapping_set.py` that validates, builds, and reports the tracked `omop-onz-g` mapping set using only tracked content.
 - [ ] Add a README quickstart covering install, validate, build, report, and where outputs land.
 - [ ] Build the wheel and install it in a clean environment, then run `rosetta --help` and the example from that environment.
