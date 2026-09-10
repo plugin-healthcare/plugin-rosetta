@@ -47,11 +47,11 @@ src/plugin_rosetta/
   workspace.py      # public workspace initialization
   mapping/          # public mapping API and owned implementation
   ontology/         # public ontology API and owned implementation
-  vocabulary/       # public vocabulary API and owned implementation
+  vocabulary/       # public vocabulary API and generic build infrastructure
+    adapters/       # source-specific OMOP, thesaurus, and RF2 transformations
   utils/
     io/             # shared CSVW, SSSOM, YAML, and RDF boundaries
     source_names.py # shared portable source-name validation
-  resources/        # packaged starter registry data
   cli.py            # thin Typer commands over feature APIs
 ```
 
@@ -64,6 +64,11 @@ Feature packages are the supported Python API. Do not add parallel `application`
 `core`, or `graph` packages. Keep configuration and graph code with the feature that owns it. Put
 only generic code shared by multiple features in focused modules under `utils/`; do not create a
 single `utils.py` dumping ground. See ADR-0002.
+
+Domain configuration, schemas, and mappings are caller-owned inputs. Keep the healthcare working
+example under the repository's top-level `registry/`, never duplicated under `src/` or packaged in
+the wheel. `rosetta init` creates empty catalogues that users populate for their project. See
+ADR-0003.
 
 ## Local content catalogue
 
@@ -80,6 +85,9 @@ Use `registry/data/ontologies/` and `registry/data/vocabularies/` as the new def
 Open sources use reusable package download code with pinned versions, URLs, and checksums.
 
 Licence-gated vocabulary archives use manual local-file ingest.
+
+The repository registry is a healthcare-specific working example. The installed library does not
+select or copy these source definitions automatically.
 
 ## Mapping pipeline
 
@@ -134,7 +142,7 @@ The pipeline coordinates modules; modules do not call the CLI or depend on fixed
 | `mapping/gephi.py`, `mapping/protege.py` | Deferred | Visualisation exports are not required for the first release |
 | `ontology/sources.py`, `loader.py`, `catalog.py` | `ontology/` | Move source declarations to tracked YAML and preserve fetch/cache behaviour |
 | `vocabulary/sources.py`, `fetch.py`, `pipeline.py` | `vocabulary/` | Preserve source lookup, manual ZIP ingest, and shared build behaviour |
-| `vocabulary/omop.py`, `dhd.py`, `loinc_snomed.py`, `snomed_international.py` | `vocabulary/` | Migrate one format slice at a time |
+| `vocabulary/omop.py`, `dhd.py`, `loinc_snomed.py`, `snomed_international.py` | `vocabulary/adapters/` | Isolate source-specific behavior; migrate legacy DHD as `thesaurus.py` |
 | `vocabulary/merge.py`, `namespaces.py`, `templates.py` | `graph/` and tracked content | Preserve load-bearing merge, namespace, and template behaviour |
 | `models/sssom.py` | `mapping/models/` | Regenerate from the exact pinned schema and never hand-edit |
 | `cli.py` and `justfile` | `application/`, `cli.py`, `justfile` | Move behaviour into application functions and keep commands thin |
@@ -186,9 +194,11 @@ Write a failing test for the next behaviour, implement the minimum code, and run
 - Use `registry/data/vocabularies/` as the default cache.
 - Migrate OMOP/Athena first.
 - Migrate DHD DT/VT second and then extract the shared source-adapter contract.
+- Resolve configured tables by stable semantic roles; physical names, prefixes, suffixes, and path
+  fragments remain configuration so upstream file renames do not require code changes.
 - Migrate LOINC-SNOMED, SNOMED International, namespace handling, and graph merge as later slices.
 - Integrate Nyctea where it replaces manual release-frame checks.
-- Preserve specialty-scoped DBC diagnosis identity from `dhd.load_dbc` and `namespaces.dbc_iri`.
+- Preserve specialty-scoped DBC diagnosis identity in `thesaurus.load_dbc` and `namespaces.dbc_iri`.
 - Use synthetic fixtures shaped like real releases and never commit licensed content.
 
 **Exit:** every migrated adapter passes shared contract tests and the merged open RDF output has equivalent semantics to `sssom-rosetta`.
@@ -207,7 +217,7 @@ Write a failing test for the next behaviour, implement the minimum code, and run
 
 - Compare retained workflows and outputs with `sssom-rosetta`.
 - Require equivalent open-format semantics or an approved documented difference.
-- Complete CLI commands over application functions.
+- Complete CLI commands over public feature functions.
 - Add a short README quickstart and runnable example.
 - Build and install the wheel in a clean environment.
 - Publish a capability matrix listing migrated sources, formats, and explicitly deferred behaviour.

@@ -74,7 +74,7 @@ This story also makes template behaviour observable by reporting how many triple
 | `src/sssom_rosetta/vocabulary/loinc_snomed.py` `build_graph`, `build_from_release`, `write_ttl` | `src/plugin_rosetta/vocabulary/loinc_snomed.py` | Keep the RDFLib construction path; only OMOP and DHD use Maplib templates |
 | `src/sssom_rosetta/vocabulary/snomed_international.py` `build_from_release` and its snapshot and English filters | `src/plugin_rosetta/vocabulary/snomed_international.py` | Keep the delegation to the LOINC-SNOMED builder |
 | `src/sssom_rosetta/vocabulary/merge.py` `merge_ttl_files`, `merge_graphs`, `_iter_triples` | `src/plugin_rosetta/vocabulary/merge.py` | Keep Maplib for the file path and the rdflib path for in-memory assertions |
-| `src/sssom_rosetta/vocabulary/pipeline.py` `merge_candidates` | `src/plugin_rosetta/vocabulary/adapters.py` | Derive merge inputs from the adapter registry, not a second hardcoded list |
+| `src/sssom_rosetta/vocabulary/pipeline.py` `merge_candidates` | `src/plugin_rosetta/vocabulary/adapters/__init__.py` | Derive merge inputs from the adapter registry, not a second hardcoded list |
 | `src/sssom_rosetta/cli.py` `vocabulary build-loinc-snomed` (line 605), `build-snomed-international` (line 616), `merge` (line 660) | `src/plugin_rosetta/vocabulary/api.py` plus `src/plugin_rosetta/cli.py` | Behaviour moves to the public feature API |
 | `sssom-rosetta/justfile` `vocab-build-loinc-snomed`, `vocab-merge`, `vocab-build` recipes | `justfile` | Keep RF2 builds opt-in and out of the default build |
 | `sssom-rosetta/tests/vocabulary/test_loinc_snomed.py`, `test_snomed_international.py`, `test_merge.py` | matching `tests/` modules | Port the snapshot-constraint, cross-graph connection, and Maplib merge-path assertions |

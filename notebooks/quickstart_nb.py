@@ -19,9 +19,9 @@ def _(mo):
 
     Reads the `omop-onz-g` mapping set through the graph-free `plugin_rosetta`
     application layer, validates it, builds SSSOM/TSV and RDF/Turtle
-    artifacts, and renders a Markdown/HTML report. It also builds the OMOP
-    vocabulary graph from the repository's synthetic Athena fixture. These are the same steps as
-    `rosetta mapping validate|build|report`, run interactively.
+    artifacts, and renders a Markdown/HTML report. It also builds OMOP and DHD
+    vocabulary graphs from synthetic fixtures. These are the same steps as
+    the corresponding `rosetta` commands, run interactively.
     """)
     return
 
@@ -173,6 +173,68 @@ def _(mo, omop_metadata_json, omop_triple_count, synthetic_release):
 @app.cell
 def _(mo, omop_turtle):
     mo.md(f"""### OMOP vocabulary Turtle\n\n```turtle\n{omop_turtle}\n```""")
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md("""
+    ## Building DHD thesaurus graphs
+
+    Both examples use synthetic quoted CSV releases. The explicit `as_of` value makes validity
+    filtering reproducible and is recorded in each provenance sidecar.
+    """)
+    return
+
+
+@app.cell
+def _(Path, ROOT):
+    import tempfile as _tempfile
+
+    from rdflib import Graph as _Graph
+
+    from plugin_rosetta.vocabulary import build_dhd_graph
+
+    synthetic_dhd_release = ROOT / "tests/fixtures/vocabulary/dhd"
+    with _tempfile.TemporaryDirectory() as _dhd_tmp:
+        dhd_output = Path(_dhd_tmp)
+        dt_path, _dt_metadata = build_dhd_graph(
+            synthetic_dhd_release,
+            dhd_output,
+            "dt",
+            as_of="20260910",
+            config_path=ROOT / "registry/config/vocabulary-sources.yaml",
+        )
+        vt_path, _vt_metadata = build_dhd_graph(
+            synthetic_dhd_release,
+            dhd_output,
+            "vt",
+            as_of="20260910",
+            config_path=ROOT / "registry/config/vocabulary-sources.yaml",
+        )
+        dt_turtle = dt_path.read_text()
+        vt_turtle = vt_path.read_text()
+    dhd_counts = {
+        "Diagnosethesaurus": len(_Graph().parse(data=dt_turtle, format="turtle")),
+        "Verrichtingenthesaurus": len(_Graph().parse(data=vt_turtle, format="turtle")),
+    }
+    return dhd_counts, dt_turtle
+
+
+@app.cell
+def _(dhd_counts, mo):
+    mo.md(
+        f"""
+        Built **{dhd_counts["Diagnosethesaurus"]} diagnosis triples** and
+        **{dhd_counts["Verrichtingenthesaurus"]} procedure triples**.
+        """
+    )
+    return
+
+
+@app.cell
+def _(dt_turtle, mo):
+    mo.md(f"""### DHD Diagnosethesaurus Turtle\n\n```turtle\n{dt_turtle}\n```""")
     return
 
 

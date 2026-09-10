@@ -1,6 +1,6 @@
 # ADR-0001: initialize workspaces from packaged starter registry
 
-- **Status:** Accepted
+- **Status:** Superseded by ADR-0003
 - **Date:** 2026-09-10
 - **Authors:** @yannick-vinkesteijn, GitHub Copilot
 

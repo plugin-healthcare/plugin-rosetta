@@ -39,5 +39,11 @@ ingest vocabulary="omop" archive:
 build-omop:
     uv run rosetta vocabulary build-omop
 
+build-dhd-diagnosethesaurus as_of:
+    uv run rosetta vocabulary build-dhd-diagnosethesaurus --as-of {{as_of}}
+
+build-dhd-verrichtingenthesaurus as_of:
+    uv run rosetta vocabulary build-dhd-verrichtingenthesaurus --as-of {{as_of}}
+
 notebook:
     uv run marimo edit notebooks/quickstart_nb.py

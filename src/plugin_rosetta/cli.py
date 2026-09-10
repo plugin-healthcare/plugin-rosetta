@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Annotated
 
 import typer
 
-from plugin_rosetta.errors import ConfigurationError, RosettaError
+from plugin_rosetta.errors import RosettaError
 from plugin_rosetta.mapping import (
     DEFAULT_MAPPING_CONFIG,
     build_mapping_artifacts,
@@ -21,11 +21,12 @@ from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR as DEFAULT_ONTOLOGY
 from plugin_rosetta.vocabulary import (
     DEFAULT_VOCABULARY_CONFIG,
     DEFAULT_VOCABULARY_OUTPUT_DIR,
+    build_cached_dhd_graph,
     build_cached_omop_graph,
     ingest_release,
 )
 from plugin_rosetta.vocabulary.ingest import DEFAULT_CACHE_DIR as DEFAULT_VOCABULARY_CACHE_DIR
-from plugin_rosetta.workspace import StarterSelection, initialize_workspace, list_starter_sources
+from plugin_rosetta.workspace import initialize_workspace
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -57,63 +58,15 @@ def main() -> None:
     """Author and publish open mapping artifacts."""
 
 
-def _select_sources(label: str, choices: tuple[str, ...]) -> tuple[str, ...]:
-    typer.echo(f"Select {label}:")
-    for index, choice in enumerate(choices, start=1):
-        typer.echo(f"  {index}. {choice}")
-    response = typer.prompt("Enter comma-separated numbers or names, 'all', or 'none'", default="all")
-    if response.strip().casefold() == "all":
-        return choices
-    if response.strip().casefold() == "none":
-        return ()
-
-    selected: list[str] = []
-    for token in (part.strip() for part in response.split(",")):
-        if token.isdigit() and 1 <= int(token) <= len(choices):
-            name = choices[int(token) - 1]
-        elif token in choices:
-            name = token
-        else:
-            raise ConfigurationError(f"Unknown {label} selection {token!r}")
-        if name not in selected:
-            selected.append(name)
-    return tuple(selected)
-
-
 @app.command("init")
 def initialize_workspace_command(
     destination: Annotated[
         Path,
         typer.Argument(help="Directory in which to create rosetta.yaml and registry/."),
     ] = Path(),
-    mapping_set: Annotated[
-        list[str] | None,
-        typer.Option("--mapping-set", help="Starter mapping set to include; repeat for multiple."),
-    ] = None,
-    ontology_source: Annotated[
-        list[str] | None,
-        typer.Option("--ontology-source", help="Starter ontology source to include; repeat for multiple."),
-    ] = None,
-    vocabulary_source: Annotated[
-        list[str] | None,
-        typer.Option("--vocabulary-source", help="Starter vocabulary source to include; repeat for multiple."),
-    ] = None,
 ) -> None:
-    """Initialize a workspace from selectable packaged starter sources."""
-    if mapping_set is None and ontology_source is None and vocabulary_source is None:
-        sources = _guard(list_starter_sources)
-        selection = StarterSelection(
-            mapping_sets=_guard(lambda: _select_sources("mapping sets", sources.mapping_sets)),
-            ontology_sources=_guard(lambda: _select_sources("ontology sources", sources.ontology_sources)),
-            vocabulary_sources=_guard(lambda: _select_sources("vocabulary sources", sources.vocabulary_sources)),
-        )
-    else:
-        selection = StarterSelection(
-            mapping_sets=tuple(mapping_set or ()),
-            ontology_sources=tuple(ontology_source or ()),
-            vocabulary_sources=tuple(vocabulary_source or ()),
-        )
-    config_path = _guard(lambda: initialize_workspace(destination, selection))
+    """Initialize an empty workspace for user-supplied registry inputs."""
+    config_path = _guard(lambda: initialize_workspace(destination))
     typer.echo(config_path)
 
 
@@ -295,3 +248,57 @@ def build_omop_vocabulary_command(
     )
     for path in artifacts:
         typer.echo(path)
+
+
+def _build_dhd_command(
+    thesaurus: str,
+    as_of: str,
+    output_dir: Path,
+    config: Path,
+    cache_dir: Path,
+) -> None:
+    artifacts = _guard(
+        lambda: build_cached_dhd_graph(
+            thesaurus,
+            as_of=as_of,
+            output_dir=output_dir,
+            config_path=config,
+            cache_dir=cache_dir,
+        )
+    )
+    for path in artifacts:
+        typer.echo(path)
+
+
+@vocabulary_app.command("build-dhd-diagnosethesaurus")
+def build_dhd_diagnosethesaurus_command(
+    as_of: Annotated[str, typer.Option(help="Validity date in YYYYMMDD format.")],
+    output_dir: Annotated[Path, typer.Option(help="Directory in which to write the DHD graph.")] = (
+        DEFAULT_VOCABULARY_OUTPUT_DIR
+    ),
+    config: Annotated[Path, typer.Option(help="Path to the vocabulary source configuration.")] = (
+        DEFAULT_VOCABULARY_CONFIG
+    ),
+    cache_dir: Annotated[Path, typer.Option(help="Base directory holding ingested releases.")] = (
+        DEFAULT_VOCABULARY_CACHE_DIR
+    ),
+) -> None:
+    """Build the DHD Diagnosethesaurus graph."""
+    _build_dhd_command("dt", as_of, output_dir, config, cache_dir)
+
+
+@vocabulary_app.command("build-dhd-verrichtingenthesaurus")
+def build_dhd_verrichtingenthesaurus_command(
+    as_of: Annotated[str, typer.Option(help="Validity date in YYYYMMDD format.")],
+    output_dir: Annotated[Path, typer.Option(help="Directory in which to write the DHD graph.")] = (
+        DEFAULT_VOCABULARY_OUTPUT_DIR
+    ),
+    config: Annotated[Path, typer.Option(help="Path to the vocabulary source configuration.")] = (
+        DEFAULT_VOCABULARY_CONFIG
+    ),
+    cache_dir: Annotated[Path, typer.Option(help="Base directory holding ingested releases.")] = (
+        DEFAULT_VOCABULARY_CACHE_DIR
+    ),
+) -> None:
+    """Build the DHD Verrichtingenthesaurus graph."""
+    _build_dhd_command("vt", as_of, output_dir, config, cache_dir)

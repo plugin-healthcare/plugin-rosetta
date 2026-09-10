@@ -18,44 +18,16 @@ def test_cli_displays_help() -> None:
     assert "Rosetta mapping toolbox" in result.stdout
 
 
-def test_init_prompts_for_all_source_categories(tmp_path: Path) -> None:
+def test_init_creates_empty_workspace_without_domain_specific_inputs(tmp_path: Path) -> None:
     destination = tmp_path / "workspace"
 
-    result = CliRunner().invoke(app, ["init", str(destination)], input="1\nall\n3\n")
+    result = CliRunner().invoke(app, ["init", str(destination)])
 
     assert result.exit_code == 0
-    assert "omop-onz-g" in result.output
-    assert "omop-cdm" in result.output
-    assert "dhd-thesauri" in result.output
     workspace = yaml.safe_load((destination / "rosetta.yaml").read_text())
-    assert workspace["mapping_sets"] == ["omop-onz-g"]
-    assert workspace["ontology_sources"] == ["omop-cdm", "onz-g"]
-    assert workspace["vocabulary_sources"] == ["omop"]
-
-
-def test_init_selection_flags_bypass_prompts(tmp_path: Path) -> None:
-    destination = tmp_path / "workspace"
-
-    result = CliRunner().invoke(
-        app,
-        [
-            "init",
-            str(destination),
-            "--mapping-set",
-            "omop-onz-g",
-            "--ontology-source",
-            "omop-cdm",
-            "--vocabulary-source",
-            "omop",
-        ],
-    )
-
-    assert result.exit_code == 0
-    assert "Select mapping sets" not in result.output
-    workspace = yaml.safe_load((destination / "rosetta.yaml").read_text())
-    assert workspace["mapping_sets"] == ["omop-onz-g"]
-    assert workspace["ontology_sources"] == ["omop-cdm"]
-    assert workspace["vocabulary_sources"] == ["omop"]
+    assert workspace["mapping_sets"] == []
+    assert workspace["ontology_sources"] == []
+    assert workspace["vocabulary_sources"] == []
 
 
 def test_mapping_list_displays_configured_mapping_sets() -> None:
@@ -247,6 +219,44 @@ def test_vocabulary_build_omop_writes_graph_and_sidecar(tmp_path: Path) -> None:
     assert str(output_dir / "omop.meta.json") in result.stdout
     assert (output_dir / "omop.ttl").is_file()
     assert (output_dir / "omop.meta.json").is_file()
+
+
+@pytest.mark.parametrize(
+    ("command", "filename"),
+    [
+        ("build-dhd-diagnosethesaurus", "dhd-diagnosethesaurus.ttl"),
+        ("build-dhd-verrichtingenthesaurus", "dhd-verrichtingenthesaurus.ttl"),
+    ],
+)
+def test_vocabulary_build_dhd_commands_write_graph_and_sidecar(
+    tmp_path: Path,
+    command: str,
+    filename: str,
+) -> None:
+    cache_dir = tmp_path / "vocabularies"
+    shutil.copytree(
+        Path(__file__).parent / "fixtures/vocabulary/dhd",
+        cache_dir / "dhd-thesauri/202508",
+    )
+    output_dir = tmp_path / "output"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "vocabulary",
+            command,
+            "--as-of",
+            "20260910",
+            "--cache-dir",
+            str(cache_dir),
+            "--output-dir",
+            str(output_dir),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert str(output_dir / filename) in result.stdout
+    assert str(output_dir / filename.replace(".ttl", ".meta.json")) in result.stdout
 
 
 def test_mapping_validate_with_check_references_succeeds(ontology_cache: Path) -> None:

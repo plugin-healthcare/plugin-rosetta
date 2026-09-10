@@ -7,23 +7,14 @@ from typing import TYPE_CHECKING
 
 import polars as pl
 
-from plugin_rosetta.errors import ConfigurationError, VocabularyError
 from plugin_rosetta.reports import IssueSeverity, ValidationIssue, ValidationReport
-from plugin_rosetta.vocabulary._graph_io import write_turtle
+from plugin_rosetta.vocabulary.adapters import get_build_adapter
 from plugin_rosetta.vocabulary.config import load_vocabulary_sources
 from plugin_rosetta.vocabulary.frames import load_table_contract, validate_release_frame
 from plugin_rosetta.vocabulary.ingest import DEFAULT_CACHE_DIR, cache_dir_for, find_file, ingest_zip
-from plugin_rosetta.vocabulary.namespaces import PREFIX_MAP
-from plugin_rosetta.vocabulary.omop import (
-    build_graph,
-    load_relationship_types,
-    load_relationships,
-    load_target_concepts,
-)
-from plugin_rosetta.vocabulary.provenance import write_provenance
 
 if TYPE_CHECKING:
-    from plugin_rosetta.vocabulary.config import ReleaseTable, VocabularySource
+    from plugin_rosetta.vocabulary.config import VocabularySource
 
 DEFAULT_VOCABULARY_CONFIG = Path("registry/config/vocabulary-sources.yaml")
 DEFAULT_VOCABULARY_OUTPUT_DIR = Path("registry/data/vocabulary-graphs")
@@ -93,13 +84,6 @@ def ingest_release(
     return result.path, checksum_report.merge(version_report, result.validation_report)
 
 
-def _required_table(source: VocabularySource, name: str) -> ReleaseTable:
-    try:
-        return next(table for table in source.tables if table.name == name)
-    except StopIteration as error:
-        raise ConfigurationError(f"Vocabulary source {source.name!r} has no required table named {name!r}") from error
-
-
 def build_omop_graph(
     release_dir: Path,
     output_dir: Path,
@@ -107,46 +91,35 @@ def build_omop_graph(
     config_path: Path = DEFAULT_VOCABULARY_CONFIG,
 ) -> tuple[Path, Path]:
     """Build an OMOP Turtle graph and provenance from an ingested release."""
-    source = load_vocabulary_sources(config_path).get("omop")
-    if not release_dir.is_dir() or not any(path.is_file() for path in release_dir.rglob("*")):
-        raise VocabularyError(
-            f"No ingested OMOP release at {release_dir}. Run 'rosetta vocabulary ingest omop <zip>' first."
-        )
-    registry_root = config_path.parent.parent
-    concept_table = _required_table(source, "CONCEPT.csv")
-    relationship_table = _required_table(source, "CONCEPT_RELATIONSHIP.csv")
-    relationship_type_table = _required_table(source, "RELATIONSHIP.csv")
+    return get_build_adapter("omop").build(
+        release_dir,
+        output_dir,
+        config_path=config_path,
+        as_of=None,
+    )
 
-    concepts = load_target_concepts(
-        find_file(release_dir, name=concept_table.name),
-        concept_table,
-        load_table_contract(registry_root / concept_table.contract),
+
+def build_dhd_graph(
+    release_dir: Path,
+    output_dir: Path,
+    thesaurus: str,
+    *,
+    as_of: str,
+    config_path: Path = DEFAULT_VOCABULARY_CONFIG,
+) -> tuple[Path, Path]:
+    """Build a DHD thesaurus graph and provenance from an ingested release."""
+    target = {
+        "dt": "dhd-diagnosethesaurus",
+        "vt": "dhd-verrichtingenthesaurus",
+    }.get(thesaurus)
+    if target is None:
+        raise ValueError(f"Unknown DHD thesaurus {thesaurus!r}. Known values: dt, vt")
+    return get_build_adapter(target).build(
+        release_dir,
+        output_dir,
+        config_path=config_path,
+        as_of=as_of,
     )
-    relationships = load_relationships(
-        find_file(release_dir, name=relationship_table.name),
-        relationship_table,
-        load_table_contract(registry_root / relationship_table.contract),
-        concepts["concept_id"],
-    )
-    relationship_types = load_relationship_types(
-        find_file(release_dir, name=relationship_type_table.name),
-        relationship_type_table,
-        load_table_contract(registry_root / relationship_type_table.contract),
-    )
-    model = build_graph(concepts, relationships, relationship_types)
-    turtle_path = write_turtle(
-        model,
-        output_dir / "omop.ttl",
-        prefixes={prefix: str(namespace) for prefix, namespace in PREFIX_MAP.items()}
-        | {"skos": "http://www.w3.org/2004/02/skos/core#"},
-    )
-    metadata_path = write_provenance(
-        turtle_path,
-        source_name=source.name,
-        source_version=source.version,
-        format_version=source.format_version,
-    )
-    return turtle_path, metadata_path
 
 
 def build_cached_omop_graph(
@@ -160,5 +133,24 @@ def build_cached_omop_graph(
     return build_omop_graph(
         cache_dir_for(source, cache_dir),
         output_dir,
+        config_path=config_path,
+    )
+
+
+def build_cached_dhd_graph(
+    thesaurus: str,
+    *,
+    as_of: str,
+    output_dir: Path = DEFAULT_VOCABULARY_OUTPUT_DIR,
+    config_path: Path = DEFAULT_VOCABULARY_CONFIG,
+    cache_dir: Path = DEFAULT_CACHE_DIR,
+) -> tuple[Path, Path]:
+    """Build DHD artifacts from the configured versioned release cache."""
+    source = load_vocabulary_sources(config_path).get("dhd-thesauri")
+    return build_dhd_graph(
+        cache_dir_for(source, cache_dir),
+        output_dir,
+        thesaurus,
+        as_of=as_of,
         config_path=config_path,
     )

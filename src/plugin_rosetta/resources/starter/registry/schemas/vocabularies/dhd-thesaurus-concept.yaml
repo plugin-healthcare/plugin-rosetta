@@ -1,9 +1,0 @@
-columns:
-  ConceptID:
-    dtype: String
-    nullable: false
-  Begindatum:
-    dtype: String
-    nullable: false
-  Einddatum:
-    dtype: String

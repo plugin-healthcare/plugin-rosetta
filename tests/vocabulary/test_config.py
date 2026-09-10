@@ -20,6 +20,7 @@ def test_loads_migrated_vocabulary_sources() -> None:
         "snomed-international",
     }
     assert config.get("omop").download_page == "https://athena.ohdsi.org/"
+    assert config.get("omop").tables[0].role == "concept"
     assert config.get("omop").tables[0].name == "CONCEPT.csv"
     assert config.get("loinc-snomed").kind == "rf2"
     assert config.get("snomed-international").version == "20260101"

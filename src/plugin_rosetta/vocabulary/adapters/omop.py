@@ -1,4 +1,4 @@
-"""Build the OMOP vocabulary graph from declared Athena release tables."""
+"""Adapt declared Athena release tables into an OMOP vocabulary graph."""
 
 from typing import TYPE_CHECKING
 

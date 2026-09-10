@@ -9,17 +9,17 @@ uv sync --all-groups
 uv run rosetta --help
 ```
 
-After installing the wheel, initialize a writable workspace and select its mapping, ontology, and
-vocabulary sources:
+After installing the wheel, initialize an empty writable workspace:
 
 ```shell
 rosetta init my-rosetta-workspace
 cd my-rosetta-workspace
 ```
 
-The interactive command writes the selections to `rosetta.yaml` and creates a filtered `registry/`
-from starter resources bundled in the wheel. Automation can bypass the prompts with repeatable
-`--mapping-set`, `--ontology-source`, and `--vocabulary-source` options.
+The command creates `rosetta.yaml`, empty source catalogues, and an ignored `registry/data/`
+directory. Add the mapping, ontology, and vocabulary configuration required by your project.
+The repository's top-level `registry/` is a healthcare-specific working example, not library
+package data.
 
 ## Build mappings
 
@@ -117,6 +117,17 @@ just build-omop
 This writes deterministic `omop.ttl` and `omop.meta.json` artifacts under
 `registry/data/vocabulary-graphs/`.
 
+Build the DHD diagnosis and procedure thesauri with an explicit validity date:
+
+```shell
+uv run rosetta vocabulary build-dhd-diagnosethesaurus --as-of 20260910
+uv run rosetta vocabulary build-dhd-verrichtingenthesaurus --as-of 20260910
+```
+
+The DT graph links concepts to SNOMED CT with `skos:exactMatch` and to ICD-10 and
+specialty-scoped DBC identifiers with `skos:closeMatch`. The VT graph contains SNOMED CT links
+only. Both provenance sidecars record the effective `as_of` date.
+
 ## Explore interactively
 
 ```shell
@@ -124,5 +135,5 @@ just notebook
 ```
 
 Opens `notebooks/quickstart_nb.py`, a [marimo](https://marimo.io) notebook that explores the
-`omop-onz-g` mapping set and builds an OMOP vocabulary graph from synthetic Athena tables. The
-notebook runs offline without a licensed vocabulary release.
+`omop-onz-g` mapping set and builds OMOP and DHD vocabulary graphs from synthetic release tables.
+The notebook runs offline without a licensed vocabulary release.

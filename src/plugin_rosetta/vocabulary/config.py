@@ -30,6 +30,7 @@ class ReleaseTable(BaseModel):
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    role: str
     name: str = ""
     prefix: str = ""
     suffix: str = ""
@@ -37,6 +38,14 @@ class ReleaseTable(BaseModel):
     separator: Literal[",", "\t"]
     quote_char: str | None = None
     contract: str
+
+    @field_validator("role")
+    @classmethod
+    def validate_role(cls, value: str) -> str:
+        """Require a stable semantic role independent of physical filenames."""
+        if not re.fullmatch(r"[a-z][a-z0-9-]*", value):
+            raise ValueError("must be a lowercase semantic table role")
+        return value
 
     @field_validator("contract")
     @classmethod
@@ -60,6 +69,15 @@ class VocabularySourceEntry(BaseModel):
     checksum: str | None = None
     format_version: str | None = None
     tables: tuple[ReleaseTable, ...] = ()
+
+    @model_validator(mode="after")
+    def validate_unique_table_roles(self) -> VocabularySourceEntry:
+        """Require one configured locator for each semantic table role."""
+        roles = [table.role for table in self.tables]
+        duplicates = sorted({role for role in roles if roles.count(role) > 1})
+        if duplicates:
+            raise ValueError(f"duplicate table roles: {', '.join(duplicates)}")
+        return self
 
     @field_validator("version")
     @classmethod

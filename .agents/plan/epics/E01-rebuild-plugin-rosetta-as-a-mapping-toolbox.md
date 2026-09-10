@@ -19,6 +19,8 @@ The plan of record is [`.agents/plan/20260901_migration_plan.md`](../20260901_mi
 ### In scope
 
 - An installable `plugin-rosetta` distribution with the `plugin_rosetta` import package, the `uv_build` backend, and a thin `rosetta` CLI.
+- Empty workspace initialization that accepts user-supplied registries without bundling the
+  healthcare project's configuration in the installed library.
 - Tracked mapping-set configuration, CSVW mapping reading, and SSSOM, Turtle, Markdown, and HTML outputs.
 - Tracked ontology source configuration, reproducible download and cache reuse, and referential validation of mappings.
 - Vocabulary release ingest and the OMOP, DHD, LOINC-SNOMED, and SNOMED International graph pipelines plus graph merge.
@@ -39,6 +41,7 @@ The plan of record is [`.agents/plan/20260901_migration_plan.md`](../20260901_mi
 | Metric | Baseline | Target |
 |--------|----------|--------|
 | Installable package | `uv run` fails to build `src/plugin-rosetta` | a clean checkout installs and `rosetta --help` exits 0 |
+| Domain configuration in the wheel | repository registry duplicated under `src/` | no mapping, ontology, or vocabulary source configuration packaged as runtime library data |
 | Quality gate | `tara check` cannot run | `tara check` passes on every story |
 | Preserved mapping rows readable by the package | 0 of 8 rows in `registry/mappings/omop-onz-g.csv` | 8 of 8 rows read, validated, and published without value changes |
 | Retained legacy modules migrated | 0 of 22 (24 `sssom-rosetta` modules minus `gephi.py` and `protege.py`) | 22 of 22 migrated or explicitly folded into a migrated module |
@@ -68,7 +71,8 @@ The plan of record is [`.agents/plan/20260901_migration_plan.md`](../20260901_mi
 - Maplib as a core dependency for large vocabulary graph construction and merge.
 - RDFLib, csvw, curies, linkml-runtime, sssom-py, Polars, Pydantic, Typer, and an HTTP client as direct dependencies.
 - `sssom-schema` pinned to `1.1.0a5`, the exact version that generated the legacy `src/sssom_rosetta/models/sssom.py`.
-- Nyctea for tabular vocabulary release validation, introduced with the vocabulary ingest slice.
+- A stable Nyctea release when its frame API can replace the current validation boundary without
+  changing graph-builder behavior.
 - A curator with a licence for the Athena OMOP bundle, the DHD thesauri portal, and the SNOMED International and LOINC-SNOMED RF2 packages, because those releases have no open download URL.
 - `tara` for the `check` gate that every story must pass.
 

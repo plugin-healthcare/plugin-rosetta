@@ -1,10 +1,11 @@
 # Local registry
 
-This directory is the first local registry for Rosetta configuration, schemas, mappings, and data.
+This directory is the healthcare project's local registry for Rosetta configuration, schemas,
+mappings, and data. It is example input for the reusable library, not package data required at
+runtime.
 
-An installed package creates the same layout with `rosetta init <workspace>`. That command lists the
-packaged starter mapping sets, ontology sources, and vocabulary sources, records the selections in
-`rosetta.yaml`, and writes only the selected catalogue entries and required content.
+An installed package creates an empty layout with `rosetta init <workspace>`. Users supply the
+catalogues, schemas, and mappings needed by their own project.
 
 Configuration, schemas, and mappings are tracked so the current setup remains reviewable and reproducible.
 
@@ -72,8 +73,9 @@ the Athena, DHD, and RF2 tables used by later graph builders. Extra columns are 
 as informational findings, while missing columns, incompatible types, and nulls in required columns
 are errors.
 
-The source catalogue owns required-table lookup and reader settings. Vocabulary adapters reuse those
-declarations rather than defining a second set of filenames, separators, or quote behavior.
+The source catalogue owns required-table lookup and reader settings. Each table has a stable
+semantic `role`; its physical `name`, `prefix`, `suffix`, and path fragment remain configurable.
+Vocabulary adapters select roles rather than defining filenames, separators, or quote behavior.
 
 ## OMOP vocabulary graph
 
@@ -89,3 +91,23 @@ relationships into selected SKOS predicates or label unused relationship types.
 
 The deterministic `data/vocabulary-graphs/omop.ttl` output is accompanied by `omop.meta.json`,
 which records the configured source name, source version, format version, and UTC build time.
+
+## DHD thesaurus graphs
+
+Run both DHD builders after ingesting `dhd-thesauri`, passing the date whose active state should be
+materialized:
+
+```shell
+uv run rosetta vocabulary build-dhd-diagnosethesaurus --as-of 20260910
+uv run rosetta vocabulary build-dhd-verrichtingenthesaurus --as-of 20260910
+```
+
+Diagnosis concepts use `https://w3id.org/dhd/diagnosethesaurus/concept/<ConceptID>` and procedure
+concepts use `https://w3id.org/dhd/verrichtingenthesaurus/concept/<ConceptID>`, preventing collisions
+when both releases reuse an identifier. Dutch FSN labels are preferred over English labels.
+
+DBC diagnosis identifiers are only unique within a specialty. The graph therefore mints
+`https://w3id.org/dhd/dbc/<SpecialismeCode>-<DBC_ID>` and never uses a raw `DBC_ID`. DT outputs link
+to SNOMED CT with `skos:exactMatch` and to ICD-10 and DBC with `skos:closeMatch`; VT outputs contain
+SNOMED CT links only. A blank end date remains active, and each sidecar records the explicit
+`as_of` date.

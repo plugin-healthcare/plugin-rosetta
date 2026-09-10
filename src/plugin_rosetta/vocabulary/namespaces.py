@@ -21,6 +21,9 @@ _NAMESPACES = (
     VocabularyNamespace("rxnorm", Namespace("http://purl.bioontology.org/ontology/RXNORM/")),
     VocabularyNamespace("icd10", Namespace("http://hl7.org/fhir/sid/icd-10/")),
     VocabularyNamespace("icd10cm", Namespace("http://hl7.org/fhir/sid/icd-10-cm/")),
+    VocabularyNamespace("dhddt", Namespace("https://w3id.org/dhd/diagnosethesaurus/concept/")),
+    VocabularyNamespace("dhdvt", Namespace("https://w3id.org/dhd/verrichtingenthesaurus/concept/")),
+    VocabularyNamespace("dbc", Namespace("https://w3id.org/dhd/dbc/")),
 )
 
 PREFIX_MAP = {entry.prefix: entry.namespace for entry in _NAMESPACES}
@@ -30,6 +33,14 @@ LOINC = PREFIX_MAP["loinc"]
 RXNORM = PREFIX_MAP["rxnorm"]
 ICD10 = PREFIX_MAP["icd10"]
 ICD10CM = PREFIX_MAP["icd10cm"]
+DHD_DIAGNOSETHESAURUS = PREFIX_MAP["dhddt"]
+DHD_VERRICHTINGENTHESAURUS = PREFIX_MAP["dhdvt"]
+DBC = PREFIX_MAP["dbc"]
+
+THESAURUS_NAMESPACES = {
+    "dt": DHD_DIAGNOSETHESAURUS,
+    "vt": DHD_VERRICHTINGENTHESAURUS,
+}
 
 _VOCABULARY_NAMESPACES = {
     "SNOMED": SCT,
@@ -54,6 +65,21 @@ TARGET_VOCABULARIES = frozenset(
 def sct_iri(sctid: str) -> URIRef:
     """Return the canonical SNOMED CT IRI for an SCTID."""
     return SCT[sctid]
+
+
+def dhd_concept_iri(thesaurus: str, concept_id: str) -> URIRef:
+    """Return a DHD concept IRI in the thesaurus-specific namespace."""
+    try:
+        namespace = THESAURUS_NAMESPACES[thesaurus]
+    except KeyError as error:
+        known = ", ".join(sorted(THESAURUS_NAMESPACES))
+        raise ValueError(f"Unknown DHD thesaurus {thesaurus!r}. Known values: {known}") from error
+    return namespace[concept_id]
+
+
+def dbc_iri(dbc_id: str) -> URIRef:
+    """Return a DBC IRI for a specialty-scoped composite identifier."""
+    return DBC[dbc_id]
 
 
 def omop_iri(concept_id: str) -> URIRef:

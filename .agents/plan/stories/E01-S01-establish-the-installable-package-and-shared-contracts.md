@@ -26,6 +26,7 @@ Nothing else can be migrated, tested, or reviewed until installation, the CLI en
 - Distribution and build configuration: distribution `plugin-rosetta`, import package `plugin_rosetta`, `uv_build` backend, console script `rosetta = "plugin_rosetta.cli:app"`.
 - Direct dependency declarations, including Maplib as a core dependency and the exact `sssom-schema` pin.
 - A Typer application with help output and no mapping behaviour.
+- Empty workspace initialization with caller-owned configuration and no bundled domain registry.
 - The package error hierarchy and the shared validation report type.
 - Reader, writer, and validator protocols only.
 - `justfile` recipes for `install`, `test`, `lint`, `format`, `typecheck`, and `check`.
@@ -46,6 +47,8 @@ Nothing else can be migrated, tested, or reviewed until installation, the CLI en
 - [ ] GIVEN a validation report with no issues, WHEN its validity is inspected, THEN it reports valid.
 - [ ] GIVEN a trivial in-test implementation of each of the reader, writer, and validator protocols, WHEN it is checked against the protocol, THEN it conforms without inheriting from a package base class.
 - [ ] GIVEN `pyproject.toml`, WHEN dependencies are inspected, THEN `maplib`, `rdflib`, `csvw`, `curies`, `linkml-runtime`, `polars`, `pydantic`, `typer`, and an HTTP client are direct dependencies and `sssom-schema` is pinned to `1.1.0a5`.
+- [x] GIVEN an installed wheel, WHEN `rosetta init <workspace>` runs, THEN it creates empty source
+  catalogues and does not copy healthcare-specific configuration from package data.
 
 ## Technical Tasks
 
@@ -59,6 +62,8 @@ Nothing else can be migrated, tested, or reviewed until installation, the CLI en
 - [ ] Add the `justfile` with `install`, `test`, `lint`, `format`, `typecheck`, and `check` recipes, each a thin `uv run ...` wrapper.
 - [ ] Add `tests/test_cli.py`, `tests/test_errors.py`, and `tests/test_reports.py`.
 - [ ] Update `README.md` with the install and `rosetta --help` quickstart lines only.
+- [x] Keep the repository's healthcare configuration under top-level `registry/` and exclude
+  domain source catalogues, schemas, and mappings from `src/plugin_rosetta/`.
 
 ## Migration Notes
 
@@ -93,3 +98,6 @@ Nothing else can be migrated, tested, or reviewed until installation, the CLI en
 The plan deliberately limits this story to protocols and contracts.
 
 Do not add `config/`, `io/`, `mapping/`, `ontology/`, `vocabulary/`, `graph/`, `artifacts/`, or `application/` modules until the story that needs them.
+
+ADR-0003 supersedes the later packaged-starter decision from ADR-0001. Workspace initialization is
+generic library behavior; the repository registry remains example project input.

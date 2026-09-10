@@ -6,19 +6,19 @@ import pytest
 
 from plugin_rosetta.errors import ValidationError
 from plugin_rosetta.vocabulary import load_vocabulary_sources
-from plugin_rosetta.vocabulary.frames import load_table_contract
-from plugin_rosetta.vocabulary.namespaces import omop_iri, sct_iri, source_concept_iri
-from plugin_rosetta.vocabulary.omop import (
+from plugin_rosetta.vocabulary.adapters.omop import (
     build_graph,
     load_relationship_types,
     load_relationships,
     load_target_concepts,
 )
+from plugin_rosetta.vocabulary.frames import load_table_contract
+from plugin_rosetta.vocabulary.namespaces import omop_iri, sct_iri, source_concept_iri
 
 if TYPE_CHECKING:
     from plugin_rosetta.vocabulary import ReleaseTable
 
-ROOT = Path(__file__).parents[2]
+ROOT = Path(__file__).parents[3]
 FIXTURE_DIR = ROOT / "tests/fixtures/vocabulary/athena"
 CONFIG_PATH = ROOT / "registry/config/vocabulary-sources.yaml"
 REGISTRY_ROOT = ROOT / "registry"

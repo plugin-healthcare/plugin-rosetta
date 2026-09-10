@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from plugin_rosetta.errors import VocabularyError
-from plugin_rosetta.vocabulary import build_omop_graph
+from plugin_rosetta.vocabulary import build_dhd_graph, build_omop_graph
 
 ROOT = Path(__file__).parents[2]
 FIXTURE_DIR = ROOT / "tests/fixtures/vocabulary/athena"
@@ -66,3 +66,39 @@ def test_build_omop_graph_names_missing_release_and_ingest_command(
         )
 
     assert not (tmp_path / "output").exists()
+
+
+@pytest.mark.parametrize(
+    ("thesaurus", "filename"),
+    [
+        ("dt", "dhd-diagnosethesaurus.ttl"),
+        ("vt", "dhd-verrichtingenthesaurus.ttl"),
+    ],
+)
+def test_build_dhd_graph_writes_deterministic_turtle_and_as_of_provenance(
+    tmp_path: Path,
+    thesaurus: str,
+    filename: str,
+) -> None:
+    first_turtle, first_metadata = build_dhd_graph(
+        ROOT / "tests/fixtures/vocabulary/dhd",
+        tmp_path / "first",
+        thesaurus,
+        as_of="20260910",
+        config_path=ROOT / "registry/config/vocabulary-sources.yaml",
+    )
+    second_turtle, _ = build_dhd_graph(
+        ROOT / "tests/fixtures/vocabulary/dhd",
+        tmp_path / "second",
+        thesaurus,
+        as_of="20260910",
+        config_path=ROOT / "registry/config/vocabulary-sources.yaml",
+    )
+
+    assert first_turtle.name == filename
+    assert first_turtle.read_bytes() == second_turtle.read_bytes()
+    metadata = json.loads(first_metadata.read_text())
+    assert metadata["source_name"] == "dhd-thesauri"
+    assert metadata["source_version"] == "202508"
+    assert metadata["format_version"] == "uitleverformaat4.3"
+    assert metadata["as_of"] == "20260910"
