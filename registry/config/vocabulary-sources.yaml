@@ -1,0 +1,88 @@
+# Licence-gated vocabulary releases are downloaded manually from these pages.
+# Checksums remain unset until a curator ingests and confirms a specific ZIP.
+vocabulary_sources:
+  omop:
+    version: unversioned
+    kind: athena
+    description: OHDSI OMOP Standardized Vocabularies bundle downloaded from Athena.
+    download_page: https://athena.ohdsi.org/
+    tables:
+      - role: concept
+        name: CONCEPT.csv
+        separator: "\t"
+        contract: schemas/vocabularies/omop-concept.yaml
+      - role: concept-relationship
+        name: CONCEPT_RELATIONSHIP.csv
+        separator: "\t"
+        contract: schemas/vocabularies/omop-concept-relationship.yaml
+      - role: relationship
+        name: RELATIONSHIP.csv
+        separator: "\t"
+        contract: schemas/vocabularies/omop-relationship.yaml
+  dhd-thesauri:
+    version: "202508"
+    kind: dhd-csv
+    format_version: uitleverformaat4.3
+    description: DHD Diagnose- and Verrichtingenthesaurus CSV bundles.
+    download_page: https://mijn.dhd.nl/
+    tables:
+      - role: dt-concept
+        suffix: _ThesaurusConcept.csv
+        contains: /DT/
+        separator: ","
+        quote_char: '"'
+        contract: schemas/vocabularies/dhd-thesaurus-concept.yaml
+      - role: dt-term
+        suffix: _ThesaurusTerm.csv
+        contains: /DT/
+        separator: ","
+        quote_char: '"'
+        contract: schemas/vocabularies/dhd-thesaurus-term.yaml
+      - role: dt-icd10
+        suffix: _AfleidingICD10.csv
+        contains: /DT/
+        separator: ","
+        quote_char: '"'
+        contract: schemas/vocabularies/dhd-afleiding-icd10.yaml
+      - role: dt-dbc
+        suffix: _AfleidingDBC.csv
+        contains: /DT/
+        separator: ","
+        quote_char: '"'
+        contract: schemas/vocabularies/dhd-afleiding-dbc.yaml
+      - role: vt-concept
+        suffix: _ThesaurusConcept.csv
+        contains: /VT/
+        separator: ","
+        quote_char: '"'
+        contract: schemas/vocabularies/dhd-thesaurus-concept.yaml
+      - role: vt-term
+        suffix: _ThesaurusTerm.csv
+        contains: /VT/
+        separator: ","
+        quote_char: '"'
+        contract: schemas/vocabularies/dhd-thesaurus-term.yaml
+  loinc-snomed:
+    version: "2.82"
+    kind: rf2
+    description: LOINC-SNOMED Ontology distributed as an RF2 package.
+    download_page: https://loincsnomed.org/downloads
+    tables:
+      - role: concept
+        prefix: sct2_Concept_
+        suffix: .txt
+        contains: /Snapshot/
+        separator: "\t"
+        contract: schemas/vocabularies/rf2-concept.yaml
+  snomed-international:
+    version: "20260101"
+    kind: rf2
+    description: SNOMED CT International Edition distributed as an RF2 package.
+    download_page: https://www.nlm.nih.gov/healthit/snomedct/international.html
+    tables:
+      - role: concept
+        prefix: sct2_Concept_
+        suffix: .txt
+        contains: /Snapshot/
+        separator: "\t"
+        contract: schemas/vocabularies/rf2-concept.yaml

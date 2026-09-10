@@ -1,0 +1,14 @@
+columns:
+  ConceptID:
+    dtype: String
+    nullable: false
+  SpecialismeCode:
+    dtype: String
+    nullable: false
+  DBC_ID:
+    dtype: String
+  Begindatum:
+    dtype: String
+    nullable: false
+  Einddatum:
+    dtype: String

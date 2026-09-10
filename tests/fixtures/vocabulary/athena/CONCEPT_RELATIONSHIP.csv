@@ -1,0 +1,5 @@
+concept_id_1	concept_id_2	invalid_reason	relationship_id
+SYNTHETIC-OMOP-1	SYNTHETIC-OMOP-2		Maps to
+SYNTHETIC-OMOP-5	SYNTHETIC-OMOP-6		RxNorm has ing
+SYNTHETIC-OMOP-2	SYNTHETIC-OUTSIDE		Is a
+SYNTHETIC-OMOP-2	SYNTHETIC-OMOP-1	D	Subsumes

@@ -1,0 +1,2 @@
+id	effectiveTime	active	moduleId	definitionStatusId
+SYNTHETIC-SCT-1	20260101	1	SYNTHETIC-MODULE	SYNTHETIC-DEFINITION
