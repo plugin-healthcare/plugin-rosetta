@@ -9,9 +9,12 @@ if TYPE_CHECKING:
         DEFAULT_VOCABULARY_OUTPUT_DIR,
         build_cached_dhd_graph,
         build_cached_omop_graph,
+        build_cached_rf2_graph,
         build_dhd_graph,
         build_omop_graph,
+        build_rf2_graph,
         ingest_release,
+        merge_built_vocabulary_graphs,
     )
     from plugin_rosetta.vocabulary.config import (
         ReleaseTable,
@@ -30,10 +33,13 @@ __all__ = [
     "VocabularySourcesConfig",
     "build_cached_dhd_graph",
     "build_cached_omop_graph",
+    "build_cached_rf2_graph",
     "build_dhd_graph",
     "build_omop_graph",
+    "build_rf2_graph",
     "ingest_release",
     "load_vocabulary_sources",
+    "merge_built_vocabulary_graphs",
 ]
 
 _EXPORT_MODULES = {
@@ -45,10 +51,13 @@ _EXPORT_MODULES = {
     "VocabularySourcesConfig": "plugin_rosetta.vocabulary.config",
     "build_cached_dhd_graph": "plugin_rosetta.vocabulary.api",
     "build_cached_omop_graph": "plugin_rosetta.vocabulary.api",
+    "build_cached_rf2_graph": "plugin_rosetta.vocabulary.api",
     "build_dhd_graph": "plugin_rosetta.vocabulary.api",
     "build_omop_graph": "plugin_rosetta.vocabulary.api",
+    "build_rf2_graph": "plugin_rosetta.vocabulary.api",
     "ingest_release": "plugin_rosetta.vocabulary.api",
     "load_vocabulary_sources": "plugin_rosetta.vocabulary.config",
+    "merge_built_vocabulary_graphs": "plugin_rosetta.vocabulary.api",
 }
 
 

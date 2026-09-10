@@ -128,6 +128,48 @@ The DT graph links concepts to SNOMED CT with `skos:exactMatch` and to ICD-10 an
 specialty-scoped DBC identifiers with `skos:closeMatch`. The VT graph contains SNOMED CT links
 only. Both provenance sidecars record the effective `as_of` date.
 
+Build the optional RF2 extension and International backbone, then merge every
+registered vocabulary graph:
+
+```shell
+uv run rosetta vocabulary build-loinc-snomed
+uv run rosetta vocabulary build-snomed-international
+uv run rosetta vocabulary merge
+```
+
+RF2 readers preserve identifiers as text, use active Snapshot rows, and derive
+preferred labels, synonyms, and is-a edges. SNOMED International file selection
+is constrained to the configured English Snapshot tables. The merged
+`vocabularies.ttl` is an atomic union with duplicate triples collapsed.
+
+Vocabulary provenance sidecars include `omissions`, grouped by template and
+optional parameter. Populated optional fields are reported with a zero count;
+missing values are never hidden by an absent report.
+
+## Compare local artifact versions
+
+Register produced files in the ignored, content-addressed local catalogue:
+
+```shell
+uv run rosetta artifact register omop-graph registry/data/vocabulary-graphs/omop.ttl \
+  --kind rdf --source-name omop --source-version unversioned
+uv run rosetta artifact list omop-graph
+uv run rosetta artifact diff omop-graph <base-version> <head-version>
+```
+
+Commands print JSON. Versions are SHA-256 identities over kind-scoped canonical
+content. Text normalizes line endings, trailing whitespace, and final blank
+lines; JSON and YAML normalize parsed values; RDF uses canonical N-Triples so
+prefixes, ordering, and blank-node labels do not create false versions. Table
+diffs stop at incompatible schemas, then compare declared keys. SSSOM uses
+subject, predicate, and object identity, while RDF reports canonical added and
+removed triples.
+
+Catalogue entries live under
+`registry/data/artifacts/<name>/<version>/` as a canonical artifact plus a
+plain JSON manifest. See [the migration capability matrix](docs/capability-matrix.md)
+for retained workflows and intentional differences.
+
 ## Explore interactively
 
 ```shell
@@ -135,5 +177,11 @@ just notebook
 ```
 
 Opens `notebooks/quickstart_nb.py`, a [marimo](https://marimo.io) notebook that explores the
-`omop-onz-g` mapping set and builds OMOP and DHD vocabulary graphs from synthetic release tables.
+`omop-onz-g` mapping set and builds OMOP, DHD, and RF2 vocabulary graphs from synthetic release tables.
 The notebook runs offline without a licensed vocabulary release.
+
+The same mapping-only flow is available as a normal script:
+
+```shell
+uv run python examples/build_preserved_mapping_set.py
+```

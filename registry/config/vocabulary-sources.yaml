@@ -65,6 +65,7 @@ vocabulary_sources:
   loinc-snomed:
     version: "2.82"
     kind: rf2
+    language_refset_id: "900000000000509007"
     description: LOINC-SNOMED Ontology distributed as an RF2 package.
     download_page: https://loincsnomed.org/downloads
     tables:
@@ -74,15 +75,52 @@ vocabulary_sources:
         contains: /Snapshot/
         separator: "\t"
         contract: schemas/vocabularies/rf2-concept.yaml
+      - role: description
+        prefix: sct2_Description_
+        suffix: .txt
+        contains: /Snapshot/
+        separator: "\t"
+        contract: schemas/vocabularies/rf2-description.yaml
+      - role: language
+        prefix: der2_cRefset_Language
+        suffix: .txt
+        contains: /Snapshot/
+        separator: "\t"
+        contract: schemas/vocabularies/rf2-language.yaml
+      - role: relationship
+        prefix: sct2_Relationship_
+        suffix: .txt
+        contains: /Snapshot/
+        separator: "\t"
+        contract: schemas/vocabularies/rf2-relationship.yaml
   snomed-international:
     version: "20260101"
     kind: rf2
+    language_refset_id: "900000000000509007"
     description: SNOMED CT International Edition distributed as an RF2 package.
     download_page: https://www.nlm.nih.gov/healthit/snomedct/international.html
     tables:
       - role: concept
-        prefix: sct2_Concept_
+        prefix: sct2_Concept_Snapshot
         suffix: .txt
         contains: /Snapshot/
         separator: "\t"
         contract: schemas/vocabularies/rf2-concept.yaml
+      - role: description
+        prefix: sct2_Description_Snapshot-en
+        suffix: .txt
+        contains: /Snapshot/
+        separator: "\t"
+        contract: schemas/vocabularies/rf2-description.yaml
+      - role: language
+        prefix: der2_cRefset_LanguageSnapshot-en
+        suffix: .txt
+        contains: /Snapshot/
+        separator: "\t"
+        contract: schemas/vocabularies/rf2-language.yaml
+      - role: relationship
+        prefix: sct2_Relationship_Snapshot
+        suffix: .txt
+        contains: /Snapshot/
+        separator: "\t"
+        contract: schemas/vocabularies/rf2-relationship.yaml

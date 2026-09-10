@@ -4,6 +4,7 @@ Freeform session notes and handover scratch. One row per doc, newest first. Name
 
 | Date | File | Summary |
 | ---- | ---- | ------- |
+| 2026-09-10 | [202609101634_release-feature-handover.md](202609101634_release-feature-handover.md) | E01-S10 RF2 and merge implementation, E01-S11 artifact catalogue, pinned E01-S12 parity inventory, and remaining release checks |
 | 2026-09-10 | [202609101556_dhd-graphs-handover.md](202609101556_dhd-graphs-handover.md) | E01-S09 DHD DT/VT graphs, shared build adapters, strict dates, deterministic labels, empty workspace initialization, and ADR-0003 |
 | 2026-09-10 | [202609101401_omop-graph-handover.md](202609101401_omop-graph-handover.md) | E01-S08 OMOP graph implemented with validated Athena reads, Maplib templates, native links, relationship-concept predicates, deterministic Turtle, provenance, CLI wiring, and an offline notebook demo |
 | 2026-09-10 | [202609101217_vocabulary-ingest-handover.md](202609101217_vocabulary-ingest-handover.md) | E01-S07 ingest implemented with tracked source and table contracts, safe atomic ZIP extraction, synthetic fixtures, CLI wiring, and Nyctea deferred during its refactor |

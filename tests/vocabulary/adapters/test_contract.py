@@ -18,6 +18,8 @@ CONFIG_PATH = ROOT / "registry/config/vocabulary-sources.yaml"
         ("omop", ROOT / "tests/fixtures/vocabulary/athena", None),
         ("dhd-diagnosethesaurus", ROOT / "tests/fixtures/vocabulary/dhd", "20260910"),
         ("dhd-verrichtingenthesaurus", ROOT / "tests/fixtures/vocabulary/dhd", "20260910"),
+        ("loinc-snomed", ROOT / "tests/fixtures/vocabulary/rf2", None),
+        ("snomed-international", ROOT / "tests/fixtures/vocabulary/rf2", None),
     ],
 )
 def test_build_adapters_write_turtle_and_provenance_through_one_contract(
@@ -51,6 +53,33 @@ def test_build_adapters_write_turtle_and_provenance_through_one_contract(
     metadata = json.loads(metadata_path.read_text())
     assert metadata["source_name"] == adapter.source_name
     assert metadata["as_of"] == as_of
+    assert isinstance(metadata["omissions"], dict)
+    if adapter_name in {"loinc-snomed", "snomed-international"}:
+        assert metadata["omissions"]["Rf2Concept"] == {
+            "preferred_label": 0,
+            "alternative_label": 1,
+            "parent": 1,
+        }
+
+
+def test_template_omission_report_includes_zero_and_nonzero_counts(tmp_path: Path) -> None:
+    _, omop_metadata = get_build_adapter("omop").build(
+        ROOT / "tests/fixtures/vocabulary/athena",
+        tmp_path / "omop",
+        config_path=CONFIG_PATH,
+        as_of=None,
+    )
+    _, dhd_metadata = get_build_adapter("dhd-diagnosethesaurus").build(
+        ROOT / "tests/fixtures/vocabulary/dhd",
+        tmp_path / "dhd",
+        config_path=CONFIG_PATH,
+        as_of="20260910",
+    )
+
+    omop = json.loads(omop_metadata.read_text())["omissions"]["OmopConceptTemplate"]
+    dhd = json.loads(dhd_metadata.read_text())["omissions"]["DhdConceptTemplate"]
+    assert omop["source"] > 0
+    assert dhd == {"label": 0, "snomed": 0}
 
 
 def test_get_build_adapter_rejects_unknown_name() -> None:
@@ -100,6 +129,26 @@ def test_thesaurus_adapter_uses_configured_suffix_instead_of_hardcoded_name(tmp_
         tmp_path / "output",
         config_path=config_path,
         as_of="20260910",
+    )
+
+    assert turtle_path.is_file()
+
+
+def test_snomed_international_reads_only_snapshot_english_files(tmp_path: Path) -> None:
+    release_dir = tmp_path / "rf2"
+    shutil.copytree(ROOT / "tests/fixtures/vocabulary/rf2", release_dir)
+    shutil.copytree(release_dir / "Snapshot", release_dir / "Full")
+    shutil.copytree(release_dir / "Snapshot", release_dir / "Delta")
+    terminology = release_dir / "Snapshot/Terminology"
+    refset = release_dir / "Snapshot/Refset/Language"
+    (terminology / "sct2_Description_Snapshot-nl_SYN_20260910.txt").write_text("invalid\n")
+    (refset / "der2_cRefset_LanguageSnapshot-nl_SYN_20260910.txt").write_text("invalid\n")
+
+    turtle_path, _ = get_build_adapter("snomed-international").build(
+        release_dir,
+        tmp_path / "output",
+        config_path=CONFIG_PATH,
+        as_of=None,
     )
 
     assert turtle_path.is_file()

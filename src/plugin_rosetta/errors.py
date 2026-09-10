@@ -25,6 +25,10 @@ class RosettaIOError(RosettaError):
     """Raised when an input or output operation fails."""
 
 
+class ArtifactError(RosettaError):
+    """Raised when a local artifact operation cannot be completed."""
+
+
 class VocabularyError(RosettaError):
     """Base exception for vocabulary release operations."""
 

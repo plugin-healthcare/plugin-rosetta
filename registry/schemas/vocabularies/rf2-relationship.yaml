@@ -1,0 +1,31 @@
+columns:
+  id:
+    dtype: String
+    nullable: false
+  effectiveTime:
+    dtype: String
+    nullable: false
+  active:
+    dtype: String
+    nullable: false
+  moduleId:
+    dtype: String
+    nullable: false
+  sourceId:
+    dtype: String
+    nullable: false
+  destinationId:
+    dtype: String
+    nullable: false
+  relationshipGroup:
+    dtype: String
+    nullable: false
+  typeId:
+    dtype: String
+    nullable: false
+  characteristicTypeId:
+    dtype: String
+    nullable: false
+  modifierId:
+    dtype: String
+    nullable: false

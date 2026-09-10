@@ -37,33 +37,33 @@ A local catalogue with content-addressed versions and typed differences turns an
 
 ## Acceptance Criteria
 
-- [ ] GIVEN a produced artifact file, WHEN it is registered, THEN its version identifier is the checksum of its canonical bytes and re-registering identical content returns the same version without creating a duplicate entry.
-- [ ] GIVEN two artifacts whose content differs only in whitespace that the canonical form normalises, WHEN both are registered, THEN they resolve to the same version.
-- [ ] GIVEN a registered artifact, WHEN its manifest is read, THEN it records the artifact kind, the source name and version, the input checksums, the tool version, and the build timestamp.
-- [ ] GIVEN several registered versions of one artifact, WHEN they are listed, THEN they are returned in a documented, stable order with their registration times.
-- [ ] GIVEN two versions with different checksums, WHEN they are diffed, THEN the checksum difference is reported first and cheaply, without parsing either artifact.
-- [ ] GIVEN two tabular versions whose columns differ, WHEN they are diffed, THEN added, removed, and retyped columns are reported and no row comparison is attempted.
-- [ ] GIVEN two tabular versions with the same schema, WHEN they are diffed, THEN added, removed, and changed rows are reported keyed on the declared key columns.
-- [ ] GIVEN two SSSOM versions, WHEN they are diffed, THEN added, removed, and changed mappings are reported keyed on subject, predicate, and object.
-- [ ] GIVEN two RDF versions, WHEN they are diffed, THEN added and removed triples are reported and the comparison uses a plain RDF parser rather than any Rosetta-specific reader.
-- [ ] GIVEN two RDF versions containing blank nodes, WHEN they are diffed, THEN the behaviour is documented and deterministic rather than reporting spurious differences on every run.
-- [ ] GIVEN a registered upgrade of a vocabulary source version, WHEN the impact is reported, THEN it names every registered mapping and graph artifact whose manifest lists that source as an input.
-- [ ] GIVEN an artifact that is not registered, WHEN a diff is requested, THEN the error names the unknown artifact and lists the known ones.
-- [ ] GIVEN a registered catalogue, WHEN `rosetta artifact register`, `list`, and `diff` run, THEN they exit 0, print machine-readable output, and the command bodies contain no diffing logic.
-- [ ] GIVEN the catalogue on disk, WHEN it is inspected, THEN manifests are plain JSON or YAML that any standard tool can read without importing `plugin_rosetta`.
+- [x] GIVEN a produced artifact file, WHEN it is registered, THEN its version identifier is the checksum of its canonical bytes and re-registering identical content returns the same version without creating a duplicate entry.
+- [x] GIVEN two artifacts whose content differs only in whitespace that the canonical form normalises, WHEN both are registered, THEN they resolve to the same version.
+- [x] GIVEN a registered artifact, WHEN its manifest is read, THEN it records the artifact kind, the source name and version, the input checksums, the tool version, and the build timestamp.
+- [x] GIVEN several registered versions of one artifact, WHEN they are listed, THEN they are returned in a documented, stable order with their registration times.
+- [x] GIVEN two versions with different checksums, WHEN they are diffed, THEN the checksum difference is reported first and cheaply, without parsing either artifact.
+- [x] GIVEN two tabular versions whose columns differ, WHEN they are diffed, THEN added, removed, and retyped columns are reported and no row comparison is attempted.
+- [x] GIVEN two tabular versions with the same schema, WHEN they are diffed, THEN added, removed, and changed rows are reported keyed on the declared key columns.
+- [x] GIVEN two SSSOM versions, WHEN they are diffed, THEN added, removed, and changed mappings are reported keyed on subject, predicate, and object.
+- [x] GIVEN two RDF versions, WHEN they are diffed, THEN added and removed triples are reported and the comparison uses a plain RDF parser rather than any Rosetta-specific reader.
+- [x] GIVEN two RDF versions containing blank nodes, WHEN they are diffed, THEN the behaviour is documented and deterministic rather than reporting spurious differences on every run.
+- [x] GIVEN a registered upgrade of a vocabulary source version, WHEN the impact is reported, THEN it names every registered mapping and graph artifact whose manifest lists that source as an input.
+- [x] GIVEN an artifact that is not registered, WHEN a diff is requested, THEN the error names the unknown artifact and lists the known ones.
+- [x] GIVEN a registered catalogue, WHEN `rosetta artifact register`, `list`, and `diff` run, THEN they exit 0, print machine-readable output, and the command bodies contain no diffing logic.
+- [x] GIVEN the catalogue on disk, WHEN it is inspected, THEN manifests are plain JSON that any standard tool can read without importing `plugin_rosetta`.
 
 ## Technical Tasks
 
-- [ ] Add `src/plugin_rosetta/artifacts/identity.py` computing a content-addressed version from canonical bytes, with the canonicalisation rule documented per artifact kind.
-- [ ] Add `src/plugin_rosetta/artifacts/manifest.py` with a frozen Pydantic manifest model serialised as plain JSON.
-- [ ] Add `src/plugin_rosetta/artifacts/catalog.py` with local `register`, `list_versions`, and `resolve` over a directory layout under `registry/data/artifacts/`.
-- [ ] Add `src/plugin_rosetta/artifacts/diff.py` in separate slices: checksum, then schema, then keyed row, then SSSOM mapping, then RDF triple, each with its own tests before the next starts.
-- [ ] Implement the RDF triple diff over a plain RDF parser and document the blank-node handling rule.
-- [ ] Add an impact query that walks manifests and returns dependent artifacts for a changed input.
-- [ ] Add a public `src/plugin_rosetta/artifacts/` feature package with register, list, and diff operations, and wire the build commands from E01-S04, E01-S08, E01-S09, and E01-S10 to register what they produce.
-- [ ] Add the thin `rosetta artifact` command group and `justfile` recipes.
-- [ ] Extract a storage protocol only after the local catalogue and every diff slice are tested, and only if a second implementation is actually needed.
-- [ ] Add `tests/artifacts/test_identity.py`, `test_manifest.py`, `test_catalog.py`, and `test_diff.py`.
+- [x] Add `src/plugin_rosetta/artifacts/identity.py` computing a content-addressed version from canonical bytes, with the canonicalisation rule documented per artifact kind.
+- [x] Add `src/plugin_rosetta/artifacts/manifest.py` with a frozen Pydantic manifest model serialised as plain JSON.
+- [x] Add `src/plugin_rosetta/artifacts/catalog.py` with local `register`, `list_versions`, and `resolve` over a directory layout under `registry/data/artifacts/`.
+- [x] Add `src/plugin_rosetta/artifacts/diff.py` with checksum, schema, keyed-row, SSSOM mapping, and RDF triple slices.
+- [x] Implement RDF triple differences over RDFLib canonical graphs and document deterministic blank-node handling.
+- [x] Add an impact query that walks manifests and returns dependent artifacts for a changed input.
+- [x] Add a public `src/plugin_rosetta/artifacts/` feature package. Registration remains an explicit operation so normal builds do not create hidden catalogue side effects.
+- [x] Add the thin `rosetta artifact` command group and `justfile` recipes.
+- [x] Keep storage local without extracting a protocol because no second implementation exists.
+- [x] Add focused identity, manifest/catalogue, difference, and CLI tests.
 
 ## Migration Notes
 
@@ -85,13 +85,13 @@ A local catalogue with content-addressed versions and typed differences turns an
 
 ## Definition of Done
 
-- [ ] Every new behaviour was driven by a failing test written first, one diff slice at a time.
-- [ ] `uv run pytest tests/artifacts` passes.
-- [ ] `uv run tara check` passes.
-- [ ] `README.md` and `registry/README.md` document the catalogue layout, the canonical forms, and the diff slices.
-- [ ] Manifests and artifacts remain plain open-format files readable without `plugin_rosetta`.
+- [x] Every new behaviour was driven by a failing test written first, one diff slice at a time.
+- [x] `uv run pytest tests/artifacts` passes.
+- [x] `uv run tara check` passes.
+- [x] `README.md` and `registry/README.md` document the catalogue layout, the canonical forms, and the diff slices.
+- [x] Manifests and artifacts remain plain open-format files readable without `plugin_rosetta`.
 - [ ] Acceptance criteria verified with the mapping curator by registering and comparing two real versions of one source.
-- [ ] No licensed data, cached downloads, or generated artifacts are staged.
+- [x] No licensed data, cached downloads, or generated artifacts are staged.
 - [ ] The developer reviews and commits; the agent does not commit or push.
 
 ## Notes

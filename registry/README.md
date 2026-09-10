@@ -90,7 +90,8 @@ OMOP relationship rows retain their source semantics. Each edge uses the corresp
 relationships into selected SKOS predicates or label unused relationship types.
 
 The deterministic `data/vocabulary-graphs/omop.ttl` output is accompanied by `omop.meta.json`,
-which records the configured source name, source version, format version, and UTC build time.
+which records the configured source name, source version, format version, UTC build time, and
+per-template optional-value omission counts.
 
 ## DHD thesaurus graphs
 
@@ -111,3 +112,33 @@ DBC diagnosis identifiers are only unique within a specialty. The graph therefor
 to SNOMED CT with `skos:exactMatch` and to ICD-10 and DBC with `skos:closeMatch`; VT outputs contain
 SNOMED CT links only. A blank end date remains active, and each sidecar records the explicit
 `as_of` date.
+
+## RF2 graphs and merge
+
+The LOINC-SNOMED and SNOMED International adapters read configured RF2 table
+roles rather than fixed publisher filenames. RF2 identifiers remain strings,
+including 18-digit SCTIDs. Builds retain active concepts, active is-a
+relationships, active preferred descriptions selected by the language refset,
+and active synonyms.
+
+```shell
+uv run rosetta vocabulary build-loinc-snomed
+uv run rosetta vocabulary build-snomed-international
+uv run rosetta vocabulary merge
+```
+
+The International configuration restricts lookup to English Snapshot files.
+The merge command requires all registered adapter outputs, collapses duplicate
+triples, and atomically writes `data/vocabulary-graphs/vocabularies.ttl`.
+
+## Local artifact catalogue
+
+`rosetta artifact register` stores a canonical copy and plain JSON manifest
+under `data/artifacts/<name>/<version>/`. The version is a kind-scoped SHA-256
+of canonical content, so semantically identical RDF with different prefixes or
+blank-node labels resolves to one version. `artifact list` returns stable
+registration order, and `artifact diff` reports schema, keyed-row, SSSOM
+mapping, or RDF triple differences as JSON.
+
+Generated catalogue content remains ignored. It must not be committed with
+licensed releases or generated vocabulary graphs.

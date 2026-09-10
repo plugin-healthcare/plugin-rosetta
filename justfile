@@ -45,5 +45,23 @@ build-dhd-diagnosethesaurus as_of:
 build-dhd-verrichtingenthesaurus as_of:
     uv run rosetta vocabulary build-dhd-verrichtingenthesaurus --as-of {{as_of}}
 
+build-loinc-snomed:
+    uv run rosetta vocabulary build-loinc-snomed
+
+build-snomed-international:
+    uv run rosetta vocabulary build-snomed-international
+
+merge-vocabularies:
+    uv run rosetta vocabulary merge
+
+artifact-register name path kind source_name source_version:
+    uv run rosetta artifact register {{name}} {{path}} --kind {{kind}} --source-name {{source_name}} --source-version {{source_version}}
+
+artifact-list name:
+    uv run rosetta artifact list {{name}}
+
+artifact-diff name base head:
+    uv run rosetta artifact diff {{name}} {{base}} {{head}}
+
 notebook:
     uv run marimo edit notebooks/quickstart_nb.py

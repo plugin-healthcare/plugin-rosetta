@@ -1,10 +1,18 @@
 """Command-line interface for plugin-rosetta."""
 
+import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated
 
 import typer
 
+from plugin_rosetta.artifacts import (
+    DEFAULT_ARTIFACT_CATALOG,
+    ArtifactKind,  # noqa: TC001
+    diff_artifacts,
+    list_versions,
+    register_artifact,
+)
 from plugin_rosetta.errors import RosettaError
 from plugin_rosetta.mapping import (
     DEFAULT_MAPPING_CONFIG,
@@ -23,7 +31,9 @@ from plugin_rosetta.vocabulary import (
     DEFAULT_VOCABULARY_OUTPUT_DIR,
     build_cached_dhd_graph,
     build_cached_omop_graph,
+    build_cached_rf2_graph,
     ingest_release,
+    merge_built_vocabulary_graphs,
 )
 from plugin_rosetta.vocabulary.ingest import DEFAULT_CACHE_DIR as DEFAULT_VOCABULARY_CACHE_DIR
 from plugin_rosetta.workspace import initialize_workspace
@@ -42,6 +52,8 @@ ontology_app = typer.Typer(help="Fetch and cache ontology sources.", rich_markup
 app.add_typer(ontology_app, name="ontology")
 vocabulary_app = typer.Typer(help="Ingest and validate vocabulary releases.", rich_markup_mode=None)
 app.add_typer(vocabulary_app, name="vocabulary")
+artifact_app = typer.Typer(help="Register and compare local artifact versions.", rich_markup_mode=None)
+app.add_typer(artifact_app, name="artifact")
 
 
 def _guard[T](operation: Callable[[], T]) -> T:
@@ -302,3 +314,115 @@ def build_dhd_verrichtingenthesaurus_command(
 ) -> None:
     """Build the DHD Verrichtingenthesaurus graph."""
     _build_dhd_command("vt", as_of, output_dir, config, cache_dir)
+
+
+def _build_rf2_command(name: str, output_dir: Path, config: Path, cache_dir: Path) -> None:
+    artifacts = _guard(
+        lambda: build_cached_rf2_graph(
+            name,
+            output_dir,
+            config_path=config,
+            cache_dir=cache_dir,
+        )
+    )
+    for path in artifacts:
+        typer.echo(path)
+
+
+@vocabulary_app.command("build-loinc-snomed")
+def build_loinc_snomed_command(
+    output_dir: Annotated[Path, typer.Option(help="Directory in which to write the graph.")] = (
+        DEFAULT_VOCABULARY_OUTPUT_DIR
+    ),
+    config: Annotated[Path, typer.Option(help="Path to vocabulary source configuration.")] = DEFAULT_VOCABULARY_CONFIG,
+    cache_dir: Annotated[Path, typer.Option(help="Base directory holding ingested releases.")] = (
+        DEFAULT_VOCABULARY_CACHE_DIR
+    ),
+) -> None:
+    """Build the configured LOINC-SNOMED RF2 graph."""
+    _build_rf2_command("loinc-snomed", output_dir, config, cache_dir)
+
+
+@vocabulary_app.command("build-snomed-international")
+def build_snomed_international_command(
+    output_dir: Annotated[Path, typer.Option(help="Directory in which to write the graph.")] = (
+        DEFAULT_VOCABULARY_OUTPUT_DIR
+    ),
+    config: Annotated[Path, typer.Option(help="Path to vocabulary source configuration.")] = DEFAULT_VOCABULARY_CONFIG,
+    cache_dir: Annotated[Path, typer.Option(help="Base directory holding ingested releases.")] = (
+        DEFAULT_VOCABULARY_CACHE_DIR
+    ),
+) -> None:
+    """Build the configured SNOMED International RF2 graph."""
+    _build_rf2_command("snomed-international", output_dir, config, cache_dir)
+
+
+@vocabulary_app.command("merge")
+def merge_vocabulary_graphs_command(
+    output_dir: Annotated[Path, typer.Option(help="Directory holding built vocabulary graphs.")] = (
+        DEFAULT_VOCABULARY_OUTPUT_DIR
+    ),
+) -> None:
+    """Merge every registered vocabulary graph."""
+    typer.echo(_guard(lambda: merge_built_vocabulary_graphs(output_dir)))
+
+
+@artifact_app.command("register")
+def register_artifact_command(
+    name: Annotated[str, typer.Argument(help="Stable artifact name.")],
+    path: Annotated[Path, typer.Argument(help="Path to the produced artifact.")],
+    kind: Annotated[ArtifactKind, typer.Option(help="Artifact format and canonicalisation rule.")],
+    source_name: Annotated[str, typer.Option(help="Source recorded in the manifest.")],
+    source_version: Annotated[str, typer.Option(help="Source version recorded in the manifest.")],
+    catalog_dir: Annotated[Path, typer.Option(help="Local content-addressed catalogue.")] = DEFAULT_ARTIFACT_CATALOG,
+    key_column: Annotated[
+        list[str] | None,
+        typer.Option(help="Key column for table differences; repeat for compound keys."),
+    ] = None,
+) -> None:
+    """Register one immutable local artifact version."""
+    result = _guard(
+        lambda: register_artifact(
+            name,
+            path,
+            kind,
+            catalog_dir=catalog_dir,
+            source_name=source_name,
+            source_version=source_version,
+            key_columns=tuple(key_column or ()),
+        )
+    )
+    typer.echo(result.manifest.model_dump_json())
+
+
+@artifact_app.command("list")
+def list_artifacts_command(
+    name: Annotated[str, typer.Argument(help="Artifact name.")],
+    catalog_dir: Annotated[Path, typer.Option(help="Local content-addressed catalogue.")] = DEFAULT_ARTIFACT_CATALOG,
+) -> None:
+    """List registered versions as JSON."""
+    typer.echo(
+        json.dumps(
+            [manifest.model_dump(mode="json") for manifest in list_versions(name, catalog_dir=catalog_dir)],
+            sort_keys=True,
+        )
+    )
+
+
+@artifact_app.command("diff")
+def diff_artifacts_command(
+    name: Annotated[str, typer.Argument(help="Artifact name.")],
+    base_version: Annotated[str, typer.Argument(help="Content version used as the baseline.")],
+    head_version: Annotated[str, typer.Argument(help="Content version being reviewed.")],
+    catalog_dir: Annotated[Path, typer.Option(help="Local content-addressed catalogue.")] = DEFAULT_ARTIFACT_CATALOG,
+) -> None:
+    """Print a typed artifact difference as JSON."""
+    result = _guard(
+        lambda: diff_artifacts(
+            name,
+            base_version,
+            head_version,
+            catalog_dir=catalog_dir,
+        )
+    )
+    typer.echo(result.model_dump_json())

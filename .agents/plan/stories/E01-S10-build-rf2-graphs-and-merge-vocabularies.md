@@ -38,33 +38,33 @@ This story also makes template behaviour observable by reporting how many triple
 
 ## Acceptance Criteria
 
-- [ ] GIVEN an RF2 file containing unescaped double and single quotes in terms, WHEN it is read, THEN every column is text and no row is split or dropped.
-- [ ] GIVEN an 18-digit concept identifier, WHEN it is read, THEN it is preserved as a string with no overflow or precision loss.
-- [ ] GIVEN rows with mixed active flags, WHEN active rows are selected, THEN only rows flagged active are kept.
-- [ ] GIVEN a relationship table, WHEN is-a edges are derived, THEN only active rows with the is-a type identifier are kept, and each becomes both a subclass triple and a broad-match triple from child to parent.
-- [ ] GIVEN description and language refset tables, WHEN preferred terms are derived, THEN only active preferred acceptability rows are used and each concept gets a language-tagged preferred label and matching RDFS label.
-- [ ] GIVEN a description table containing synonyms, WHEN synonyms are derived, THEN each becomes a language-tagged alternative label.
-- [ ] GIVEN a synthetic LOINC-SNOMED release, WHEN the graph is built, THEN each active concept is typed both as a SKOS concept and an OWL class in the shared SNOMED namespace.
-- [ ] GIVEN a synthetic SNOMED International release that ships full, snapshot, and delta trees and several language files, WHEN the graph is built, THEN only the snapshot English files are read.
-- [ ] GIVEN an OMOP graph and a LOINC-SNOMED graph that reference the same SNOMED identifier, WHEN they are merged, THEN the merged graph connects them through one shared node.
-- [ ] GIVEN a LOINC-SNOMED extension graph and a SNOMED International backbone graph, WHEN they are merged, THEN extension concepts reach the backbone hierarchy.
-- [ ] GIVEN several Turtle files, WHEN they are merged, THEN the merged output binds the shared prefixes, contains the union of triples with duplicates collapsed, and is written atomically.
-- [ ] GIVEN a merge over a large input, WHEN it runs, THEN it uses the Maplib read and write path rather than a pure Python parse.
-- [ ] GIVEN a mapping of rows through any template with optional parameters, WHEN the graph is built, THEN the build result reports, per template and per optional parameter, how many triples were omitted because the value was null.
-- [ ] GIVEN a build in which every optional value is populated, WHEN the omission report is produced, THEN it reports zero omissions rather than an empty or missing report.
-- [ ] GIVEN no built vocabulary graphs on disk, WHEN merge is requested, THEN it fails naming the expected inputs rather than writing an empty file.
-- [ ] GIVEN built graphs, WHEN each RF2 build command and `rosetta vocabulary merge` run, THEN they exit 0 and the command bodies contain no graph logic.
+- [x] GIVEN an RF2 file containing unescaped double and single quotes in terms, WHEN it is read, THEN every column is text and no row is split or dropped.
+- [x] GIVEN an 18-digit concept identifier, WHEN it is read, THEN it is preserved as a string with no overflow or precision loss.
+- [x] GIVEN rows with mixed active flags, WHEN active rows are selected, THEN only rows flagged active are kept.
+- [x] GIVEN a relationship table, WHEN is-a edges are derived, THEN only active rows with the is-a type identifier are kept, and each becomes both a subclass triple and a broad-match triple from child to parent.
+- [x] GIVEN description and language refset tables, WHEN preferred terms are derived, THEN only active preferred synonym rows from the configured dialect are used and each concept gets a language-tagged preferred label and matching RDFS label.
+- [x] GIVEN a description table containing non-preferred synonyms, WHEN synonyms are derived, THEN each becomes a language-tagged alternative label and the preferred synonym is not duplicated.
+- [x] GIVEN a synthetic LOINC-SNOMED release, WHEN the graph is built, THEN each active concept is typed both as a SKOS concept and an OWL class in the shared SNOMED namespace.
+- [x] GIVEN a synthetic SNOMED International release that ships full, snapshot, and delta trees and several language files, WHEN the graph is built, THEN only the configured snapshot English files and language refset are read.
+- [x] GIVEN an OMOP graph and a LOINC-SNOMED graph that reference the same SNOMED identifier, WHEN they are merged, THEN the merged graph connects them through one shared node.
+- [x] GIVEN a LOINC-SNOMED extension graph and a SNOMED International backbone graph, WHEN they are merged, THEN extension concepts reach the backbone hierarchy.
+- [x] GIVEN several Turtle files, WHEN they are merged, THEN the merged output binds the shared prefixes, contains the union of triples with duplicates collapsed, and is written atomically.
+- [x] GIVEN a merge over a large input, WHEN it runs, THEN it uses the Maplib read and write path rather than a pure Python parse.
+- [x] GIVEN a mapping of rows through any template with optional parameters, WHEN the graph is built, THEN the build result reports, per template and per optional parameter, how many triples were omitted because the value was null.
+- [x] GIVEN a build in which every optional value is populated, WHEN the omission report is produced, THEN it reports zero omissions rather than an empty or missing report.
+- [x] GIVEN no built vocabulary graphs on disk, WHEN merge is requested, THEN it fails naming the expected inputs rather than writing an empty file.
+- [x] GIVEN built graphs, WHEN each RF2 build command and `rosetta vocabulary merge` run, THEN they exit 0 and the command bodies contain no graph logic.
 
 ## Technical Tasks
 
-- [ ] Add `src/plugin_rosetta/vocabulary/rf2.py` with `read_rf2`, `active_rows`, `isa_edges`, `preferred_terms`, and `synonyms`, keeping the well-known RF2 type identifiers as named constants.
-- [ ] Add `src/plugin_rosetta/vocabulary/loinc_snomed.py` with `build_graph` over already-loaded frames and a release-directory entry point.
-- [ ] Add `src/plugin_rosetta/vocabulary/snomed_international.py` that reuses the same graph builder and constrains file lookup to the snapshot English files.
-- [ ] Register both RF2 adapters through the shared adapter contract from E01-S09 and extend the contract tests to cover them.
-- [ ] Add `src/plugin_rosetta/vocabulary/merge.py` with a file-based Maplib merge and an in-memory merge for tests that need triple-level assertions.
-- [ ] Add omission counting to the template mapping path in `src/plugin_rosetta/vocabulary/templates.py`, returning counts as part of the build result and surfacing them in the provenance sidecar.
-- [ ] Add the three thin CLI commands and `justfile` recipes, keeping the RF2 builds opt-in and outside the default vocabulary build.
-- [ ] Add `tests/vocabulary/test_rf2.py`, `tests/vocabulary/test_loinc_snomed.py`, `tests/vocabulary/test_snomed_international.py`, `tests/vocabulary/test_merge.py`, and omission-count cases in `tests/vocabulary/test_templates.py`.
+- [x] Add `src/plugin_rosetta/vocabulary/adapters/rf2.py` with configured RF2 reading and shared graph semantics.
+- [x] Register LOINC-SNOMED and SNOMED International through one configured RF2 adapter rather than duplicating source modules.
+- [x] Constrain International lookup to configured Snapshot English files and a configured language refset identifier.
+- [x] Extend shared adapter contract tests to cover both RF2 sources.
+- [x] Add `src/plugin_rosetta/vocabulary/merge.py` with a file-based Maplib merge and an in-memory merge for tests that need triple-level assertions.
+- [x] Surface complete OMOP, DHD, and RF2 optional-value omission counts in provenance sidecars.
+- [x] Add the three thin CLI commands and `justfile` recipes.
+- [x] Add mirrored adapter, merge, API, CLI, omission, and cross-graph tests.
 
 ## Migration Notes
 
@@ -91,13 +91,13 @@ This story also makes template behaviour observable by reporting how many triple
 
 ## Definition of Done
 
-- [ ] Every new behaviour was driven by a failing test written first.
-- [ ] `uv run pytest tests/vocabulary` passes offline against synthetic fixtures.
-- [ ] `uv run tara check` passes.
-- [ ] The vocabulary documentation records the RF2 scope limits, the merge behaviour, and how omission counts are reported.
-- [ ] The merged Turtle output parses in a process that does not import `plugin_rosetta`.
+- [x] Every new behaviour was driven by a failing test written first.
+- [x] `uv run pytest tests/vocabulary` passes offline against synthetic fixtures.
+- [x] `uv run tara check` passes.
+- [x] The vocabulary documentation records the RF2 scope limits, the merge behaviour, and how omission counts are reported.
+- [x] The merged Turtle output parses in a process that does not import `plugin_rosetta`.
 - [ ] Acceptance criteria verified with the vocabulary curator on real ingested releases, with only counts and output paths reported.
-- [ ] No licensed release payload, extracted file, or generated graph is staged; every committed fixture is synthetic.
+- [x] No licensed release payload, extracted file, or generated graph is staged; every committed fixture is synthetic.
 - [ ] The developer reviews and commits; the agent does not commit or push.
 
 ## Notes

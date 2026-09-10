@@ -259,6 +259,69 @@ def test_vocabulary_build_dhd_commands_write_graph_and_sidecar(
     assert str(output_dir / filename.replace(".ttl", ".meta.json")) in result.stdout
 
 
+@pytest.mark.parametrize(
+    ("source_name", "command", "filename"),
+    [
+        ("loinc-snomed", "build-loinc-snomed", "loinc-snomed.ttl"),
+        ("snomed-international", "build-snomed-international", "snomed-international.ttl"),
+    ],
+)
+def test_vocabulary_build_rf2_commands_write_graph_and_sidecar(
+    tmp_path: Path,
+    source_name: str,
+    command: str,
+    filename: str,
+) -> None:
+    cache_dir = tmp_path / "vocabularies"
+    version = "2.82" if source_name == "loinc-snomed" else "20260101"
+    shutil.copytree(
+        Path(__file__).parent / "fixtures/vocabulary/rf2",
+        cache_dir / source_name / version,
+    )
+    output_dir = tmp_path / "output"
+
+    result = CliRunner().invoke(
+        app,
+        [
+            "vocabulary",
+            command,
+            "--cache-dir",
+            str(cache_dir),
+            "--output-dir",
+            str(output_dir),
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert (output_dir / filename).is_file()
+    assert (output_dir / filename.replace(".ttl", ".meta.json")).is_file()
+
+
+def test_vocabulary_merge_command_requires_every_registered_graph(tmp_path: Path) -> None:
+    result = CliRunner().invoke(app, ["vocabulary", "merge", "--output-dir", str(tmp_path)])
+
+    assert result.exit_code == 1
+    assert "Missing vocabulary graph inputs" in result.output
+
+
+def test_vocabulary_merge_command_writes_combined_graph(tmp_path: Path) -> None:
+    for filename in (
+        "omop.ttl",
+        "dhd-diagnosethesaurus.ttl",
+        "dhd-verrichtingenthesaurus.ttl",
+        "loinc-snomed.ttl",
+        "snomed-international.ttl",
+    ):
+        (tmp_path / filename).write_text(
+            f"<https://example.org/{filename}> <https://example.org/p> <https://example.org/o> .\n"
+        )
+
+    result = CliRunner().invoke(app, ["vocabulary", "merge", "--output-dir", str(tmp_path)])
+
+    assert result.exit_code == 0
+    assert (tmp_path / "vocabularies.ttl").is_file()
+
+
 def test_mapping_validate_with_check_references_succeeds(ontology_cache: Path) -> None:
     result = CliRunner().invoke(
         app,

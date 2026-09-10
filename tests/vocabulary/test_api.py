@@ -5,9 +5,10 @@ import sys
 from pathlib import Path
 
 import pytest
+from rdflib import Graph
 
 from plugin_rosetta.errors import VocabularyError
-from plugin_rosetta.vocabulary import build_dhd_graph, build_omop_graph
+from plugin_rosetta.vocabulary import build_dhd_graph, build_omop_graph, build_rf2_graph
 
 ROOT = Path(__file__).parents[2]
 FIXTURE_DIR = ROOT / "tests/fixtures/vocabulary/athena"
@@ -102,3 +103,16 @@ def test_build_dhd_graph_writes_deterministic_turtle_and_as_of_provenance(
     assert metadata["source_version"] == "202508"
     assert metadata["format_version"] == "uitleverformaat4.3"
     assert metadata["as_of"] == "20260910"
+
+
+@pytest.mark.parametrize("name", ["loinc-snomed", "snomed-international"])
+def test_build_rf2_graph_writes_parseable_turtle_and_provenance(tmp_path: Path, name: str) -> None:
+    turtle_path, metadata_path = build_rf2_graph(
+        ROOT / "tests/fixtures/vocabulary/rf2",
+        tmp_path,
+        name,
+        config_path=ROOT / "registry/config/vocabulary-sources.yaml",
+    )
+
+    assert len(Graph().parse(turtle_path, format="turtle")) > 0
+    assert json.loads(metadata_path.read_text())["source_name"] == name

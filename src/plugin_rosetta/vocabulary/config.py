@@ -68,6 +68,7 @@ class VocabularySourceEntry(BaseModel):
     download_page: str
     checksum: str | None = None
     format_version: str | None = None
+    language_refset_id: str | None = None
     tables: tuple[ReleaseTable, ...] = ()
 
     @model_validator(mode="after")

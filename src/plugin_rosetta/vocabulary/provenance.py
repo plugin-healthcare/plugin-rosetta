@@ -23,6 +23,7 @@ class VocabularyProvenance(BaseModel):
     source_version: str
     format_version: str | None
     as_of: str | None = None
+    omissions: dict[str, dict[str, int]]
     built_at: str
 
 
@@ -33,6 +34,7 @@ def write_provenance(
     source_version: str,
     format_version: str | None,
     as_of: str | None = None,
+    omissions: dict[str, dict[str, int]] | None = None,
 ) -> Path:
     """Write the provenance sidecar beside a Turtle graph."""
     provenance = VocabularyProvenance(
@@ -40,6 +42,7 @@ def write_provenance(
         source_version=source_version,
         format_version=format_version,
         as_of=as_of,
+        omissions=omissions or {},
         built_at=datetime.now(UTC).isoformat(),
     )
     destination = turtle_path.with_suffix(".meta.json")

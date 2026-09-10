@@ -238,5 +238,74 @@ def _(dt_turtle, mo):
     return
 
 
+@app.cell
+def _(mo):
+    mo.md("""
+    ## Building and merging RF2 graphs
+
+    The synthetic RF2 fixture contains active and inactive concepts, preferred
+    terms, synonyms, and is-a relationships. Both configured RF2 sources use
+    the same content here so their shared SNOMED identifiers also demonstrate
+    duplicate collapse during merge.
+    """)
+    return
+
+
+@app.cell
+def _(Path, ROOT):
+    import tempfile as _tempfile
+
+    from rdflib import Graph as _Graph
+
+    from plugin_rosetta.vocabulary import build_dhd_graph as _build_dhd_graph
+    from plugin_rosetta.vocabulary import build_omop_graph as _build_omop_graph
+    from plugin_rosetta.vocabulary import build_rf2_graph as _build_rf2_graph
+    from plugin_rosetta.vocabulary import merge_built_vocabulary_graphs as _merge_built_vocabulary_graphs
+
+    with _tempfile.TemporaryDirectory() as _vocabulary_tmp:
+        vocabulary_output = Path(_vocabulary_tmp)
+        vocabulary_config = ROOT / "registry/config/vocabulary-sources.yaml"
+        _build_omop_graph(
+            ROOT / "tests/fixtures/vocabulary/athena",
+            vocabulary_output,
+            config_path=vocabulary_config,
+        )
+        _build_dhd_graph(
+            ROOT / "tests/fixtures/vocabulary/dhd",
+            vocabulary_output,
+            "dt",
+            as_of="20260910",
+            config_path=vocabulary_config,
+        )
+        _build_dhd_graph(
+            ROOT / "tests/fixtures/vocabulary/dhd",
+            vocabulary_output,
+            "vt",
+            as_of="20260910",
+            config_path=vocabulary_config,
+        )
+        _build_rf2_graph(
+            ROOT / "tests/fixtures/vocabulary/rf2",
+            vocabulary_output,
+            "loinc-snomed",
+            config_path=vocabulary_config,
+        )
+        _build_rf2_graph(
+            ROOT / "tests/fixtures/vocabulary/rf2",
+            vocabulary_output,
+            "snomed-international",
+            config_path=vocabulary_config,
+        )
+        merged_path = _merge_built_vocabulary_graphs(vocabulary_output)
+        merged_triple_count = len(_Graph().parse(merged_path, format="turtle"))
+    return (merged_triple_count,)
+
+
+@app.cell
+def _(merged_triple_count, mo):
+    mo.md(f"""The merged synthetic vocabulary graph contains **{merged_triple_count} triples**.""")
+    return
+
+
 if __name__ == "__main__":
     app.run()

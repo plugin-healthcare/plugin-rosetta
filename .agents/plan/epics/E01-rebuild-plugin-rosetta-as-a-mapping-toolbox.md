@@ -58,11 +58,11 @@ The plan of record is [`.agents/plan/20260901_migration_plan.md`](../20260901_mi
 - [x] [E01-S04 Write open mapping artifacts and reports](../stories/E01-S04-write-open-mapping-artifacts-and-reports.md)
 - [x] [E01-S05 Configure and download ontology sources](../stories/E01-S05-configure-and-download-ontology-sources.md)
 - [x] [E01-S06 Validate mappings against ontology catalogs](../stories/E01-S06-validate-mappings-against-ontology-catalogs.md)
-- [ ] [E01-S07 Ingest versioned vocabulary releases](../stories/E01-S07-ingest-versioned-vocabulary-releases.md)
-- [ ] [E01-S08 Build the OMOP vocabulary graph](../stories/E01-S08-build-the-omop-vocabulary-graph.md)
-- [ ] [E01-S09 Build the DHD thesaurus graphs](../stories/E01-S09-build-the-dhd-thesaurus-graphs.md)
-- [ ] [E01-S10 Build RF2 graphs and merge vocabularies](../stories/E01-S10-build-rf2-graphs-and-merge-vocabularies.md)
-- [ ] [E01-S11 Compare local artifact versions](../stories/E01-S11-compare-local-artifact-versions.md)
+- [x] [E01-S07 Ingest versioned vocabulary releases](../stories/E01-S07-ingest-versioned-vocabulary-releases.md)
+- [x] [E01-S08 Build the OMOP vocabulary graph](../stories/E01-S08-build-the-omop-vocabulary-graph.md)
+- [x] [E01-S09 Build the DHD thesaurus graphs](../stories/E01-S09-build-the-dhd-thesaurus-graphs.md)
+- [x] [E01-S10 Build RF2 graphs and merge vocabularies](../stories/E01-S10-build-rf2-graphs-and-merge-vocabularies.md)
+- [x] [E01-S11 Compare local artifact versions](../stories/E01-S11-compare-local-artifact-versions.md)
 - [ ] [E01-S12 Complete migration parity and release](../stories/E01-S12-complete-migration-parity-and-release.md)
 
 ## Dependencies

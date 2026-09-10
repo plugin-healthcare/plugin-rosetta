@@ -40,3 +40,16 @@ def write_turtle(
         raise RosettaIOError(f"Cannot serialize Turtle to {destination}: {error}") from error
     atomic_write_bytes(destination, content.encode())
     return destination
+
+
+def write_rdflib_turtle(
+    graph: Graph,
+    destination: Path,
+    *,
+    prefixes: Mapping[str, str],
+) -> Path:
+    """Write an RDFLib graph deterministically using atomic replacement."""
+    declarations = [f"@prefix {prefix}: <{namespace}> ." for prefix, namespace in sorted(prefixes.items())]
+    triples = sorted(f"{subject.n3()} {predicate.n3()} {object_.n3()} ." for subject, predicate, object_ in graph)
+    atomic_write_bytes(destination, "\n".join([*declarations, "", *triples, ""]).encode())
+    return destination

@@ -8,10 +8,11 @@ from typing import TYPE_CHECKING
 import polars as pl
 
 from plugin_rosetta.reports import IssueSeverity, ValidationIssue, ValidationReport
-from plugin_rosetta.vocabulary.adapters import get_build_adapter
+from plugin_rosetta.vocabulary.adapters import build_output_paths, get_build_adapter
 from plugin_rosetta.vocabulary.config import load_vocabulary_sources
 from plugin_rosetta.vocabulary.frames import load_table_contract, validate_release_frame
 from plugin_rosetta.vocabulary.ingest import DEFAULT_CACHE_DIR, cache_dir_for, find_file, ingest_zip
+from plugin_rosetta.vocabulary.merge import merge_turtle_files
 
 if TYPE_CHECKING:
     from plugin_rosetta.vocabulary.config import VocabularySource
@@ -153,4 +154,47 @@ def build_cached_dhd_graph(
         thesaurus,
         as_of=as_of,
         config_path=config_path,
+    )
+
+
+def build_cached_rf2_graph(
+    name: str,
+    output_dir: Path = DEFAULT_VOCABULARY_OUTPUT_DIR,
+    *,
+    config_path: Path = DEFAULT_VOCABULARY_CONFIG,
+    cache_dir: Path = DEFAULT_CACHE_DIR,
+) -> tuple[Path, Path]:
+    """Build one registered RF2 graph from its configured release cache."""
+    source = load_vocabulary_sources(config_path).get(name)
+    return get_build_adapter(name).build(
+        cache_dir_for(source, cache_dir),
+        output_dir,
+        config_path=config_path,
+        as_of=None,
+    )
+
+
+def build_rf2_graph(
+    release_dir: Path,
+    output_dir: Path,
+    name: str,
+    *,
+    config_path: Path = DEFAULT_VOCABULARY_CONFIG,
+) -> tuple[Path, Path]:
+    """Build a registered RF2 graph from an already ingested release."""
+    return get_build_adapter(name).build(
+        release_dir,
+        output_dir,
+        config_path=config_path,
+        as_of=None,
+    )
+
+
+def merge_built_vocabulary_graphs(
+    output_dir: Path = DEFAULT_VOCABULARY_OUTPUT_DIR,
+) -> Path:
+    """Merge every registered adapter output into one Turtle graph."""
+    return merge_turtle_files(
+        list(build_output_paths(output_dir)),
+        output_dir / "vocabularies.ttl",
     )

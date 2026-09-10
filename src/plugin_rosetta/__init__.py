@@ -3,6 +3,7 @@
 from importlib.metadata import version
 
 from plugin_rosetta.errors import (
+    ArtifactError,
     ConfigurationError,
     RosettaError,
     RosettaIOError,
@@ -17,6 +18,7 @@ from plugin_rosetta.reports import IssueSeverity, ValidationIssue, ValidationRep
 __version__ = version("plugin-rosetta")
 
 __all__ = [
+    "ArtifactError",
     "ConfigurationError",
     "IssueSeverity",
     "RosettaError",
