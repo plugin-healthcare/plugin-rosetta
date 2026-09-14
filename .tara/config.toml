@@ -10,3 +10,11 @@ stack = "python"
 
 # [agents]  # keep parts of the .agents/ doc store local (untracked)
 # gitignore = ["memory"]  # e.g. do not commit session scratch/handover
+
+[artifacts]
+skills = ["gh-stack", "writing-adrs", "writing-documentation"]
+agents = []
+prompts = ["design.prompt.md", "implement.prompt.md", "integrate.prompt.md", "plan.prompt.md", "refine.prompt.md"]
+instructions = []
+hooks = []
+mcp = ["git", "github", "polars"]
