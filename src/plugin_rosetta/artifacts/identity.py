@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-from datetime import date, datetime
 from enum import StrEnum
 
 import yaml
@@ -37,27 +36,30 @@ def _canonical_text(content: bytes) -> bytes:
     return ("\n".join(lines) + "\n").encode()
 
 
-def _structured_default(value: object) -> dict[str, str]:
-    if isinstance(value, datetime):
-        return {"$yaml_type": "datetime", "value": value.isoformat()}
-    if isinstance(value, date):
-        return {"$yaml_type": "date", "value": value.isoformat()}
-    raise TypeError(f"Unsupported structured value: {type(value).__name__}")
+class _ExpandedDumper(yaml.SafeDumper):
+    def ignore_aliases(self, data: object) -> bool:
+        return True
+
+
+def _canonical_table(content: bytes) -> bytes:
+    try:
+        text = content.decode()
+    except UnicodeDecodeError as error:
+        raise ArtifactError("Table artifacts must be UTF-8") from error
+    lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return ("\n".join(lines) + "\n").encode()
 
 
 def _canonical_structured(content: bytes, kind: ArtifactKind) -> bytes:
     try:
-        value = json.loads(content) if kind is ArtifactKind.JSON else yaml.safe_load(content)
-        serialized = json.dumps(
-            value,
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=True,
-            default=_structured_default,
-        )
+        if kind is ArtifactKind.JSON:
+            value = json.loads(content)
+            return (json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True) + "\n").encode()
+        return yaml.dump(yaml.safe_load(content), Dumper=_ExpandedDumper, sort_keys=True, allow_unicode=False).encode()
     except (json.JSONDecodeError, TypeError, UnicodeDecodeError, yaml.YAMLError) as error:
         raise ArtifactError(f"Cannot parse {kind.value} artifact: {error}") from error
-    return (serialized + "\n").encode()
 
 
 def _canonical_rdf(content: bytes) -> bytes:
@@ -75,6 +77,8 @@ def canonical_bytes(kind: ArtifactKind, content: bytes) -> bytes:
         return _canonical_rdf(content)
     if kind in {ArtifactKind.JSON, ArtifactKind.YAML}:
         return _canonical_structured(content, kind)
+    if kind in {ArtifactKind.TABLE, ArtifactKind.SSSOM}:
+        return _canonical_table(content)
     return _canonical_text(content)
 
 
