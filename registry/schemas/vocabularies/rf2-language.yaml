@@ -1,0 +1,22 @@
+columns:
+  id:
+    dtype: String
+    nullable: false
+  effectiveTime:
+    dtype: String
+    nullable: false
+  active:
+    dtype: String
+    nullable: false
+  moduleId:
+    dtype: String
+    nullable: false
+  refsetId:
+    dtype: String
+    nullable: false
+  referencedComponentId:
+    dtype: String
+    nullable: false
+  acceptabilityId:
+    dtype: String
+    nullable: false

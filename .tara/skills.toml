@@ -1,0 +1,9 @@
+[skills.gh-stack]
+repo = "https://github.com/github/gh-stack"
+path = "skills/gh-stack"
+ref = "main"
+
+[skills.likec4-dsl]
+repo = "https://github.com/likec4/likec4"
+path = "skills/likec4-dsl"
+ref = "main"

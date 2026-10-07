@@ -1,0 +1,181 @@
+[project]
+name = "plugin-rosetta"
+version = "0.1.0"
+description = "Reusable toolbox for authoring, validating, and publishing open mapping artifacts"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "csvw>=4.1.0",
+    "curies>=0.15.0",
+    "httpx>=0.28.1",
+    "linkml-runtime>=1.11.1",
+    "maplib>=0.20.26",
+    "polars>=1.44.1",
+    "pydantic>=2.13.5",
+    "pyyaml>=6.0.3",
+    "rdflib>=7.6.0",
+    "sssom>=0.4.17",
+    "sssom-schema==1.1.0a5",
+    "typer>=0.27.2",
+]
+
+[project.scripts]
+rosetta = "plugin_rosetta.cli:app"
+
+[build-system]
+requires = ["uv_build>=0.11.28,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+tara = { git = "https://github.com/plugin-healthcare/tara" }
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.2",
+    "tara",
+    { include-group = "lint" },
+    { include-group = "test" },
+    { include-group = "docs" },
+    { include-group = "nb" },
+]
+lint = [
+    "ruff>=0.16.5",
+    "ty>=0.0.77",
+]
+test = [
+    "pytest>=9.1.1",
+    "pytest-cov>=6.0.0",
+]
+docs = [
+    "zensical>=0.0.15",
+    "mkdocstrings-python>=1.11.1",
+]
+nb = [
+    "marimo>=0.23.0",
+    "pyzmq>=27.1.0",
+]
+
+# --- Tool Configuration ---
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+exclude = [
+    "examples/",
+    "docs/",
+    "scripts/",
+    "src/plugin_rosetta/mapping/models/sssom.py",
+]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812",  # Trailing comma missing — conflicts with ruff formatter
+    "ISC001",  # Implicit string concat on single line — conflicts with ruff formatter
+    "D203",    # One blank line before class docstring — conflicts with D211
+    "D213",    # Multi-line docstring summary on second line — conflicts with D212
+    "E501",    # Line length regulated by formatter
+    "TD002",   # Missing author in TODO
+    "TD003",   # Missing issue link on the line following this TODO
+    "TRY003",  # Avoid specifying long messages outside the exception class
+    "SIM102",  # Use a single if statement instead of nested if statements
+    "SIM108",  # Use ternary operator
+    "EM101",   # Exception string literals — short messages are fine
+    "EM102",   # Exception f-string literals — common pattern
+    "ANN401",  # Disallow Any in **kwargs — **kwargs: Any is standard
+    "FBT001",  # Boolean-typed positional argument — too strict
+    "FBT002",  # Boolean default positional argument — too strict
+    "FBT003",  # Boolean positional value in function call — too strict
+    "TRY301",  # Abstract raise to inner function — unnecessary
+    "S101",    # Use of assert — used for type narrowing
+    "PLC0415", # Import not at top level — allowed for circular import prevention
+    "ARG002",  # Unused method argument — intentional for interface conformance
+    "PLR0913", # Too many function arguments — acceptable for validator decorators
+    "PLR0917", # Too many positional arguments — same, validator decorators
+    "TC002",   # Move third-party import to TYPE_CHECKING — kept at runtime for clarity
+    "CPY001",  # Missing copyright notice — not used, LICENSE file covers this
+]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+known-first-party = ["plugin_rosetta"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-type-checking]
+strict = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",    # Use of assert
+    "D100",    # Missing docstring in public module
+    "D101",    # Missing docstring in public class — test classes
+    "D102",    # Missing docstring in public method — test methods
+    "D103",    # Missing docstring in public function
+    "D104",    # Missing docstring in public package
+    "D205",    # Blank line between summary and description — not needed in tests
+    "ANN",     # Type annotations
+    "INP001",  # Implicit namespace package
+    "PLR2004", # Magic value in comparison — expected in test assertions
+    "ERA001",  # Commented-out code — section dividers in test files
+    "PT012",   # pytest.raises block should contain single statement
+    "RUF043",  # Unescaped regex metacharacters in match= — acceptable in tests
+]
+"examples/**/*.py" = [
+    "INP001",  # Implicit namespace package
+    "T201",    # print() statements
+    "D100",    # Missing docstring in public module
+    "D103",    # Missing docstring in public function
+]
+"*_nb.py" = [
+    "E402",    # Module level import not at top of file
+    "F401",    # Imported but unused
+    "F403",    # from module import * used
+    "T201",    # print() statements
+    "S101",    # Use of assert
+    "D100",    # Missing docstring in public module
+    "D103",    # Missing docstring in public function
+    "ANN",     # Type annotations
+    "PLC0415", # import not at top-level (marimo cells use inline imports)
+    "INP001",  # Implicit namespace package — marimo notebooks are not a test/package tree
+    "PLR1711", # Useless return at end of function — marimo always emits a trailing return
+    "N806",    # Variable should be lowercase — marimo cells define notebook-visible constants
+    "N803",    # Argument name should be lowercase — marimo passes prior cells' names as parameters
+    "B018",    # Useless expression — marimo displays a cell's trailing expression
+]
+
+[tool.ruff.format]
+quote-style = "double"
+docstring-code-format = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "-ra",
+    "-q",
+    "--strict-config",
+    "--strict-markers",
+    "--import-mode=importlib",
+]
+xfail_strict = true
+
+[tool.ty.src]
+exclude = ["src/plugin_rosetta/mapping/models/sssom.py", "notebooks/"]
+
+[tool.ty.environment]
+python-version = "3.14"
+
+[tool.ty.rules]
+unused-ignore-comment = "warn"
+possibly-missing-attribute = "error"
+possibly-missing-import = "error"
+invalid-return-type = "error"
+invalid-argument-type = "error"
+division-by-zero = "error"
+redundant-cast = "warn"
+invalid-method-override = "warn"

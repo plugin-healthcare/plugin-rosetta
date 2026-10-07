@@ -1,0 +1,18 @@
+columns:
+  ConceptID:
+    dtype: String
+    nullable: false
+  Omschrijving:
+    dtype: String
+  TaalCode:
+    dtype: String
+  TypeTerm:
+    dtype: String
+    nullable: false
+  SnomedID:
+    dtype: String
+  Begindatum:
+    dtype: String
+    nullable: false
+  Einddatum:
+    dtype: String
