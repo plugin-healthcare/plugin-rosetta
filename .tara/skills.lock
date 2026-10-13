@@ -1,0 +1,14 @@
+{
+  "gh-stack": {
+    "commit": "2bd699a544a09cb5c45a013d03416e0894b0454e",
+    "path": "skills/gh-stack",
+    "ref": "main",
+    "repo": "https://github.com/github/gh-stack"
+  },
+  "likec4-dsl": {
+    "commit": "d950aba6fed5cd8914f9e1861d58572f918ac354",
+    "path": "skills/likec4-dsl",
+    "ref": "main",
+    "repo": "https://github.com/likec4/likec4"
+  }
+}
