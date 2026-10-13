@@ -1,8 +1,8 @@
 # ADR-0003: Keep domain configuration outside the installed library
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-09-10
-- **Authors:** @yannick-vinkesteijn, GitHub Copilot
+- **Decision-makers:** @yannick-vinkesteijn
 
 ## Context and Problem Statement
 

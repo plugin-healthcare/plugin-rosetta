@@ -2,7 +2,7 @@
 
 - **Status:** Superseded by ADR-0003
 - **Date:** 2026-09-10
-- **Authors:** @yannick-vinkesteijn, GitHub Copilot
+- **Decision-makers:** @yannick-vinkesteijn
 
 ## Context and Problem Statement
 

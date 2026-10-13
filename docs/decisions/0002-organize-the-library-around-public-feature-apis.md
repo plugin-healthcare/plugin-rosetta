@@ -2,7 +2,7 @@
 
 - **Status:** Accepted
 - **Date:** 2026-09-10
-- **Authors:** plugin-rosetta maintainers
+- **Decision-makers:** @yannick-vinkesteijn
 
 ## Context and Problem Statement
 
@@ -60,5 +60,4 @@ src/plugin_rosetta/
   utils/
     io/             # shared serialization and parsing adapters
     source_names.py # shared portable source-name validation
-  resources/        # packaged starter data
 ```
