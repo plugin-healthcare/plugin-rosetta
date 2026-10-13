@@ -46,19 +46,22 @@ def render_sssom_tsv(mapping_set: MappingSet) -> str:
 def read_sssom_tsv(source: Path) -> MappingSet:
     """Read an embedded-metadata SSSOM/TSV file."""
     try:
-        lines = source.read_text().splitlines()
+        lines = source.read_text(encoding="utf-8").splitlines(keepends=True)
     except OSError as error:
         raise RosettaIOError(f"Cannot read SSSOM file {source}: {error}") from error
 
     table_start = next((index for index, line in enumerate(lines) if not line.startswith("#")), None)
     if table_start is None:
         raise ValidationError(f"SSSOM file has no table: {source}")
-    metadata_lines = [line.removeprefix("#").removeprefix(" ") for line in lines[:table_start]]
+    metadata_lines = [line.removeprefix("#").removeprefix(" ").rstrip("\r\n") for line in lines[:table_start]]
 
     metadata = yaml.safe_load("\n".join(metadata_lines))
     if not isinstance(metadata, dict):
         raise ValidationError(f"SSSOM metadata is not a mapping: {source}")
-    reader = csv.DictReader(lines[table_start:], delimiter="\t")
+    reader = csv.DictReader(io.StringIO("".join(lines[table_start:]), newline=""), delimiter="\t")
+    unknown = [field for field in reader.fieldnames or [] if field not in Mapping.model_fields]
+    if unknown:
+        raise ValidationError(f"Unknown SSSOM column(s) in {source}: {', '.join(unknown)}")
     mappings: list[Mapping] = []
     for index, row in enumerate(reader, start=2):
         values = {field: _parse_cell(field, value) for field, value in row.items()}
@@ -89,7 +92,11 @@ def _require_mappings(mapping_set: MappingSet) -> list[Mapping]:
 def _populated_columns(mappings: list[Mapping]) -> tuple[str, ...]:
     model_order = tuple(Mapping.model_fields)
     ordered = _KEY_FIELDS + tuple(field for field in model_order if field not in _KEY_FIELDS)
-    return tuple(field for field in ordered if any(_has_value(getattr(mapping, field)) for mapping in mappings))
+    return tuple(
+        field
+        for field in ordered
+        if field in _KEY_FIELDS or any(_has_value(getattr(mapping, field)) for mapping in mappings)
+    )
 
 
 def _has_value(value: object) -> bool:
