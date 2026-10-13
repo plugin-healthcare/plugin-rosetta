@@ -148,6 +148,29 @@ uv run rosetta init my-rosetta-workspace
 This creates an empty workspace with your own catalogues.
 The healthcare configuration in the top-level `registry/` is a working example and is not shipped in the package (ADR-0003).
 
+## Add your own mapping set
+
+A mapping set consists of three parts, as the `omop-onz-g` example shows.
+
+1. A CSV file with the mapping rows in `registry/mappings/`, for example `my-set.csv`.
+2. A CSVW metadata file next to it (`my-set.metadata.json`) that describes the columns.
+3. An entry in `registry/config/mapping-sets.yaml` with the identifier, licence, file paths, CURIE map and the ontology sources that must resolve the subject and object ids.
+
+Then run the same commands as in the quickstart for your set:
+
+```shell
+uv run rosetta mapping list
+uv run rosetta mapping validate my-set
+uv run rosetta mapping build my-set --output-dir registry/data/mappings/my-set
+```
+
+## Transformations
+
+Transformation code is written inside the library for now.
+Vocabulary builds follow the `BuildAdapter` protocol in `src/plugin_rosetta/vocabulary/adapters/`, and a new source is added there next to the existing OMOP, RF2 and DHD adapters.
+There is no mechanism yet to plug in transformations from outside the package, and FHIR to OMOP transformations have no home yet.
+Where the boundary between this package and project-specific modules lies is still open in #29.
+
 ## Where to go next
 
 - `docs/capability-matrix.md` lists what is configurable and what is fixed.
