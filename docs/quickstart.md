@@ -167,6 +167,7 @@ uv run rosetta mapping build my-set --output-dir registry/data/mappings/my-set
 ## Transformations
 
 Transformation code is written inside the library for now.
+The intended end state is that project-specific code lives in a project that imports `plugin-rosetta`, see [ADR-0003](decisions/0003-keep-domain-configuration-outside-the-installed-library.md).
 Vocabulary builds follow the `BuildAdapter` protocol in `src/plugin_rosetta/vocabulary/adapters/`, and a new source is added there next to the existing OMOP, RF2 and DHD adapters.
 There is no mechanism yet to plug in transformations from outside the package, and FHIR to OMOP transformations have no home yet.
 Where the boundary between this package and project-specific modules lies is still open in #29.

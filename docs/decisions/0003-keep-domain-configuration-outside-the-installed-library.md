@@ -34,3 +34,12 @@ catalogues, mappings, and validation contracts as runtime package data.
   healthcare examples.
 - Bad, because users must copy or author the source definitions and contracts appropriate to their
   project.
+
+### Project and framework
+
+The library is the framework.
+It contains the feature APIs, the schemas and contracts that describe the formats, and the mechanisms to read a registry.
+A project owns its configuration, its mapping data and its registry.
+The intended end state is that mapping-specific code, such as project transformations, also lives in the project, which imports `plugin-rosetta` and does not add that code to the library.
+Today such code is still written inside the library, because the extension point for it does not exist yet.
+The boundary and the extension point are an open decision, tracked in #29.
