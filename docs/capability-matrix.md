@@ -66,3 +66,17 @@ licensed-release output comparisons remains a release gate.
 | Gephi vocabulary export | Deferred | Visualization exports are outside the reusable library scope. |
 | OWL-DL classification, relationship groups, and post-coordination | Deferred | The migrated RF2 graphs intentionally provide lightweight SKOS and RDFS semantics. |
 | FHIR runtime, SQL on FHIR, Ariadne, UI, and remote storage | Deferred | Explicitly outside the E01 toolbox scope. |
+| SPARQL queries and Jelly serialization (`notebooks/sparql.py`, jelly-maplib plan) | Deferred | Not part of the reusable library yet, no replacement exists. |
+| Benchmark scripts | Deferred | Performance comparisons are not required for the first release. |
+| OMOP exploration notebook (`notebooks/omop.py`) | Deferred | Replaced for now by the quickstart notebook. |
+| `just clean` | Deferred | Generated output lives under the untracked `registry/data/`. |
+
+## New in plugin-rosetta
+
+| Capability | Replacement |
+| --- | --- |
+| Empty caller-owned workspace | `rosetta init <workspace>` |
+| List configured mapping sets | `rosetta mapping list` |
+| Reference checks against cached ontologies | `rosetta mapping validate <key> --check-references` |
+| Content-addressed artifact catalogue with manifests and diffs | `rosetta artifact` |
+| Offline quickstart that runs in CI | `just quickstart` and `docs/quickstart.md` |
