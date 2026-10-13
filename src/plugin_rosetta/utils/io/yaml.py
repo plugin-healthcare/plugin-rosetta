@@ -41,7 +41,7 @@ _UniqueKeyLoader.add_constructor(
 def load_yaml_mapping(path: Path) -> dict[str, Any]:
     """Load a YAML document whose root is a mapping."""
     try:
-        content = path.read_text()
+        content = path.read_text(encoding="utf-8")
     except OSError as error:
         raise ConfigurationError(f"Cannot read YAML configuration {path}: {error}") from error
     try:

@@ -54,7 +54,7 @@ def _reject_duplicate_primary_keys(rows: tuple[dict[str, Any], ...], primary_key
 
 def _empty_cell_report(csv_path: Path) -> ValidationReport:
     try:
-        with csv_path.open(newline="") as stream:
+        with csv_path.open(newline="", encoding="utf-8") as stream:
             rows = tuple(csv.DictReader(stream))
     except OSError as error:
         raise RosettaIOError(f"Cannot inspect mapping CSV {csv_path}: {error}") from error

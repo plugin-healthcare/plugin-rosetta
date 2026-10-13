@@ -69,6 +69,10 @@ exclude = [
 
 [tool.ruff.lint]
 select = ["ALL"]
+# Text files are always read and written as UTF-8, independent of the system locale.
+extend-select = ["PLW1514"]
+explicit-preview-rules = true
+preview = true
 ignore = [
     "COM812",  # Trailing comma missing — conflicts with ruff formatter
     "ISC001",  # Implicit string concat on single line — conflicts with ruff formatter

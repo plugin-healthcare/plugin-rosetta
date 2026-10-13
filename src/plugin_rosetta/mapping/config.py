@@ -4,11 +4,12 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic import ValidationError as PydanticValidationError
 
 from plugin_rosetta.errors import ConfigurationError
 from plugin_rosetta.utils.io.yaml import load_yaml_mapping
+from plugin_rosetta.utils.source_names import validate_portable_source_name
 
 if TYPE_CHECKING:
     from plugin_rosetta.ontology.config import OntologySourcesConfig
@@ -67,6 +68,13 @@ class MappingSetsConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     mapping_sets: dict[str, MappingSetConfig]
+
+    @model_validator(mode="after")
+    def validate_mapping_set_keys(self) -> MappingSetsConfig:
+        """Reject keys that become output filenames and could escape the output directory."""
+        for key in self.mapping_sets:
+            validate_portable_source_name(key)
+        return self
 
     def get(self, key: str) -> MappingSetConfig:
         """Return a configured mapping set."""

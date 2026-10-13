@@ -92,6 +92,15 @@ def test_paths_are_resolved_against_explicit_root(tmp_path: Path, monkeypatch: p
     assert mapping_set.mapping_file_path(tmp_path) == tmp_path / "mapping.csv"
 
 
+@pytest.mark.parametrize("key", ["../escaped", "a/b", "..", "Upper", "con"])
+def test_rejects_mapping_set_key_that_is_not_a_portable_name(tmp_path: Path, key: str) -> None:
+    config_path = _write_config(tmp_path)
+    config_path.write_text(config_path.read_text().replace("  sample:", f'  "{key}":'))
+
+    with pytest.raises(ConfigurationError, match="portable lowercase"):
+        load_mapping_sets(config_path, root=tmp_path)
+
+
 def _write_config(tmp_path: Path, extra: str = "") -> Path:
     (tmp_path / "mapping.csv").write_text("subject_id\n")
     (tmp_path / "mapping.metadata.json").write_text("{}")
