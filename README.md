@@ -23,6 +23,9 @@ package data.
 
 ## Build mappings
 
+For a first run, `just quickstart` validates, builds and reports the `omop-onz-g` example, see `docs/quickstart.md`.
+The individual commands are:
+
 ```shell
 uv run rosetta mapping validate omop-onz-g
 uv run rosetta mapping build omop-onz-g --output-dir registry/data/mappings/omop-onz-g

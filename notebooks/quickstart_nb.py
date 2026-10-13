@@ -42,7 +42,21 @@ def _():
 
 @app.cell
 def _(mo, result):
-    mo.md(f"""**{len(result.report.issues)} non-fatal input warnings** were recorded while reading the mapping set.""")
+    mo.md(f"""
+    **{len(result.report.issues)} non-fatal input warnings** were recorded while reading the mapping set.
+    """)
+    return
+
+
+@app.cell
+def _(pl, result):
+    pl.DataFrame(
+        [
+            {"code": issue.code, "severity": str(issue.severity), "location": issue.location, "message": issue.message}
+            for issue in result.report.issues
+        ],
+        schema={"code": pl.String, "severity": pl.String, "location": pl.String, "message": pl.String},
+    )
     return
 
 
@@ -96,13 +110,17 @@ def _(MAPPING_SET_KEY, Path, ROOT):
 
 @app.cell
 def _(mo, sssom_text):
-    mo.md(f"""### SSSOM/TSV\n\n```tsv\n{sssom_text}\n```""")
+    mo.md(f"""
+    ### SSSOM/TSV\n\n```tsv\n{sssom_text}\n```
+    """)
     return
 
 
 @app.cell
 def _(mo, turtle_text):
-    mo.md(f"""### RDF/Turtle\n\n```turtle\n{turtle_text}\n```""")
+    mo.md(f"""
+    ### RDF/Turtle\n\n```turtle\n{turtle_text}\n```
+    """)
     return
 
 
@@ -156,23 +174,23 @@ def _(Path, ROOT):
 
 @app.cell
 def _(mo, omop_metadata_json, omop_triple_count, synthetic_release):
-    mo.md(
-        f"""
-        Built **{omop_triple_count} triples** from `{synthetic_release}`.
+    mo.md(f"""
+    Built **{omop_triple_count} triples** from `{synthetic_release}`.
 
-        Provenance:
+    Provenance:
 
-        ```json
-        {omop_metadata_json}
-        ```
-        """
-    )
+    ```json
+    {omop_metadata_json}
+    ```
+    """)
     return
 
 
 @app.cell
 def _(mo, omop_turtle):
-    mo.md(f"""### OMOP vocabulary Turtle\n\n```turtle\n{omop_turtle}\n```""")
+    mo.md(f"""
+    ### OMOP vocabulary Turtle\n\n```turtle\n{omop_turtle}\n```
+    """)
     return
 
 
@@ -223,18 +241,18 @@ def _(Path, ROOT):
 
 @app.cell
 def _(dhd_counts, mo):
-    mo.md(
-        f"""
-        Built **{dhd_counts["Diagnosethesaurus"]} diagnosis triples** and
-        **{dhd_counts["Verrichtingenthesaurus"]} procedure triples**.
-        """
-    )
+    mo.md(f"""
+    Built **{dhd_counts["Diagnosethesaurus"]} diagnosis triples** and
+    **{dhd_counts["Verrichtingenthesaurus"]} procedure triples**.
+    """)
     return
 
 
 @app.cell
 def _(dt_turtle, mo):
-    mo.md(f"""### DHD Diagnosethesaurus Turtle\n\n```turtle\n{dt_turtle}\n```""")
+    mo.md(f"""
+    ### DHD Diagnosethesaurus Turtle\n\n```turtle\n{dt_turtle}\n```
+    """)
     return
 
 
@@ -303,7 +321,9 @@ def _(Path, ROOT):
 
 @app.cell
 def _(merged_triple_count, mo):
-    mo.md(f"""The merged synthetic vocabulary graph contains **{merged_triple_count} triples**.""")
+    mo.md(f"""
+    The merged synthetic vocabulary graph contains **{merged_triple_count} triples**.
+    """)
     return
 
 

@@ -18,6 +18,18 @@ typecheck:
 check:
     uv run tara check
 
+# Validate, build and report a mapping set offline into registry/data/mappings/<mapping_set>.
+quickstart mapping_set="omop-onz-g":
+    uv run rosetta mapping validate {{mapping_set}}
+    uv run rosetta mapping build {{mapping_set}} --output-dir registry/data/mappings/{{mapping_set}}
+    uv run rosetta mapping report {{mapping_set}} --output-dir registry/data/mappings/{{mapping_set}}
+
+# Same as quickstart, but first downloads the ontologies and checks every reference against them.
+quickstart-full mapping_set="omop-onz-g": fetch
+    uv run rosetta mapping validate {{mapping_set}} --check-references
+    uv run rosetta mapping build {{mapping_set}} --output-dir registry/data/mappings/{{mapping_set}} --check-references
+    uv run rosetta mapping report {{mapping_set}} --output-dir registry/data/mappings/{{mapping_set}}
+
 build mapping_set="omop-onz-g":
     uv run rosetta mapping build {{mapping_set}} --output-dir registry/data/mappings/{{mapping_set}}
 
