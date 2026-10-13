@@ -31,8 +31,15 @@ class RegisteredArtifact:
         return self.manifest.version
 
 
+def _segment(label: str, value: str) -> str:
+    try:
+        return validate_portable_source_name(value)
+    except ValueError as error:
+        raise ArtifactError(f"Invalid artifact {label}: {error}") from error
+
+
 def _entry_dir(catalog_dir: Path, name: str, artifact_version: str) -> Path:
-    return catalog_dir / name / artifact_version
+    return catalog_dir / _segment("name", name) / _segment("version", artifact_version)
 
 
 def _read_entry(entry_dir: Path) -> RegisteredArtifact:
@@ -75,10 +82,7 @@ def register_artifact(
     key_columns: tuple[str, ...] = (),
 ) -> RegisteredArtifact:
     """Register an immutable artifact version and return its catalogue entry."""
-    try:
-        validate_portable_source_name(name)
-    except ValueError as error:
-        raise ArtifactError(f"Invalid artifact name: {error}") from error
+    _segment("name", name)
     try:
         content = artifact_path.read_bytes()
     except OSError as error:
@@ -140,7 +144,7 @@ def list_versions(
     catalog_dir: Path = DEFAULT_ARTIFACT_CATALOG,
 ) -> tuple[ArtifactManifest, ...]:
     """List registered versions in registration order with a stable tie-break."""
-    root = catalog_dir / name
+    root = catalog_dir / _segment("name", name)
     if not root.is_dir():
         return ()
     manifests = tuple(_read_entry(path).manifest for path in root.iterdir() if path.is_dir())

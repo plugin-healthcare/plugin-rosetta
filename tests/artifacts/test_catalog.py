@@ -131,3 +131,19 @@ def test_reregistering_content_with_different_provenance_is_rejected(tmp_path: P
             source_name="example",
             source_version="2",
         )
+
+
+@pytest.mark.parametrize("name", ["../outside", "a/b", ""])
+def test_lookup_rejects_names_outside_the_catalog(tmp_path: Path, name: str) -> None:
+    catalog = tmp_path / "catalog"
+    (tmp_path / "outside").mkdir()
+
+    with pytest.raises(ArtifactError, match="Invalid artifact name"):
+        list_versions(name, catalog_dir=catalog)
+    with pytest.raises(ArtifactError, match="Invalid artifact name"):
+        resolve_artifact(name, "abc", catalog_dir=catalog)
+
+
+def test_resolve_rejects_versions_outside_the_artifact_directory(tmp_path: Path) -> None:
+    with pytest.raises(ArtifactError, match="Invalid artifact version"):
+        resolve_artifact("known", "../other", catalog_dir=tmp_path / "catalog")
