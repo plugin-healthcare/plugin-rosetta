@@ -7,7 +7,7 @@ from pathlib import Path
 from rdflib import Graph
 
 from plugin_rosetta.mapping import build_mapping_artifacts, report_mapping_set
-from plugin_rosetta.utils.io.sssom import read_sssom_tsv
+from plugin_rosetta.mapping.io.sssom import read_sssom_tsv
 
 
 def main() -> None:

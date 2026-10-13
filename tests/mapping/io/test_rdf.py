@@ -6,8 +6,8 @@ from rdflib import Graph
 
 from plugin_rosetta.errors import ValidationError
 from plugin_rosetta.mapping import read_mapping_set
+from plugin_rosetta.mapping.io.rdf import write_turtle
 from plugin_rosetta.mapping.models.sssom import Mapping, MappingSet
-from plugin_rosetta.utils.io.rdf import write_turtle
 
 ROOT = Path(__file__).parents[3]
 

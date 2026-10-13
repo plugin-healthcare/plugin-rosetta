@@ -7,7 +7,7 @@ from pathlib import Path
 from rdflib import Graph
 
 from plugin_rosetta.mapping import build_mapping_artifacts
-from plugin_rosetta.utils.io.sssom import read_sssom_tsv
+from plugin_rosetta.mapping.io.sssom import read_sssom_tsv
 
 ROOT = Path(__file__).parents[1]
 INVENTORY = ROOT / "tests/fixtures/parity/workflows.json"

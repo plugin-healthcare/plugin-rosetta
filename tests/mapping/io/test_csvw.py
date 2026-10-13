@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from plugin_rosetta.errors import ValidationError
-from plugin_rosetta.utils.io.csvw import read_mapping_rows
+from plugin_rosetta.mapping.io.csvw import read_mapping_rows
 
 ROOT = Path(__file__).parents[3]
 CSV_PATH = ROOT / "registry/mappings/omop-onz-g.csv"

@@ -3,7 +3,7 @@ from pathlib import Path
 from sssom import parse_sssom_table
 
 from plugin_rosetta.mapping import read_mapping_set
-from plugin_rosetta.utils.io.sssom import read_sssom_tsv, write_sssom_tsv
+from plugin_rosetta.mapping.io.sssom import read_sssom_tsv, write_sssom_tsv
 
 ROOT = Path(__file__).parents[3]
 

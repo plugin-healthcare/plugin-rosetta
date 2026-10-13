@@ -12,6 +12,9 @@ from linkml_runtime.utils.metamodelcore import URI
 
 from plugin_rosetta.errors import ConfigurationError, ValidationError
 from plugin_rosetta.mapping.config import load_mapping_sets
+from plugin_rosetta.mapping.io.csvw import read_mapping_rows
+from plugin_rosetta.mapping.io.rdf import render_turtle
+from plugin_rosetta.mapping.io.sssom import render_sssom_tsv
 from plugin_rosetta.mapping.models.sssom import MappingSet
 from plugin_rosetta.mapping.report import render_html, render_markdown
 from plugin_rosetta.mapping.validate import validate_referential_integrity, validate_schema_conformance
@@ -20,9 +23,6 @@ from plugin_rosetta.ontology.config import load_ontology_sources
 from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR, load_cached_ontology
 from plugin_rosetta.reports import IssueSeverity
 from plugin_rosetta.utils.io.atomic import atomic_write_text
-from plugin_rosetta.utils.io.csvw import read_mapping_rows
-from plugin_rosetta.utils.io.rdf import render_turtle
-from plugin_rosetta.utils.io.sssom import render_sssom_tsv
 
 if TYPE_CHECKING:
     from rdflib import Graph
