@@ -33,7 +33,7 @@ fetch:
     uv run rosetta ontology fetch omop-cdm
     uv run rosetta ontology fetch onz-g
 
-ingest vocabulary="omop" archive:
+ingest vocabulary archive:
     uv run rosetta vocabulary ingest {{vocabulary}} {{archive}}
 
 build-omop:
