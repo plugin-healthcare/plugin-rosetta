@@ -5,6 +5,7 @@ from pydantic import ValidationError as PydanticValidationError
 
 from plugin_rosetta.errors import ConfigurationError
 from plugin_rosetta.ontology import load_ontology_sources
+from plugin_rosetta.ontology.config import OntologySource
 
 ROOT = Path(__file__).parents[2]
 CONFIG_PATH = ROOT / "registry/config/ontology-sources.yaml"
@@ -107,3 +108,19 @@ def _write_config(tmp_path: Path, extra: str = "") -> Path:
         f"{extra}"
     )
     return config_path
+
+
+@pytest.mark.parametrize("version", ["../other/1.0", "..", "a/b"])
+def test_ontology_source_rejects_unsafe_version_when_built_directly(version: str) -> None:
+    with pytest.raises(PydanticValidationError):
+        OntologySource(
+            name="onz-g",
+            version=version,
+            iri="https://example.org/onto",
+            download_url="https://example.org/onto.ttl",
+        )
+
+
+def test_ontology_source_rejects_relative_iri_when_built_directly() -> None:
+    with pytest.raises(PydanticValidationError):
+        OntologySource(name="onz-g", version="1.0", iri="onto", download_url="https://example.org/onto.ttl")

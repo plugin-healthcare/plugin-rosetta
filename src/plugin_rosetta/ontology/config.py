@@ -44,16 +44,10 @@ class OntologySourceEntry(BaseModel):
         return value
 
 
-class OntologySource(BaseModel):
+class OntologySource(OntologySourceEntry):
     """A pinned ontology source: identity, version, and where to fetch it."""
 
-    model_config = ConfigDict(frozen=True, extra="forbid")
-
     name: str
-    version: str
-    iri: str
-    download_url: str
-    checksum: str | None = None
 
     @field_validator("name")
     @classmethod
