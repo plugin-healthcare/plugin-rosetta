@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, ConfigDict
 
-from plugin_rosetta.artifacts.identity import ArtifactKind  # noqa: TC001
+from plugin_rosetta.artifacts.identity import ArtifactKind
 
 
 class ArtifactInput(BaseModel):

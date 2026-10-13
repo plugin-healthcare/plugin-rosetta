@@ -77,7 +77,37 @@ def test_rejects_non_portable_vocabulary_source_name(tmp_path: Path, name: str) 
         load_vocabulary_sources(config_path)
 
 
+def test_rejects_missing_contract_file(tmp_path: Path) -> None:
+    config_path = _write_config(
+        tmp_path / "config",
+        "    tables:\n"
+        "      - role: concept\n"
+        "        name: concept.csv\n"
+        '        separator: ","\n'
+        "        contract: schemas/concept.yaml\n",
+    )
+
+    with pytest.raises(ConfigurationError, match="references missing contract"):
+        load_vocabulary_sources(config_path, registry_root=tmp_path)
+
+
+def test_accepts_existing_contract_file(tmp_path: Path) -> None:
+    (tmp_path / "schemas").mkdir()
+    (tmp_path / "schemas/concept.yaml").write_text("columns: {}\n", encoding="utf-8")
+    config_path = _write_config(
+        tmp_path / "config",
+        "    tables:\n"
+        "      - role: concept\n"
+        "        name: concept.csv\n"
+        '        separator: ","\n'
+        "        contract: schemas/concept.yaml\n",
+    )
+
+    assert "sample" in load_vocabulary_sources(config_path, registry_root=tmp_path).vocabulary_sources
+
+
 def _write_config(tmp_path: Path, extra: str = "") -> Path:
+    tmp_path.mkdir(parents=True, exist_ok=True)
     config_path = tmp_path / "vocabulary-sources.yaml"
     config_path.write_text(
         "vocabulary_sources:\n"

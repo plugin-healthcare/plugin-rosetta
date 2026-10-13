@@ -1,8 +1,8 @@
 """Vocabulary source configuration."""
 
 import re
-from pathlib import PurePosixPath
-from typing import TYPE_CHECKING, Literal
+from pathlib import Path
+from typing import Literal
 from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
@@ -11,9 +11,6 @@ from pydantic import ValidationError as PydanticValidationError
 from plugin_rosetta.errors import ConfigurationError
 from plugin_rosetta.utils.io.yaml import load_yaml_mapping
 from plugin_rosetta.utils.source_names import validate_portable_source_name
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 _FILESYSTEM_SAFE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -37,7 +34,7 @@ class ReleaseTable(BaseModel):
     contains: str = ""
     separator: Literal[",", "\t"]
     quote_char: str | None = None
-    contract: str
+    contract: Path
 
     @field_validator("role")
     @classmethod
@@ -45,15 +42,6 @@ class ReleaseTable(BaseModel):
         """Require a stable semantic role independent of physical filenames."""
         if not re.fullmatch(r"[a-z][a-z0-9-]*", value):
             raise ValueError("must be a lowercase semantic table role")
-        return value
-
-    @field_validator("contract")
-    @classmethod
-    def validate_contract_path(cls, value: str) -> str:
-        """Keep contract references relative to the registry root."""
-        path = PurePosixPath(value)
-        if path.is_absolute() or ".." in path.parts:
-            raise ValueError("must be a relative path within the registry")
         return value
 
 
@@ -142,10 +130,23 @@ class VocabularySourcesConfig(BaseModel):
         return VocabularySource(name=name, **entry.model_dump())
 
 
-def load_vocabulary_sources(path: Path) -> VocabularySourcesConfig:
-    """Load and validate the vocabulary source registry."""
+def load_vocabulary_sources(path: Path, *, registry_root: Path | None = None) -> VocabularySourcesConfig:
+    """Load and validate the vocabulary source registry and verify its table contracts exist.
+
+    Contract paths are resolved against `registry_root`, which defaults to the parent of the config directory.
+    """
     raw_config = load_yaml_mapping(path)
     try:
-        return VocabularySourcesConfig.model_validate(raw_config)
+        config = VocabularySourcesConfig.model_validate(raw_config)
     except PydanticValidationError as error:
         raise ConfigurationError(f"Invalid vocabulary source configuration in {path}: {error}") from error
+
+    root = registry_root or path.parent.parent
+    for name, source in config.vocabulary_sources.items():
+        for table in source.tables:
+            contract_path = root / table.contract
+            if not contract_path.is_file():
+                raise ConfigurationError(
+                    f"Vocabulary source {name!r} references missing contract for role {table.role!r}: {contract_path}"
+                )
+    return config
