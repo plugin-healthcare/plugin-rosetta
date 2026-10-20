@@ -13,7 +13,19 @@ from plugin_rosetta.errors import ArtifactError
 
 
 class ArtifactKind(StrEnum):
-    """Artifact formats with distinct canonicalisation rules."""
+    """Artifact formats, each with its own canonicalisation rule.
+
+    Attributes:
+        HTML: HTML text, canonicalised as `TEXT`.
+        JSON: Re-serialised with sorted keys and compact separators.
+        MARKDOWN: Markdown text, canonicalised as `TEXT`.
+        RDF: Turtle, canonicalised as sorted N-Triples with canonical blank nodes.
+        SSSOM: SSSOM TSV, canonicalised as `TABLE`.
+        TABLE: Delimited table. Line endings are normalised and trailing blank
+            lines removed; row order is kept.
+        TEXT: UTF-8 text without trailing whitespace or trailing empty lines.
+        YAML: Re-serialised with sorted keys, without anchors or aliases.
+    """
 
     HTML = "html"
     JSON = "json"
@@ -72,7 +84,17 @@ def _canonical_rdf(content: bytes) -> bytes:
 
 
 def canonical_bytes(kind: ArtifactKind, content: bytes) -> bytes:
-    """Return the documented canonical representation for an artifact."""
+    """Return the canonical bytes of an artifact, as stored in the catalogue.
+
+    Every canonical form ends with exactly one newline.
+
+    Args:
+        kind: Format of the content.
+        content: Raw artifact bytes.
+
+    Raises:
+        ArtifactError: If the content is not UTF-8 or cannot be parsed for its kind.
+    """
     if kind is ArtifactKind.RDF:
         return _canonical_rdf(content)
     if kind in {ArtifactKind.JSON, ArtifactKind.YAML}:
@@ -83,7 +105,15 @@ def canonical_bytes(kind: ArtifactKind, content: bytes) -> bytes:
 
 
 def content_version(kind: ArtifactKind, content: bytes) -> str:
-    """Return a kind-scoped SHA-256 version for canonical artifact bytes."""
+    """Return the kind-scoped SHA-256 hex digest of the canonical content.
+
+    Args:
+        kind: Format of the content.
+        content: Raw artifact bytes; they are canonicalised first.
+
+    Raises:
+        ArtifactError: If the content is not UTF-8 or cannot be parsed for its kind.
+    """
     digest = hashlib.sha256()
     digest.update(kind.value.encode())
     digest.update(b"\0")

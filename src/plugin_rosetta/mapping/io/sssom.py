@@ -44,7 +44,11 @@ def render_sssom_tsv(mapping_set: MappingSet) -> str:
 
 
 def read_sssom_tsv(source: Path) -> MappingSet:
-    """Read an embedded-metadata SSSOM/TSV file."""
+    """Read an embedded-metadata SSSOM/TSV file.
+
+    Raises:
+        RosettaIOError: If the file cannot be read.
+    """
     try:
         lines = source.read_text(encoding="utf-8").splitlines(keepends=True)
     except OSError as error:

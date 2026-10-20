@@ -1,4 +1,10 @@
-"""Public vocabulary release ingestion, validation, and graph API."""
+"""Public vocabulary release ingestion, validation, and graph API.
+
+Terminology releases are ingested from a local ZIP into a versioned cache after
+checksum and table contract checks. Build adapters convert an ingested release
+into a SKOS-based Turtle graph with a JSON provenance sidecar. Built graphs
+can be merged into one `vocabularies.ttl`.
+"""
 
 from importlib import import_module
 from typing import TYPE_CHECKING, Any
@@ -62,7 +68,7 @@ _EXPORT_MODULES = {
 
 
 def __getattr__(name: str) -> Any:
-    """Load public exports without coupling internal module initialization."""
+    """Import a public export on first access."""
     try:
         module_name = _EXPORT_MODULES[name]
     except KeyError as error:

@@ -36,16 +36,23 @@ if TYPE_CHECKING:
 
 
 class BuildAdapter(Protocol):
-    """Build a configured vocabulary graph and its provenance sidecar."""
+    """Build a vocabulary graph and its provenance sidecar from an ingested release.
+
+    Implementations are `OmopBuildAdapter`, `DhdBuildAdapter`, and
+    `Rf2BuildAdapter`. Expected failures must raise a `RosettaError` subclass.
+    """
 
     @property
     def source_name(self) -> str:
-        """Return the configured vocabulary source name."""
+        """Return the key of the `vocabulary-sources.yaml` entry the adapter reads."""
         ...
 
     @property
     def output_filename(self) -> str:
-        """Return the stable generated Turtle filename."""
+        """Return the Turtle file name written by `build`, unique among adapters.
+
+        The sidecar uses the same name with `.meta.json` in place of `.ttl`.
+        """
         ...
 
     def build(
@@ -56,7 +63,19 @@ class BuildAdapter(Protocol):
         config_path: Path,
         as_of: str | None,
     ) -> tuple[Path, Path]:
-        """Build graph artifacts from one ingested release."""
+        """Build graph artifacts from one ingested release.
+
+        Args:
+            release_dir: Directory of the ingested release.
+            output_dir: Directory to write the graph and its sidecar to.
+            config_path: Path to `vocabulary-sources.yaml`.
+            as_of: Reference date in `YYYYMMDD` form for sources with validity
+                periods. Adapters that do not use it raise `VocabularyError`
+                when it is set; adapters that need it raise when it is None.
+
+        Returns:
+            The paths of the Turtle graph and its provenance sidecar.
+        """
         ...
 
 
@@ -116,7 +135,7 @@ def _query_height(model: Model, query: str) -> int:
 
 @dataclass(frozen=True)
 class OmopBuildAdapter:
-    """Build OMOP graphs through the shared artifact contract."""
+    """Build OMOP graphs from an Athena release."""
 
     source_name: str = "omop"
     output_filename: str = "omop.ttl"
@@ -188,7 +207,7 @@ class OmopBuildAdapter:
 
 @dataclass(frozen=True)
 class DhdBuildAdapter:
-    """Build one DHD thesaurus through the shared artifact contract."""
+    """Build the graph of one DHD thesaurus."""
 
     thesaurus: Literal["dt", "vt"]
     source_name: str = "dhd-thesauri"
@@ -248,7 +267,7 @@ class DhdBuildAdapter:
 
 @dataclass(frozen=True)
 class Rf2BuildAdapter:
-    """Build one configured RF2 source graph."""
+    """Build the graph of one configured RF2 source."""
 
     source_name: str
     output_filename: str

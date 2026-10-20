@@ -1,4 +1,9 @@
-"""Public ontology source fetch, cache, and load API."""
+"""Public ontology source fetch, cache, and load API.
+
+An ontology source is an ontology published as Turtle. Sources are registered
+in `ontology-sources.yaml` with a version, a download URL, and an optional
+SHA-256 checksum. Fetching stores the file in a versioned local cache.
+"""
 
 from importlib import import_module
 from typing import TYPE_CHECKING, Any
@@ -32,7 +37,7 @@ _EXPORT_MODULES = {
 
 
 def __getattr__(name: str) -> Any:
-    """Load public exports without coupling internal module initialization."""
+    """Import a public export on first access."""
     try:
         module_name = _EXPORT_MODULES[name]
     except KeyError as error:

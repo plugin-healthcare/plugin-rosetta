@@ -54,7 +54,7 @@ def validate_release_frame(
     *,
     source_path: Path,
 ) -> ValidationReport:
-    """Validate a release frame behind the future Nyctea integration boundary."""
+    """Validate a release frame against its contract."""
     lazy_frame = frame.lazy() if isinstance(frame, pl.DataFrame) else frame
     schema = lazy_frame.collect_schema()
     actual_columns = set(schema.names())

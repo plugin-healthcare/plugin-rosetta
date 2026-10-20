@@ -1,8 +1,4 @@
-"""Mapping use cases: read, validate, build, and report a configured mapping set.
-
-Referential validation is opt-in because it needs a populated ontology cache;
-building never writes an artifact from an invalid report.
-"""
+"""Mapping use cases: read, validate, build, and report a configured mapping set."""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -32,11 +28,17 @@ if TYPE_CHECKING:
     from plugin_rosetta.reports import ValidationReport
 
 DEFAULT_MAPPING_CONFIG = Path("registry/config/mapping-sets.yaml")
+"""Default location of the mapping-set configuration, relative to the workspace root."""
 
 
 @dataclass(frozen=True)
 class MappingReadResult:
-    """Validated mapping set and the issues found while reading it."""
+    """Validated mapping set and the issues found while reading it.
+
+    Attributes:
+        mapping_set: The SSSOM `MappingSet`, with one `Mapping` per CSV row.
+        report: Findings from reading. Check `report.is_valid` before publishing.
+    """
 
     mapping_set: MappingSet
     report: ValidationReport
@@ -51,7 +53,32 @@ def read_mapping_set(
     ontology_config_path: Path = DEFAULT_ONTOLOGY_CONFIG,
     cache_dir: Path = DEFAULT_CACHE_DIR,
 ) -> MappingReadResult:
-    """Read a configured mapping set, optionally checking it against its ontologies."""
+    """Read a configured mapping set, optionally checking it against its ontologies.
+
+    Reading checks the CSV against its CSVW metadata, the primary key, and the
+    SSSOM schema; failures raise. With `check_references`, every `subject_id`
+    and `object_id` is also looked up in the cached ontology graph it is bound
+    to, and unresolved ones are reported as errors. Nothing is downloaded.
+
+    Args:
+        key: Key of the mapping set in the configuration.
+        config_path: Path to `mapping-sets.yaml`, relative to `root` unless absolute.
+        root: Workspace root for relative paths. Defaults to the current directory.
+        check_references: Whether to check subjects and objects against the
+            bound ontology sources.
+        ontology_config_path: Path to `ontology-sources.yaml`, relative to
+            `root` unless absolute. Used with `check_references`.
+        cache_dir: Ontology cache directory, relative to `root` unless
+            absolute. Used with `check_references`.
+
+    Raises:
+        ConfigurationError: If a configuration is invalid, `key` is unknown, a
+            file is missing, or references are checked without an `ontologies` binding.
+        ValidationError: If the CSV violates its CSVW metadata or primary key,
+            or a row violates the SSSOM schema.
+        RosettaIOError: If a file cannot be read, or a bound ontology is not
+            cached, cannot be parsed, or fails its checksum.
+    """
     resolved_root = (root or Path.cwd()).resolve()
     ontology_sources = load_ontology_sources(_below(resolved_root, ontology_config_path)) if check_references else None
     config = load_mapping_sets(config_path, root=resolved_root, ontology_sources=ontology_sources).get(key)
@@ -94,7 +121,33 @@ def build_mapping_artifacts(
     ontology_config_path: Path = DEFAULT_ONTOLOGY_CONFIG,
     cache_dir: Path = DEFAULT_CACHE_DIR,
 ) -> tuple[Path, Path]:
-    """Build portable SSSOM and Turtle artifacts from a valid mapping set."""
+    """Build portable SSSOM and Turtle artifacts from a valid mapping set.
+
+    The mapping set is read with `read_mapping_set` using the same arguments.
+    Nothing is written if the report contains an error. Files are replaced
+    atomically.
+
+    Args:
+        key: Key of the mapping set in the configuration.
+        output_dir: Output directory, created if needed. A relative path is
+            resolved against the current directory, not `root`.
+        config_path: Path to `mapping-sets.yaml`, relative to `root` unless absolute.
+        root: Workspace root for relative paths. Defaults to the current directory.
+        check_references: Whether to check references before building.
+        ontology_config_path: Path to `ontology-sources.yaml`, relative to
+            `root` unless absolute. Used with `check_references`.
+        cache_dir: Ontology cache directory, relative to `root` unless
+            absolute. Used with `check_references`.
+
+    Returns:
+        The paths of `<key>.sssom.tsv` and `<key>.ttl` in `output_dir`.
+
+    Raises:
+        ConfigurationError: If the configuration is invalid; see `read_mapping_set`.
+        ValidationError: If the mapping set violates CSVW or SSSOM, or its
+            report contains errors.
+        RosettaIOError: If an input cannot be read or an artifact written.
+    """
     result = read_mapping_set(
         key,
         config_path=config_path,
@@ -120,7 +173,26 @@ def report_mapping_set(
     config_path: Path = DEFAULT_MAPPING_CONFIG,
     root: Path | None = None,
 ) -> tuple[Path, Path]:
-    """Write portable Markdown and HTML reports."""
+    """Write portable Markdown and HTML reports.
+
+    The report states the mapping set IRI, the mapping count, and the count per
+    predicate. References are not checked.
+
+    Args:
+        key: Key of the mapping set in the configuration.
+        output_dir: Output directory, created if needed. A relative path is
+            resolved against the current directory, not `root`.
+        config_path: Path to `mapping-sets.yaml`, relative to `root` unless absolute.
+        root: Workspace root for relative paths. Defaults to the current directory.
+
+    Returns:
+        The paths of `<key>.md` and `<key>.html` in `output_dir`.
+
+    Raises:
+        ConfigurationError: If the configuration is invalid or `key` is unknown.
+        ValidationError: If the mapping set violates CSVW or SSSOM.
+        RosettaIOError: If an input cannot be read or a report written.
+    """
     result = read_mapping_set(key, config_path=config_path, root=root)
     markdown_path = output_dir / f"{key}.md"
     html_path = output_dir / f"{key}.html"

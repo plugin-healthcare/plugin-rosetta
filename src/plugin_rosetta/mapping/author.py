@@ -1,9 +1,7 @@
-"""Author SSSOM mappings, resolving CURIEs against ontology graphs.
+"""Author SSSOM mappings, checking CURIEs against ontology graphs.
 
-This is the single place where a `subject_id`/`object_id` CURIE is checked
-against the ontology it claims to come from *before* a `Mapping` is
-constructed. It never invents IRIs: callers supply the prefix map and, for
-each side, the graph the CURIE must resolve against.
+Callers supply the prefix map and, for each side, the graph the CURIE must
+resolve against.
 """
 
 from typing import TYPE_CHECKING, Any
@@ -45,13 +43,8 @@ def build_mapping(
 ) -> Mapping:
     """Build a `Mapping` whose subject and object both resolve in their ontology.
 
-    The predicate is passed through unresolved: the SSSOM `predicate_id` range
-    covers the whole SKOS/OWL/RDFS/semapv space, which neither ontology
-    describes.
-
-    The constructed mapping stores the CURIEs, not the expanded IRIs; expansion
-    is only used to check the graphs, and the mapping set's `curie_map` carries
-    the namespaces downstream.
+    The predicate is passed through unchecked. The mapping stores the CURIEs,
+    not the expanded IRIs.
 
     Raises:
         ValidationError: If either CURIE is malformed or its prefix is unknown.

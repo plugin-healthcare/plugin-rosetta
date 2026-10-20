@@ -17,7 +17,15 @@ type RowKey = tuple[str, ...]
 
 
 class SchemaDifference(BaseModel):
-    """Column-level differences that prevent a keyed row comparison."""
+    """Column-level differences that prevent a keyed row comparison.
+
+    Column types are inferred as `integer`, `float`, `string`, or `null` (empty).
+
+    Attributes:
+        added: Columns present only in the head version.
+        removed: Columns present only in the base version.
+        retyped: Columns whose inferred type differs between the versions.
+    """
 
     model_config = ConfigDict(frozen=True)
 
@@ -27,7 +35,15 @@ class SchemaDifference(BaseModel):
 
 
 class KeyedDifference(BaseModel):
-    """Added, removed, and changed records identified by stable keys."""
+    """Added, removed, and changed records identified by stable keys.
+
+    Each record is identified by the tuple of its key column values.
+
+    Attributes:
+        added: Keys present only in the head version.
+        removed: Keys present only in the base version.
+        changed: Keys present in both versions whose other values differ.
+    """
 
     model_config = ConfigDict(frozen=True)
 
@@ -37,7 +53,14 @@ class KeyedDifference(BaseModel):
 
 
 class TripleDifference(BaseModel):
-    """Canonical N-Triples added to and removed from an RDF graph."""
+    """Canonical N-Triples added to and removed from an RDF graph.
+
+    Blank nodes are relabelled canonically before comparison.
+
+    Attributes:
+        added: N-Triples lines present only in the head version.
+        removed: N-Triples lines present only in the base version.
+    """
 
     model_config = ConfigDict(frozen=True)
 
@@ -46,7 +69,23 @@ class TripleDifference(BaseModel):
 
 
 class ArtifactDifference(BaseModel):
-    """Kind-aware difference between two registered artifacts."""
+    """Kind-aware difference between two registered artifacts.
+
+    At most one of `schema_difference`, `rows`, `mappings`, and `triples` is set.
+
+    Attributes:
+        name: Artifact name.
+        base_version: Baseline version.
+        head_version: Version under review.
+        checksum_changed: Whether the versions differ. When false, nothing
+            else is computed.
+        schema_difference: Set for `table` and `sssom` artifacts whose columns
+            differ; rows are then not compared.
+        rows: Row differences of a `table` artifact.
+        mappings: Mapping differences of an `sssom` artifact, keyed by
+            `subject_id`, `predicate_id`, and `object_id`.
+        triples: Triple differences of an `rdf` artifact.
+    """
 
     model_config = ConfigDict(frozen=True)
 
@@ -128,7 +167,23 @@ def diff_artifacts(
     *,
     catalog_dir: Path = DEFAULT_ARTIFACT_CATALOG,
 ) -> ArtifactDifference:
-    """Compare two versions, parsing only when their checksums differ."""
+    """Compare two registered versions of an artifact.
+
+    `rdf` artifacts are compared as triple sets. `table` and `sssom` artifacts
+    are compared by column, then by key. Other kinds report only whether the
+    content changed.
+
+    Args:
+        name: Artifact name.
+        base_version: Baseline version.
+        head_version: Version under review.
+        catalog_dir: Catalogue directory.
+
+    Raises:
+        ArtifactError: If a version is not registered, the kinds differ, two
+            `table` versions declare different or no key columns, or a key is
+            duplicated within a version.
+    """
     base = resolve_artifact(name, base_version, catalog_dir=catalog_dir)
     head = resolve_artifact(name, head_version, catalog_dir=catalog_dir)
     changed = base_version != head_version

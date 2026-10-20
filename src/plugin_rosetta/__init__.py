@@ -1,4 +1,8 @@
-"""Tools for authoring and publishing open mapping artifacts."""
+"""Tools for authoring and publishing open mapping artifacts.
+
+Feature packages: `mapping`, `ontology`, `vocabulary`, and `artifacts`.
+This module exports the shared error hierarchy and the validation report types.
+"""
 
 from importlib.metadata import version
 

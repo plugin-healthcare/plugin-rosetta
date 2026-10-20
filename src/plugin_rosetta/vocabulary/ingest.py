@@ -288,7 +288,11 @@ def find_file(
     suffix: str = "",
     contains: str = "",
 ) -> Path:
-    """Find exactly one release file matching all supplied path filters."""
+    """Find exactly one release file matching all supplied path filters.
+
+    Raises:
+        VocabularyIngestError: If no file or more than one file matches.
+    """
     matches = sorted(
         path
         for path in root.rglob("*")

@@ -1,4 +1,10 @@
-"""Public mapping authoring, validation, and reporting API."""
+"""Public mapping authoring, validation, and reporting API.
+
+A mapping set is a curator-authored CSV file with CSVW metadata that links
+concepts of two standards, following the SSSOM model. This package reads a
+configured mapping set, validates it, builds SSSOM TSV and Turtle artifacts,
+and writes Markdown and HTML reports.
+"""
 
 from importlib import import_module
 from typing import TYPE_CHECKING, Any
@@ -47,7 +53,7 @@ _EXPORT_MODULES = {
 
 
 def __getattr__(name: str) -> Any:
-    """Load public exports without coupling internal module initialization."""
+    """Import a public export on first access."""
     try:
         module_name = _EXPORT_MODULES[name]
     except KeyError as error:

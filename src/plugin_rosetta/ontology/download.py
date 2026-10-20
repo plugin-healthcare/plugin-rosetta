@@ -35,9 +35,8 @@ def download_to_cache(
     """Download `url`, verify its checksum, and write it atomically to `destination`.
 
     If `expected_checksum` is set, a mismatch raises before anything is
-    written, so no partial file is ever left in the cache. If it is unset,
-    the download proceeds and a warning `ValidationIssue` reports the
-    computed SHA-256 so it can be backfilled into the source configuration.
+    written. If it is unset, a warning `ValidationIssue` reports the computed
+    SHA-256.
     """
     display_label = label or url
     owns_client = client is None

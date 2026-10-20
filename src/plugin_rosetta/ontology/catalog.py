@@ -1,18 +1,10 @@
 """Read-only lookups over a loaded ontology graph.
 
-Nothing here fetches or caches data; callers pass in a graph produced by
-`ontology.loader`.
+Callers pass in a graph produced by `ontology.loader`.
 
-Label resolution is deterministic. Candidate labels are ordered by, in
-sequence:
-
-1. predicate, `rdfs:label` before `skos:prefLabel`;
-2. language, the tags in `LANGUAGE_PREFERENCE` in order, then untagged
-   literals, then any remaining tag in alphabetical order;
-3. the label text itself, in lexical order.
-
-The first candidate under that order wins, so the same graph always yields
-the same label regardless of triple or parse order.
+Labels are ordered by predicate (`rdfs:label` before `skos:prefLabel`), then
+language (`LANGUAGE_PREFERENCE` order, untagged, then other tags
+alphabetically), then label text. The first one wins.
 """
 
 from typing import TYPE_CHECKING
@@ -79,11 +71,6 @@ def resolve_label(graph: Graph, iri: str) -> str | None:
 
 
 def resource_exists(graph: Graph, iri: str) -> bool:
-    """Return whether `iri` appears as a subject or object anywhere in the graph.
-
-    A mapping identifier only has to be something the ontology describes, not a
-    declared class or property, so a term used solely as the object of a triple
-    still counts as existing.
-    """
+    """Return whether `iri` appears as a subject or object in the graph."""
     resource = URIRef(iri)
     return (resource, None, None) in graph or (None, None, resource) in graph

@@ -8,7 +8,11 @@ from plugin_rosetta.errors import RosettaIOError
 
 
 def atomic_write_text(destination: Path, content: str) -> None:
-    """Replace a text file only after its complete content is durable."""
+    """Replace a text file only after its complete content is written.
+
+    Raises:
+        RosettaIOError: If the file cannot be written.
+    """
     try:
         destination.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(
@@ -31,7 +35,11 @@ def atomic_write_text(destination: Path, content: str) -> None:
 
 
 def atomic_write_bytes(destination: Path, content: bytes) -> None:
-    """Replace a binary file only after its complete content is durable."""
+    """Replace a binary file only after its complete content is written.
+
+    Raises:
+        RosettaIOError: If the file cannot be written.
+    """
     try:
         destination.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(

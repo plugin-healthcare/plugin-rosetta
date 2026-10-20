@@ -15,11 +15,18 @@ from plugin_rosetta.utils.io.atomic import atomic_write_bytes, atomic_write_text
 from plugin_rosetta.utils.source_names import validate_portable_source_name
 
 DEFAULT_ARTIFACT_CATALOG = Path("registry/data/artifacts")
+"""Default catalogue directory, relative to the workspace root."""
 
 
 @dataclass(frozen=True)
 class RegisteredArtifact:
-    """Resolved paths and manifest for one catalogue entry."""
+    """Resolved paths and manifest for one catalogue entry.
+
+    Attributes:
+        artifact_path: Path of the stored canonical artifact.
+        manifest_path: Path of the `manifest.json` next to the artifact.
+        manifest: The parsed manifest.
+    """
 
     artifact_path: Path
     manifest_path: Path
@@ -27,7 +34,7 @@ class RegisteredArtifact:
 
     @property
     def version(self) -> str:
-        """Return the content-addressed version."""
+        """Return the 64-character SHA-256 version from the manifest."""
         return self.manifest.version
 
 
@@ -81,7 +88,35 @@ def register_artifact(
     inputs: tuple[ArtifactInput, ...] = (),
     key_columns: tuple[str, ...] = (),
 ) -> RegisteredArtifact:
-    """Register an immutable artifact version and return its catalogue entry."""
+    """Register an immutable artifact version and return its catalogue entry.
+
+    The content is canonicalised for `kind` and stored with a manifest under
+    `<catalog_dir>/<name>/<version>/`. Registering identical content again
+    returns the existing entry if its provenance matches. Entries are never
+    overwritten.
+
+    Args:
+        name: Portable lowercase artifact name, for example `omop-onz-g`.
+        artifact_path: Path of the artifact file.
+        kind: Artifact format.
+        catalog_dir: Catalogue directory.
+        source_name: Name of the source the artifact was built from.
+        source_version: Version of that source.
+        inputs: Artifacts or releases this artifact was derived from.
+        key_columns: Row-identifying columns of a `table` artifact; needed to
+            compare table versions.
+
+    Returns:
+        The catalogue entry of the new or existing version.
+
+    Raises:
+        ArtifactError: If `name` is invalid, the artifact cannot be read or
+            parsed, an existing entry cannot be read or has different
+            provenance, or the new entry cannot be published.
+        RosettaIOError: If a file of the new entry cannot be written.
+        OSError: If the catalogue directory or a temporary directory cannot
+            be created.
+    """
     _segment("name", name)
     try:
         content = artifact_path.read_bytes()
@@ -143,7 +178,19 @@ def list_versions(
     *,
     catalog_dir: Path = DEFAULT_ARTIFACT_CATALOG,
 ) -> tuple[ArtifactManifest, ...]:
-    """List registered versions in registration order with a stable tie-break."""
+    """List the manifests of all versions of an artifact.
+
+    Args:
+        name: Artifact name.
+        catalog_dir: Catalogue directory.
+
+    Returns:
+        Manifests sorted by registration time, then version. Empty when
+        nothing is registered under `name`.
+
+    Raises:
+        ArtifactError: If `name` is invalid or a manifest cannot be read.
+    """
     root = catalog_dir / _segment("name", name)
     if not root.is_dir():
         return ()
@@ -157,7 +204,17 @@ def resolve_artifact(
     *,
     catalog_dir: Path = DEFAULT_ARTIFACT_CATALOG,
 ) -> RegisteredArtifact:
-    """Resolve a named content version or raise an actionable error."""
+    """Return the catalogue entry of a registered version.
+
+    Args:
+        name: Artifact name.
+        artifact_version: Content version returned at registration.
+        catalog_dir: Catalogue directory.
+
+    Raises:
+        ArtifactError: If the name or version is invalid or not registered, or
+            its manifest cannot be read.
+    """
     destination = _entry_dir(catalog_dir, name, artifact_version)
     if destination.is_dir():
         return _read_entry(destination)
@@ -171,7 +228,18 @@ def dependents(
     *,
     catalog_dir: Path = DEFAULT_ARTIFACT_CATALOG,
 ) -> tuple[ArtifactManifest, ...]:
-    """Return every registered artifact that names the given input."""
+    """Return the manifests of all artifacts that list the given input.
+
+    Args:
+        input_name: Name as recorded in `ArtifactInput.name`.
+        catalog_dir: Catalogue directory.
+
+    Returns:
+        Manifests sorted by artifact name, registration time, and version.
+
+    Raises:
+        ArtifactError: If a manifest cannot be read.
+    """
     if not catalog_dir.is_dir():
         return ()
     matches = [

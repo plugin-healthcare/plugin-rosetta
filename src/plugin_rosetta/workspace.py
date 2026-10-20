@@ -1,4 +1,8 @@
-"""Create an empty configurable Rosetta workspace."""
+"""Create an empty configurable Rosetta workspace.
+
+A workspace is a directory with a `rosetta.yaml` file and a `registry/` tree
+holding YAML configuration and a `data/` directory.
+"""
 
 from __future__ import annotations
 
@@ -15,7 +19,17 @@ if TYPE_CHECKING:
 
 
 class WorkspaceConfig(BaseModel):
-    """Selections and registry location for one initialized workspace."""
+    """Selections and registry location for one initialized workspace.
+
+    This model describes the content of `rosetta.yaml`.
+
+    Attributes:
+        version: Schema version. Only `1` is accepted.
+        registry: Registry directory, relative to the workspace root.
+        mapping_sets: Keys from `mapping-sets.yaml`.
+        ontology_sources: Names from `ontology-sources.yaml`.
+        vocabulary_sources: Names from `vocabulary-sources.yaml`.
+    """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -31,7 +45,22 @@ def _dump_yaml(value: object) -> str:
 
 
 def initialize_workspace(destination: Path) -> Path:
-    """Create an empty workspace ready for user-supplied registry inputs."""
+    """Create an empty workspace ready for user-supplied registry inputs.
+
+    Writes `rosetta.yaml`, empty catalogues under `registry/config/`, and a
+    `registry/data/` directory that keeps generated data out of version control.
+    Existing workspaces are never overwritten.
+
+    Args:
+        destination: Directory to create the workspace in.
+
+    Returns:
+        Path to the new `rosetta.yaml`.
+
+    Raises:
+        RosettaIOError: If `rosetta.yaml` or `registry/` already exists, or a
+            file cannot be written.
+    """
     config_path = destination / "rosetta.yaml"
     registry_dir = destination / "registry"
     if config_path.exists() or registry_dir.exists():

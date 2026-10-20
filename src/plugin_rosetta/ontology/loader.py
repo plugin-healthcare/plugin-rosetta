@@ -38,8 +38,7 @@ def fetch_ontology(
 ) -> FetchResult:
     """Download and cache an ontology source's Turtle file.
 
-    If the cached file already exists, the download is skipped (idempotent,
-    no network call) unless `force` is True.
+    If the cached file exists, no request is made unless `force` is True.
     """
     path = source.cache_path(cache_dir)
     if path.exists() and not force:
@@ -94,10 +93,10 @@ def load_ontology(
 
 
 def load_cached_ontology(source: OntologySource, *, cache_dir: Path = DEFAULT_CACHE_DIR) -> Graph:
-    """Parse an already-cached ontology without touching the network.
+    """Parse an already-cached ontology without network access.
 
-    Validation must never silently skip a check because the cache is empty, so
-    a missing file tells the curator which fetch to run instead.
+    Raises:
+        RosettaIOError: If the file is not cached; the message names the fetch to run.
     """
     path = source.cache_path(cache_dir)
     if not path.is_file():

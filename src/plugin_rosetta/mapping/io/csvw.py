@@ -22,7 +22,12 @@ class MappingRows:
 
 
 def read_mapping_rows(csv_path: Path, metadata_path: Path) -> MappingRows:
-    """Read mapping rows after checking CSVW conformance."""
+    """Read mapping rows after checking CSVW conformance.
+
+    Raises:
+        ValidationError: If the CSV violates its CSVW metadata, or the metadata
+            has no primary key or the CSV repeats one.
+    """
     try:
         table = Table.from_file(metadata_path)
         if not isinstance(table, Table):

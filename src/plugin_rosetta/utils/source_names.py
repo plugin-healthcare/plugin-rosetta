@@ -14,7 +14,11 @@ _WINDOWS_RESERVED = {
 
 
 def validate_portable_source_name(value: str) -> str:
-    """Require one lowercase path segment that is portable across supported systems."""
+    """Return `value` if it is a portable lowercase path segment.
+
+    Raises:
+        ValueError: If it is not a lowercase path segment, or is a reserved Windows device name.
+    """
     if not _PORTABLE_SEGMENT.fullmatch(value) or value.casefold() in _WINDOWS_RESERVED:
         raise ValueError(f"must be a portable lowercase filesystem name: {value!r}")
     return value

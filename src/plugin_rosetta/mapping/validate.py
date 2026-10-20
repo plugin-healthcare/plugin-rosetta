@@ -1,10 +1,4 @@
-"""Validation of authored mappings: schema conformance and referential integrity.
-
-Schema conformance only proves a row is well formed. Referential integrity
-re-checks every `subject_id`/`object_id` against the ontology graph it should
-belong to, which is what catches a term that was valid when authored but has
-since been removed or renamed upstream.
-"""
+"""Validation of authored mappings: schema conformance and referential integrity."""
 
 from typing import TYPE_CHECKING, Any
 
@@ -83,9 +77,7 @@ def validate_referential_integrity(
 ) -> ValidationReport:
     """Check every mapping's subject and object against its ontology graph.
 
-    Predicates and other CURIE-valued fields are passed through: the mapping
-    set's `curie_map` also carries prefixes such as `skos`, `semapv`, and
-    `orcid`, which name no ontology term to resolve.
+    Predicates and other CURIE-valued fields are not checked.
     """
     issues = [
         issue

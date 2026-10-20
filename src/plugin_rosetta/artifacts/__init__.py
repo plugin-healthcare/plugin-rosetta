@@ -1,4 +1,8 @@
-"""Public local artifact registration and comparison API."""
+"""Public local artifact registration and comparison API.
+
+Versions are identified by the SHA-256 of the canonical content and carry a
+provenance manifest.
+"""
 
 from plugin_rosetta.artifacts.catalog import (
     DEFAULT_ARTIFACT_CATALOG,

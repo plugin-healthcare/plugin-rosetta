@@ -39,7 +39,12 @@ _UniqueKeyLoader.add_constructor(
 
 
 def load_yaml_mapping(path: Path) -> dict[str, Any]:
-    """Load a YAML document whose root is a mapping."""
+    """Load a YAML document whose root is a mapping.
+
+    Raises:
+        ConfigurationError: If the file cannot be read, is not valid YAML, has
+            a duplicate key, or its root is not a mapping.
+    """
     try:
         content = path.read_text(encoding="utf-8")
     except OSError as error:
