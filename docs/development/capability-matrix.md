@@ -1,8 +1,7 @@
-# Migration capability matrix
+# Capability Matrix
 
-This matrix records migration status against `sssom-rosetta` revision
-`46fb077c246388f8c692cdcc6b9129a06f669109`. Parity means equivalent parsed
-content, not byte-identical serialization.
+This matrix records migration status against `sssom-rosetta` revision `46fb077c246388f8c692cdcc6b9129a06f669109`.
+Parity means equivalent parsed content, not byte-identical serialization.
 
 ## Retained workflows
 
@@ -20,30 +19,35 @@ content, not byte-identical serialization.
 | Build SNOMED International RF2 | `rosetta vocabulary build-snomed-international` | `tests/test_cli.py::test_vocabulary_build_rf2_commands_write_graph_and_sidecar` | Migrated |
 | Merge vocabulary graphs | `rosetta vocabulary merge` | `tests/vocabulary/test_merge.py::test_merge_turtle_files_uses_maplib_and_writes_atomic_union` | Migrated |
 
-The machine-readable inventory is
-`tests/fixtures/parity/workflows.json`. `tests/test_parity.py` fails when it
-references a replacement test that no longer exists.
+The machine-readable inventory is `tests/fixtures/parity/workflows.json`.
+`tests/test_parity.py` fails when it references a replacement test that no longer exists.
 
-## Published formats
+## Sources and test coverage
 
-| Format | Producer | Independent reader |
-| --- | --- | --- |
-| SSSOM/TSV | Mapping build | `sssom-py` and Rosetta round-trip tests |
-| RDF/Turtle | Mapping and vocabulary builds | RDFLib subprocess tests |
-| Markdown | Mapping report | Plain UTF-8 text |
-| HTML | Mapping report | Standalone HTML content tests |
-| JSON | Provenance and artifact manifests | Python standard-library JSON tests |
-| YAML | Caller-owned configuration | PyYAML boundary tests |
+All tests run offline.
+A mocked HTTP client replaces downloads, and small synthetic files that follow the real table layout replace licensed releases.
 
-## Migrated vocabulary sources
+| Source | Kind | Format | Output | Test data | Real release tested |
+| --- | --- | --- | --- | --- | --- |
+| `omop-onz-g` | Mapping set | CSV with CSVW | SSSOM/TSV, Turtle, Markdown, HTML | The tracked 8 mappings in `registry/mappings/` | Yes, in the unit tests and the CI quickstart job |
+| `omop-cdm` 5.4 | Ontology source | Turtle | Cached graph | Small Turtle graphs in the tests | By hand with `just quickstart-full` only |
+| `onz-g` 2.8.1 | Ontology source | Turtle | Cached graph | Small Turtle graphs in the tests | By hand with `just quickstart-full` only |
+| `omop` | Vocabulary | `athena`, delimited tables | SKOS Turtle: target concepts, native links, and OMOP relationships | `tests/fixtures/vocabulary/athena/` | No, issue #24 |
+| `dhd-thesauri` (DT) | Vocabulary | `dhd-csv`, quoted CSV in uitleverformaat 4.3 | SKOS Turtle: validity windows, preferred labels, SNOMED, ICD-10, and specialty-scoped DBC links | `tests/fixtures/vocabulary/dhd/` | No, issue #24 |
+| `dhd-thesauri` (VT) | Vocabulary | `dhd-csv`, quoted CSV in uitleverformaat 4.3 | SKOS Turtle: validity windows, preferred labels, and SNOMED links | `tests/fixtures/vocabulary/dhd/` | No, issue #24 |
+| `loinc-snomed` | Vocabulary | `rf2` snapshot | SKOS, RDFS, and OWL Turtle: active concepts, labels, synonyms, and is-a hierarchy | `tests/fixtures/vocabulary/rf2/` | No, issue #24 |
+| `snomed-international` | Vocabulary | `rf2` English snapshot | SKOS, RDFS, and OWL Turtle: active concepts, labels, synonyms, and is-a hierarchy | `tests/fixtures/vocabulary/rf2/` | No, issue #24 |
 
-| Source | Input | Output | Scope |
-| --- | --- | --- | --- |
-| OMOP Athena | Configured delimited tables | SKOS Turtle | Target concepts, native links, and OMOP relationships |
-| DHD Diagnosethesaurus | Quoted CSV release | SKOS Turtle | Validity windows, preferred labels, SNOMED, ICD-10, and specialty-scoped DBC links |
-| DHD Verrichtingenthesaurus | Quoted CSV release | SKOS Turtle | Validity windows, preferred labels, and SNOMED links |
-| LOINC-SNOMED | RF2 snapshot | SKOS, RDFS, and OWL Turtle | Active concepts, labels, synonyms, and is-a hierarchy |
-| SNOMED International | English RF2 snapshot | SKOS, RDFS, and OWL Turtle | Active concepts, labels, synonyms, and is-a hierarchy |
+The synthetic fixtures cover edge cases such as 18-digit SNOMED CT identifiers, inactive rows, blank end dates, and DBC codes that are unique only per specialty.
+They do not prove that a real release has the columns, sizes, or values that the contracts expect.
+Issues #24 and #26 track the comparison of real releases with `sssom-rosetta`.
+
+Other tools read each published format back: `sssom-py` (`parse_sssom_table`) for SSSOM/TSV, RDFLib for Turtle, the Python standard library for JSON, and PyYAML for YAML.
+Markdown and HTML reports are checked on their content.
+
+CI runs on Ubuntu with Python 3.14 and uv, which is also the minimum version.
+macOS, Windows, and other Python versions are not tested.
+The `check` workflow runs `uv run tara check`, `just quickstart` with the quickstart notebook, and `zensical build --strict`.
 
 ## Approved migration differences
 
@@ -54,10 +58,10 @@ references a replacement test that no longer exists.
 | 2026-09-10 | Mapping documentation pages are portable Markdown and HTML reports. | A dedicated project-site generator is not a reusable library concern. |
 | 2026-09-10 | `mapping_set_id` and authored `author_label` values remain unchanged. | Changing published identity or attribution requires separate curator approval. |
 
-These entries document engineering decisions. Final curator approval for
-licensed-release output comparisons remains a release gate.
+These entries document engineering decisions.
+Final curator approval for licensed-release output comparisons remains a release gate.
 
-## Deferred behavior
+## Deferred behaviour
 
 | Legacy capability | Status | Reason |
 | --- | --- | --- |
@@ -66,7 +70,7 @@ licensed-release output comparisons remains a release gate.
 | Gephi vocabulary export | Deferred | Visualization exports are outside the reusable library scope. |
 | OWL-DL classification, relationship groups, and post-coordination | Deferred | The migrated RF2 graphs intentionally provide lightweight SKOS and RDFS semantics. |
 | FHIR runtime, SQL on FHIR, Ariadne, UI, and remote storage | Deferred | Explicitly outside the E01 toolbox scope. |
-| SPARQL queries and Jelly serialization (`notebooks/sparql.py`, jelly-maplib plan) | Deferred | Not part of the reusable library yet, no replacement exists. |
+| SPARQL queries and Jelly serialization (`notebooks/sparql.py`, jelly-maplib plan) | Deferred | Not part of the reusable library yet, and no replacement exists. |
 | Benchmark scripts | Deferred | Performance comparisons are not required for the first release. |
 | OMOP exploration notebook (`notebooks/omop.py`) | Deferred | Replaced for now by the quickstart notebook. |
 | `just clean` | Deferred | Generated output lives under the untracked `registry/data/`. |
@@ -79,4 +83,4 @@ licensed-release output comparisons remains a release gate.
 | List configured mapping sets | `rosetta mapping list` |
 | Reference checks against cached ontologies | `rosetta mapping validate <key> --check-references` |
 | Content-addressed artifact catalogue with manifests and diffs | `rosetta artifact` |
-| Offline quickstart that runs in CI | `just quickstart` and `docs/quickstart.md` |
+| Offline quickstart that runs in CI | `just quickstart` and the [quickstart](../guides/quickstart.md) |
