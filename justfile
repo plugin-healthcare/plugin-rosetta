@@ -77,3 +77,11 @@ artifact-diff name base head:
 
 notebook:
     uv run marimo edit notebooks/quickstart_nb.py
+
+# Serve the docs locally with live reload.
+docs-serve port='8100':
+    uv run zensical serve -a localhost:{{ port }}
+
+# Build the docs to site/ and fail on warnings, as CI does.
+docs-build:
+    uv run zensical build --strict

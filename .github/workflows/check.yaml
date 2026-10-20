@@ -31,3 +31,13 @@ jobs:
       - run: just quickstart
       - run: uv run python notebooks/quickstart_nb.py
       - run: test -s registry/data/mappings/omop-onz-g/omop-onz-g.sssom.tsv -a -s registry/data/mappings/omop-onz-g/omop-onz-g.html
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.14"
+      - run: uv sync --group docs
+      - run: uv run zensical build --strict
