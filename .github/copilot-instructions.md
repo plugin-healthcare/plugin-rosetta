@@ -16,6 +16,11 @@ agent would not otherwise follow by default.
 - Use the `tara` CLI instead of hand-rolling setup or checks — `tara new`,
   `tara check`, `tara standards`; run `tara --help` to discover the rest.
 
+## Agent tooling setup
+
+- Skills, prompts, instructions and MCP config are not committed; `.tara/config.toml` is the source of truth.
+- At session start, if `.github/skills/` is missing or incomplete, run `tara rebuild` and `tara skill sync` to restore them from the config.
+
 ## Workflow: the fixed flow
 
 Don't skip steps; say why if one genuinely doesn't apply.
