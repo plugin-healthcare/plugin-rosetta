@@ -2,6 +2,17 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+### Added
+
+- Documentation site built with Zensical, with a bridge page from known standards to Rosetta concepts, a component overview, a short registry explanation, an onboarding guide for new standards and mapping sets, a capability matrix with the sources under test, and an API reference generated from the docstrings.
+- `just docs-serve` and `just docs-build` recipes and a strict documentation build in CI.
+
+### Changed
+
+- Public API docstrings describe arguments, return values, errors, and configuration fields.
+
 ## 0.1.0 - 2026-09-10
 
 ### Added

@@ -4,6 +4,8 @@ This directory is the healthcare project's local registry for Rosetta configurat
 mappings, and data. It is example input for the reusable library, not package data required at
 runtime.
 
+[Registry](../docs/background/registry.md) explains what belongs in a registry, and the [configuration reference](../docs/reference/configuration.md) documents every key.
+
 An installed package creates an empty layout with `rosetta init <workspace>`. Users supply the
 catalogues, schemas, and mappings needed by their own project.
 

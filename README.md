@@ -21,9 +21,21 @@ directory. Add the mapping, ontology, and vocabulary configuration required by y
 The repository's top-level `registry/` is a healthcare-specific working example, not library
 package data.
 
+## Documentation
+
+The documentation site is built from `docs/` with [Zensical](https://zensical.org).
+Run `just docs-serve` to serve it locally on port 8100.
+Good places to start:
+
+- [From Your Standard to Rosetta](docs/background/from-standard-to-rosetta.md) explains what Rosetta does with OMOP, FHIR, the DHD thesauri, SNOMED CT, and LOINC.
+- [Background](docs/background/index.md) shows the components and the data flow.
+- [Registry](docs/background/registry.md) explains what belongs in a registry and what belongs in the library.
+- [Onboarding a Standard and Mapping](docs/guides/onboarding.md) walks through adding a new source and mapping set.
+- [Capability Matrix](docs/development/capability-matrix.md) lists the sources, formats, and environments under test.
+
 ## Build mappings
 
-For a first run, `just quickstart` validates, builds and reports the `omop-onz-g` example, see `docs/quickstart.md`.
+For a first run, `just quickstart` validates, builds and reports the `omop-onz-g` example, see [the quickstart](docs/guides/quickstart.md).
 The individual commands are:
 
 ```shell
@@ -170,7 +182,7 @@ removed triples.
 
 Catalogue entries live under
 `registry/data/artifacts/<name>/<version>/` as a canonical artifact plus a
-plain JSON manifest. See [the migration capability matrix](docs/capability-matrix.md)
+plain JSON manifest. See [the capability matrix](docs/development/capability-matrix.md)
 for retained workflows and intentional differences.
 
 ## Explore interactively
