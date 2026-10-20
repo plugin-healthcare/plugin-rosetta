@@ -221,3 +221,10 @@ __marimo__/
 # Tara-managed skills. Not committed: they are vendored third-party content or
 # generated from the tara catalog. Restore with `tara rebuild` + `tara skill sync`.
 .github/skills/
+
+# Tara: agent doc store: local scratch, not published artifacts. Never write secrets here.
+.agents/plan/
+.agents/review/
+.agents/memory/
+.agents/design/
+.agents/spike/

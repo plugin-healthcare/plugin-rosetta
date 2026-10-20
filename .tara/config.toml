@@ -8,8 +8,8 @@ stack = "python"
 # pyproject_categories = ["ruff", "pytest", "ty", "uv"]
 # dev_tools = ["ruff", "ty", "pytest", "pre-commit"]
 
-# [agents]  # keep parts of the .agents/ doc store local (untracked)
-# gitignore = ["memory"]  # e.g. do not commit session scratch/handover
+[agents]  # keep parts of the .agents/ doc store local (untracked)
+gitignore = ["plan", "review", "memory", "design", "spike"]
 
 [artifacts]
 skills = ["gh-stack", "writing-adrs", "writing-documentation"]
