@@ -3,15 +3,11 @@
 import html
 from collections import Counter
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from plugin_rosetta.mapping.io.sssom import read_sssom_tsv
+from plugin_rosetta.mapping.models.sssom import Mapping, MappingSet
 from plugin_rosetta.utils.io.atomic import atomic_write_text
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from plugin_rosetta.mapping.models.sssom import Mapping, MappingSet
 
 MappingKey = tuple[str | None, str, str | None]
 

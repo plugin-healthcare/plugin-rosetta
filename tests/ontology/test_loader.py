@@ -1,5 +1,6 @@
 import hashlib
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from pathlib import Path
 
 import httpx
 import pytest
@@ -8,10 +9,6 @@ from rdflib import Graph
 from plugin_rosetta.errors import RosettaIOError
 from plugin_rosetta.ontology import OntologySource
 from plugin_rosetta.ontology.loader import fetch_ontology, load_ontology
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-    from pathlib import Path
 
 TURTLE = b"@prefix ex: <https://example.org/> .\nex:a a ex:Thing .\n"
 

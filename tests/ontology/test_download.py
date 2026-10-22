@@ -1,5 +1,6 @@
 import hashlib
-from typing import TYPE_CHECKING
+from collections.abc import Callable
+from pathlib import Path
 
 import httpx
 import pytest
@@ -7,10 +8,6 @@ import pytest
 from plugin_rosetta.errors import RosettaIOError, ValidationError
 from plugin_rosetta.ontology.download import download_to_cache
 from plugin_rosetta.reports import IssueSeverity
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
-    from pathlib import Path
 
 CONTENT = b"@prefix ex: <https://example.org/> .\n"
 DIGEST = hashlib.sha256(CONTENT).hexdigest()

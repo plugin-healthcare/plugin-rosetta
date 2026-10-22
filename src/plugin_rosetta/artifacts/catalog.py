@@ -8,8 +8,8 @@ from datetime import UTC, datetime
 from importlib.metadata import version as distribution_version
 from pathlib import Path
 
-from plugin_rosetta.artifacts.identity import ArtifactKind, canonical_bytes, content_version  # noqa: TC001
-from plugin_rosetta.artifacts.manifest import ArtifactInput, ArtifactManifest  # noqa: TC001
+from plugin_rosetta.artifacts.identity import ArtifactKind, canonical_bytes, content_version
+from plugin_rosetta.artifacts.manifest import ArtifactInput, ArtifactManifest
 from plugin_rosetta.errors import ArtifactError
 from plugin_rosetta.utils.io.atomic import atomic_write_bytes, atomic_write_text
 from plugin_rosetta.utils.source_names import validate_portable_source_name

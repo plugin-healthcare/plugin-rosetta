@@ -2,12 +2,12 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from linkml_runtime.utils.metamodelcore import URI
+from rdflib import Graph
 
 from plugin_rosetta.errors import ConfigurationError, ValidationError
-from plugin_rosetta.mapping.config import load_mapping_sets
+from plugin_rosetta.mapping.config import MappingSetConfig, load_mapping_sets
 from plugin_rosetta.mapping.io.csvw import read_mapping_rows
 from plugin_rosetta.mapping.io.rdf import render_turtle
 from plugin_rosetta.mapping.io.sssom import render_sssom_tsv
@@ -15,17 +15,10 @@ from plugin_rosetta.mapping.models.sssom import MappingSet
 from plugin_rosetta.mapping.report import render_html, render_markdown
 from plugin_rosetta.mapping.validate import validate_referential_integrity, validate_schema_conformance
 from plugin_rosetta.ontology.api import DEFAULT_ONTOLOGY_CONFIG
-from plugin_rosetta.ontology.config import load_ontology_sources
+from plugin_rosetta.ontology.config import OntologySourcesConfig, load_ontology_sources
 from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR, load_cached_ontology
-from plugin_rosetta.reports import IssueSeverity
+from plugin_rosetta.reports import IssueSeverity, ValidationReport
 from plugin_rosetta.utils.io.atomic import atomic_write_text
-
-if TYPE_CHECKING:
-    from rdflib import Graph
-
-    from plugin_rosetta.mapping.config import MappingSetConfig
-    from plugin_rosetta.ontology.config import OntologySourcesConfig
-    from plugin_rosetta.reports import ValidationReport
 
 DEFAULT_MAPPING_CONFIG = Path("registry/config/mapping-sets.yaml")
 """Default location of the mapping-set configuration, relative to the workspace root."""

@@ -7,13 +7,8 @@ language (`LANGUAGE_PREFERENCE` order, untagged, then other tags
 alphabetically), then label text. The first one wins.
 """
 
-from typing import TYPE_CHECKING
-
-from rdflib import RDF, RDFS, Literal, URIRef
+from rdflib import RDF, RDFS, Graph, Literal, URIRef
 from rdflib.namespace import OWL, SKOS
-
-if TYPE_CHECKING:
-    from rdflib import Graph
 
 LANGUAGE_PREFERENCE = ("en", "nl")
 

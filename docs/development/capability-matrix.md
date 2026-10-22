@@ -45,9 +45,8 @@ Issues #24 and #26 track the comparison of real releases with `sssom-rosetta`.
 Other tools read each published format back: `sssom-py` (`parse_sssom_table`) for SSSOM/TSV, RDFLib for Turtle, the Python standard library for JSON, and PyYAML for YAML.
 Markdown and HTML reports are checked on their content.
 
-CI runs on Ubuntu with Python 3.14 and uv, which is also the minimum version.
+CI runs on Ubuntu with uv. `uv run tara check` runs on Python 3.13 (the minimum) and 3.14; `just quickstart` with the quickstart notebook and `zensical build --strict` run on Python 3.14.
 macOS, Windows, and other Python versions are not tested.
-The `check` workflow runs `uv run tara check`, `just quickstart` with the quickstart notebook, and `zensical build --strict`.
 
 ## Approved migration differences
 

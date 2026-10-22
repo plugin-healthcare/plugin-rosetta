@@ -4,17 +4,15 @@ Callers supply the prefix map and, for each side, the graph the CURIE must
 resolve against.
 """
 
-from typing import TYPE_CHECKING, Any
+from collections.abc import Mapping as MappingData
+from typing import Any
+
+from rdflib import Graph
 
 from plugin_rosetta.errors import UnresolvableCurieError
 from plugin_rosetta.mapping.curies import expand_curie
 from plugin_rosetta.mapping.models.sssom import Mapping
 from plugin_rosetta.ontology.catalog import resource_exists
-
-if TYPE_CHECKING:
-    from collections.abc import Mapping as MappingData
-
-    from rdflib import Graph
 
 
 def resolve_curie(curie: str, curie_map: MappingData[str, str], graph: Graph) -> str:

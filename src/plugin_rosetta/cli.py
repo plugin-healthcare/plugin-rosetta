@@ -1,14 +1,15 @@
 """Command-line interface for plugin-rosetta."""
 
 import json
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated
+from typing import Annotated
 
 import typer
 
 from plugin_rosetta.artifacts import (
     DEFAULT_ARTIFACT_CATALOG,
-    ArtifactKind,  # noqa: TC001
+    ArtifactKind,
     diff_artifacts,
     list_versions,
     register_artifact,
@@ -37,9 +38,6 @@ from plugin_rosetta.vocabulary import (
 )
 from plugin_rosetta.vocabulary.ingest import DEFAULT_CACHE_DIR as DEFAULT_VOCABULARY_CACHE_DIR
 from plugin_rosetta.workspace import initialize_workspace
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
 
 app = typer.Typer(
     help="Rosetta mapping toolbox.",

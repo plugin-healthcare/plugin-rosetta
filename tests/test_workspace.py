@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pytest
 import yaml
 
 from plugin_rosetta.errors import RosettaIOError
 from plugin_rosetta.workspace import initialize_workspace
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def test_initializes_empty_workspace_without_domain_specific_inputs(tmp_path: Path) -> None:

@@ -1,13 +1,10 @@
 """CURIE expansion."""
 
-from typing import TYPE_CHECKING
+from collections.abc import Mapping
 
 from curies import Converter
 
 from plugin_rosetta.errors import ValidationError
-
-if TYPE_CHECKING:
-    from collections.abc import Mapping
 
 
 def expand_curie(value: str, curie_map: Mapping[str, str]) -> str:

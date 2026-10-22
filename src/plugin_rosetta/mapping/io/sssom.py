@@ -3,7 +3,8 @@
 import csv
 import io
 import types
-from typing import TYPE_CHECKING, Any, get_args, get_origin
+from pathlib import Path
+from typing import Any, Union, get_args, get_origin
 
 import yaml
 from linkml_runtime.utils.metamodelcore import URI
@@ -12,9 +13,6 @@ from pydantic import ValidationError as PydanticValidationError
 from plugin_rosetta.errors import RosettaIOError, ValidationError
 from plugin_rosetta.mapping.models.sssom import Mapping, MappingSet
 from plugin_rosetta.utils.io.atomic import atomic_write_text
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 _KEY_FIELDS = ("subject_id", "predicate_id", "object_id", "mapping_justification")
 
@@ -129,6 +127,7 @@ def _contains_list(annotation: Any) -> bool:
     origin = get_origin(annotation)
     if origin is list:
         return True
-    if origin is types.UnionType:
+    # Before 3.14, Optional[...] has origin typing.Union, distinct from types.UnionType.
+    if origin in {Union, types.UnionType}:
         return any(_contains_list(member) for member in get_args(annotation))
     return False

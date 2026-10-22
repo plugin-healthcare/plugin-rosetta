@@ -1,15 +1,13 @@
 """Strict YAML input utilities."""
 
 from collections.abc import Hashable
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import Any
 
 import yaml
 import yaml.resolver
 
 from plugin_rosetta.errors import ConfigurationError
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 class _UniqueKeyLoader(yaml.SafeLoader):

@@ -3,7 +3,13 @@ name = "plugin-rosetta"
 version = "0.1.0"
 description = "Reusable toolbox for authoring, validating, and publishing open mapping artifacts"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.13"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 dependencies = [
     "csvw>=4.1.0",
     "curies>=0.15.0",
@@ -59,7 +65,7 @@ nb = [
 
 [tool.ruff]
 line-length = 120
-target-version = "py314"
+target-version = "py313"
 exclude = [
     "examples/",
     "docs/",
@@ -173,7 +179,7 @@ xfail_strict = true
 exclude = ["src/plugin_rosetta/mapping/models/sssom.py", "notebooks/"]
 
 [tool.ty.environment]
-python-version = "3.14"
+python-version = "3.13"
 
 [tool.ty.rules]
 unused-ignore-comment = "warn"

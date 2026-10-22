@@ -1,7 +1,7 @@
 import hashlib
 import io
 import zipfile
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import pytest
 
@@ -9,9 +9,6 @@ from plugin_rosetta.errors import VocabularyChecksumError, VocabularyIngestError
 from plugin_rosetta.reports import IssueSeverity
 from plugin_rosetta.vocabulary import VocabularySource
 from plugin_rosetta.vocabulary.ingest import cache_dir_for, find_file, ingest_zip
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def _zip_bytes(files: dict[str, str]) -> bytes:

@@ -1,11 +1,10 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import polars as pl
 import pytest
 
 from plugin_rosetta.errors import ValidationError
-from plugin_rosetta.vocabulary import load_vocabulary_sources
+from plugin_rosetta.vocabulary import ReleaseTable, load_vocabulary_sources
 from plugin_rosetta.vocabulary.adapters.omop import (
     build_graph,
     load_relationship_types,
@@ -14,9 +13,6 @@ from plugin_rosetta.vocabulary.adapters.omop import (
 )
 from plugin_rosetta.vocabulary.frames import load_table_contract
 from plugin_rosetta.vocabulary.namespaces import omop_iri, sct_iri, source_concept_iri
-
-if TYPE_CHECKING:
-    from plugin_rosetta.vocabulary import ReleaseTable
 
 ROOT = Path(__file__).parents[3]
 FIXTURE_DIR = ROOT / "tests/fixtures/vocabulary/athena"

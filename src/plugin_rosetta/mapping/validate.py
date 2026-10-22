@@ -1,22 +1,17 @@
 """Validation of authored mappings: schema conformance and referential integrity."""
 
-from typing import TYPE_CHECKING, Any
+from collections.abc import Iterable
+from collections.abc import Mapping as MappingData
+from typing import Any
 
 from pydantic import ValidationError as PydanticValidationError
+from rdflib import Graph
 
 from plugin_rosetta.errors import ValidationError
 from plugin_rosetta.mapping.curies import expand_curie
-from plugin_rosetta.mapping.models.sssom import Mapping
+from plugin_rosetta.mapping.models.sssom import Mapping, MappingSet
 from plugin_rosetta.ontology.catalog import resource_exists
 from plugin_rosetta.reports import IssueSeverity, ValidationIssue, ValidationReport
-
-if TYPE_CHECKING:
-    from collections.abc import Iterable
-    from collections.abc import Mapping as MappingData
-
-    from rdflib import Graph
-
-    from plugin_rosetta.mapping.models.sssom import MappingSet
 
 # The authored CSV's header occupies row 1, so mappings are numbered from row 2
 # and every reported row number points at the line the curator has to edit.

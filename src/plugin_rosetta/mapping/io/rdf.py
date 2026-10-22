@@ -1,17 +1,13 @@
 """Deterministic RDF mapping output utilities."""
 
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from rdflib import Graph, URIRef
 
 from plugin_rosetta.errors import ValidationError
 from plugin_rosetta.mapping.curies import expand_curie
+from plugin_rosetta.mapping.models.sssom import MappingSet
 from plugin_rosetta.utils.io.atomic import atomic_write_text
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from plugin_rosetta.mapping.models.sssom import MappingSet
 
 
 def mapping_set_to_graph(mapping_set: MappingSet) -> Graph:

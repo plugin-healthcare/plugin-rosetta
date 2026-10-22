@@ -1,7 +1,7 @@
 # Quickstart
 
 This guide builds the tracked `omop-onz-g` mapping set into SSSOM and RDF files.
-It needs Python 3.14, [uv](https://docs.astral.sh/uv/) and [just](https://just.systems/).
+It needs Python 3.13 or 3.14, [uv](https://docs.astral.sh/uv/) and [just](https://just.systems/).
 
 ## Install
 

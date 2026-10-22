@@ -1,6 +1,6 @@
 """Read RF2 tables and build lightweight SNOMED graphs."""
 
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import polars as pl
 from rdflib import Graph, Literal
@@ -8,14 +8,9 @@ from rdflib.namespace import OWL, RDF, RDFS, SKOS
 
 from plugin_rosetta.errors import ValidationError
 from plugin_rosetta.reports import IssueSeverity
-from plugin_rosetta.vocabulary.frames import validate_release_frame
+from plugin_rosetta.vocabulary.config import ReleaseTable
+from plugin_rosetta.vocabulary.frames import TableContract, validate_release_frame
 from plugin_rosetta.vocabulary.namespaces import PREFIX_MAP, sct_iri
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from plugin_rosetta.vocabulary.config import ReleaseTable
-    from plugin_rosetta.vocabulary.frames import TableContract
 
 IS_A_TYPE_ID = "116680003"
 SYNONYM_TYPE_ID = "900000000000013009"

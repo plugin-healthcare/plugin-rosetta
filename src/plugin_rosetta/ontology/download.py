@@ -2,16 +2,13 @@
 
 import hashlib
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import httpx
 
 from plugin_rosetta.errors import RosettaIOError, ValidationError
 from plugin_rosetta.reports import IssueSeverity, ValidationIssue
 from plugin_rosetta.utils.io.atomic import atomic_write_bytes
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 _DEFAULT_TIMEOUT = 60
 

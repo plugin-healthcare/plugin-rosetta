@@ -1,21 +1,16 @@
 """Adapt declared Athena release tables into an OMOP vocabulary graph."""
 
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import polars as pl
 from maplib import Model
 
 from plugin_rosetta.errors import ValidationError
 from plugin_rosetta.reports import IssueSeverity
-from plugin_rosetta.vocabulary.frames import validate_release_frame
+from plugin_rosetta.vocabulary.config import ReleaseTable
+from plugin_rosetta.vocabulary.frames import TableContract, validate_release_frame
 from plugin_rosetta.vocabulary.namespaces import OMOP_CONCEPT, PREFIX_MAP, TARGET_VOCABULARIES, source_concept_iri
 from plugin_rosetta.vocabulary.templates import CONCEPT_TEMPLATE, CONCEPT_TEMPLATE_IRI, language_tagged_column
-
-if TYPE_CHECKING:
-    from pathlib import Path
-
-    from plugin_rosetta.vocabulary.config import ReleaseTable
-    from plugin_rosetta.vocabulary.frames import TableContract
 
 _SKOS = "http://www.w3.org/2004/02/skos/core#"
 _PREFIXES = {prefix: str(namespace) for prefix, namespace in PREFIX_MAP.items()} | {"skos": _SKOS}

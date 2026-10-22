@@ -1,11 +1,8 @@
 """Mapping-set catalogue use cases."""
 
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 from plugin_rosetta.mapping.config import load_mapping_sets
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def list_mapping_sets(config_path: Path, *, root: Path) -> tuple[tuple[str, Path], ...]:

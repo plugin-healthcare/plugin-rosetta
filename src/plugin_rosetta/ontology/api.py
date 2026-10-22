@@ -1,14 +1,12 @@
 """Ontology source fetch use cases."""
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+
+import httpx
 
 from plugin_rosetta.ontology.config import load_ontology_sources
 from plugin_rosetta.ontology.loader import DEFAULT_CACHE_DIR, fetch_ontology
 from plugin_rosetta.reports import ValidationReport
-
-if TYPE_CHECKING:
-    import httpx
 
 DEFAULT_ONTOLOGY_CONFIG = Path("registry/config/ontology-sources.yaml")
 """Default location of the ontology source configuration, relative to the workspace root."""

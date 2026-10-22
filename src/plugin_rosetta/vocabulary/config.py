@@ -5,7 +5,7 @@ The models in this module define the schema of `vocabulary-sources.yaml`.
 
 import re
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Self
 from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
@@ -113,7 +113,7 @@ class VocabularySourceEntry(BaseModel):
     tables: tuple[ReleaseTable, ...] = ()
 
     @model_validator(mode="after")
-    def validate_unique_table_roles(self) -> VocabularySourceEntry:
+    def validate_unique_table_roles(self) -> Self:
         """Require one table locator per role.
 
         Raises:
@@ -202,7 +202,7 @@ class VocabularySourcesConfig(BaseModel):
     vocabulary_sources: dict[str, VocabularySourceEntry]
 
     @model_validator(mode="after")
-    def validate_source_names(self) -> VocabularySourcesConfig:
+    def validate_source_names(self) -> Self:
         """Require every key to be a portable lowercase path segment.
 
         Raises:

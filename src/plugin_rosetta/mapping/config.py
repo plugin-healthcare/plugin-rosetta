@@ -4,18 +4,16 @@ The models in this module define the schema of `mapping-sets.yaml`.
 """
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import Self
 from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic import ValidationError as PydanticValidationError
 
 from plugin_rosetta.errors import ConfigurationError
+from plugin_rosetta.ontology.config import OntologySourcesConfig
 from plugin_rosetta.utils.io.yaml import load_yaml_mapping
 from plugin_rosetta.utils.source_names import validate_portable_source_name
-
-if TYPE_CHECKING:
-    from plugin_rosetta.ontology.config import OntologySourcesConfig
 
 
 class MappingSetOntologies(BaseModel):
@@ -117,7 +115,7 @@ class MappingSetsConfig(BaseModel):
     mapping_sets: dict[str, MappingSetConfig]
 
     @model_validator(mode="after")
-    def validate_mapping_set_keys(self) -> MappingSetsConfig:
+    def validate_mapping_set_keys(self) -> Self:
         """Require every key to be a portable lowercase path segment.
 
         Raises:

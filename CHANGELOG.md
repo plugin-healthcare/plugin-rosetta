@@ -11,6 +11,7 @@ All notable changes to this project are documented here.
 
 ### Changed
 
+- Python 3.13 and 3.14 are both supported and tested in CI; package metadata declares both versions.
 - Public API docstrings describe arguments, return values, errors, and configuration fields.
 
 ## 0.1.0 - 2026-09-10

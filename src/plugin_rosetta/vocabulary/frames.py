@@ -1,6 +1,7 @@
 """Declared contracts for tabular vocabulary release frames."""
 
-from typing import TYPE_CHECKING, Literal
+from pathlib import Path
+from typing import Literal
 
 import polars as pl
 from pydantic import BaseModel, ConfigDict
@@ -9,9 +10,6 @@ from pydantic import ValidationError as PydanticValidationError
 from plugin_rosetta.errors import ConfigurationError
 from plugin_rosetta.reports import IssueSeverity, ValidationIssue, ValidationReport
 from plugin_rosetta.utils.io.yaml import load_yaml_mapping
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 class ColumnContract(BaseModel):

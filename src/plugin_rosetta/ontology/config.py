@@ -4,7 +4,8 @@ The models in this module define the schema of `ontology-sources.yaml`.
 """
 
 import re
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import Self
 from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
@@ -13,9 +14,6 @@ from pydantic import ValidationError as PydanticValidationError
 from plugin_rosetta.errors import ConfigurationError, RosettaIOError
 from plugin_rosetta.utils.io.yaml import load_yaml_mapping
 from plugin_rosetta.utils.source_names import validate_portable_source_name
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 _FILESYSTEM_SAFE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
 
@@ -124,7 +122,7 @@ class OntologySourcesConfig(BaseModel):
     ontology_sources: dict[str, OntologySourceEntry]
 
     @model_validator(mode="after")
-    def validate_source_names(self) -> OntologySourcesConfig:
+    def validate_source_names(self) -> Self:
         """Require every key to be a portable lowercase path segment.
 
         Raises:

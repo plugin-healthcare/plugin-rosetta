@@ -2,15 +2,13 @@
 
 import csv
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import Any
 
 from csvw import Table
 
 from plugin_rosetta.errors import RosettaIOError, ValidationError
 from plugin_rosetta.reports import IssueSeverity, ValidationIssue, ValidationReport
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 @dataclass(frozen=True)
