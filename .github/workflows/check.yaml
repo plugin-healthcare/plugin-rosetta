@@ -30,7 +30,7 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.14"
-      - uses: extractions/setup-just@v3
+      - uses: extractions/setup-just@v4
       - run: uv sync --group dev
       - run: just quickstart
       - run: uv run python notebooks/quickstart_nb.py
