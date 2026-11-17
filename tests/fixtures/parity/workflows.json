@@ -1,0 +1,65 @@
+{
+  "legacy_revision": "46fb077c246388f8c692cdcc6b9129a06f669109",
+  "workflows": [
+    {
+      "legacy": "ontology fetch",
+      "replacement": "rosetta ontology fetch <name>",
+      "test": "tests/test_cli.py::test_ontology_fetch_writes_path_and_warnings"
+    },
+    {
+      "legacy": "mapping validate",
+      "replacement": "rosetta mapping validate <key>",
+      "test": "tests/test_cli.py::test_mapping_validate_reports_conforming_rows"
+    },
+    {
+      "legacy": "mapping build",
+      "replacement": "rosetta mapping build <key> --output-dir <dir>",
+      "test": "tests/test_cli.py::test_mapping_build_and_report_write_open_artifacts"
+    },
+    {
+      "legacy": "mapping report",
+      "replacement": "rosetta mapping report <key> --output-dir <dir>",
+      "test": "tests/test_cli.py::test_mapping_build_and_report_write_open_artifacts"
+    },
+    {
+      "legacy": "docs generate-mapping-pages",
+      "replacement": "rosetta mapping report <key> --output-dir <dir>",
+      "test": "tests/mapping/test_report.py::test_report_renders_predicate_counts_as_markdown_and_html"
+    },
+    {
+      "legacy": "vocabulary ingest",
+      "replacement": "rosetta vocabulary ingest <name> <zip>",
+      "test": "tests/test_cli.py::test_vocabulary_ingest_command_extracts_synthetic_release"
+    },
+    {
+      "legacy": "vocabulary build-omop",
+      "replacement": "rosetta vocabulary build-omop",
+      "test": "tests/test_cli.py::test_vocabulary_build_omop_writes_graph_and_sidecar"
+    },
+    {
+      "legacy": "vocabulary build-dhd-diagnosethesaurus",
+      "replacement": "rosetta vocabulary build-dhd-diagnosethesaurus --as-of YYYYMMDD",
+      "test": "tests/test_cli.py::test_vocabulary_build_dhd_commands_write_graph_and_sidecar"
+    },
+    {
+      "legacy": "vocabulary build-dhd-verrichtingenthesaurus",
+      "replacement": "rosetta vocabulary build-dhd-verrichtingenthesaurus --as-of YYYYMMDD",
+      "test": "tests/test_cli.py::test_vocabulary_build_dhd_commands_write_graph_and_sidecar"
+    },
+    {
+      "legacy": "vocabulary build-loinc-snomed",
+      "replacement": "rosetta vocabulary build-loinc-snomed",
+      "test": "tests/test_cli.py::test_vocabulary_build_rf2_commands_write_graph_and_sidecar"
+    },
+    {
+      "legacy": "vocabulary build-snomed-international",
+      "replacement": "rosetta vocabulary build-snomed-international",
+      "test": "tests/test_cli.py::test_vocabulary_build_rf2_commands_write_graph_and_sidecar"
+    },
+    {
+      "legacy": "vocabulary merge",
+      "replacement": "rosetta vocabulary merge",
+      "test": "tests/vocabulary/test_merge.py::test_merge_turtle_files_uses_maplib_and_writes_atomic_union"
+    }
+  ]
+}

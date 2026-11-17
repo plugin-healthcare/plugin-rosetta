@@ -1,0 +1,10 @@
+columns:
+  relationship_id:
+    dtype: String
+    nullable: false
+  relationship_name:
+    dtype: String
+    nullable: false
+  relationship_concept_id:
+    dtype: String
+    nullable: false

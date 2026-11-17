@@ -1,1 +1,202 @@
 # plugin-rosetta
+
+Rosetta is a Python toolbox for authoring, validating, and publishing open mapping artifacts.
+
+## Install
+
+```shell
+uv sync --all-groups
+uv run rosetta --help
+```
+
+After installing the wheel, initialize an empty writable workspace:
+
+```shell
+rosetta init my-rosetta-workspace
+cd my-rosetta-workspace
+```
+
+The command creates `rosetta.yaml`, empty source catalogues, and an ignored `registry/data/`
+directory. Add the mapping, ontology, and vocabulary configuration required by your project.
+The repository's top-level `registry/` is a healthcare-specific working example, not library
+package data.
+
+## Documentation
+
+The documentation site is built from `docs/` with [Zensical](https://zensical.org).
+Run `just docs-serve` to serve it locally on port 8100.
+Good places to start:
+
+- [From Your Standard to Rosetta](docs/background/from-standard-to-rosetta.md) explains what Rosetta does with OMOP, FHIR, the DHD thesauri, SNOMED CT, and LOINC.
+- [Background](docs/background/index.md) shows the components and the data flow.
+- [Registry](docs/background/registry.md) explains what belongs in a registry and what belongs in the library.
+- [Onboarding a Standard and Mapping](docs/guides/onboarding.md) walks through adding a new source and mapping set.
+- [Capability Matrix](docs/development/capability-matrix.md) lists the sources, formats, and environments under test.
+
+## Build mappings
+
+For a first run, `just quickstart` validates, builds and reports the `omop-onz-g` example, see [the quickstart](docs/guides/quickstart.md).
+The individual commands are:
+
+```shell
+uv run rosetta mapping validate omop-onz-g
+uv run rosetta mapping build omop-onz-g --output-dir registry/data/mappings/omop-onz-g
+uv run rosetta mapping report omop-onz-g --output-dir registry/data/mappings/omop-onz-g
+```
+
+The build writes SSSOM/TSV and RDF/Turtle artifacts.
+
+The report command writes Markdown and standalone HTML.
+
+All generated files are standard formats that can be read without Rosetta.
+
+## Use as a Python library
+
+Import operations from the feature they belong to:
+
+```python
+from pathlib import Path
+
+from plugin_rosetta.mapping import read_mapping_set
+from plugin_rosetta.vocabulary import build_omop_graph
+
+mapping = read_mapping_set("omop-onz-g")
+graph_path, provenance_path = build_omop_graph(
+    Path("registry/data/vocabularies/omop/unversioned"),
+    Path("registry/data/vocabulary-graphs"),
+)
+```
+
+Package-wide errors and validation reports are available directly from `plugin_rosetta`.
+Underscore-prefixed modules are private and may change without compatibility guarantees.
+
+## Fetch ontologies
+
+```shell
+uv run rosetta ontology fetch omop-cdm
+uv run rosetta ontology fetch onz-g
+```
+
+Downloads a configured ontology source's Turtle file into `registry/data/ontologies/<name>/<version>/`,
+skipping the download if it is already cached. Use `--force` to re-download. See `registry/README.md`
+for the source configuration.
+
+## Validate against ontologies
+
+Schema conformance only proves a row is well formed. `--check-references` additionally resolves every
+`subject_id` and `object_id` against the ontology bound to it in `registry/config/mapping-sets.yaml`,
+which catches a term that was valid when authored but has since been removed or renamed upstream.
+
+```shell
+just fetch
+uv run rosetta mapping validate omop-onz-g --check-references
+uv run rosetta mapping build omop-onz-g --output-dir registry/data/mappings/omop-onz-g --check-references
+```
+
+Validation reads the cached ontologies only; it never downloads, and it names the fetch command to run
+if the cache is empty rather than skipping the check. `validate` prints every issue and exits non-zero,
+and `build` writes no artifact at all when any reference is unresolved.
+
+Labels resolved from an ontology are deterministic. Candidate labels are ordered by predicate
+(`rdfs:label` before `skos:prefLabel`), then by language (`en`, then `nl`, then untagged literals, then
+any remaining tag alphabetically), then by the label text itself. A term with no label resolves to an
+explicit absence, never an empty string.
+
+## Ingest vocabulary releases
+
+Vocabulary releases are licence gated and must be downloaded manually from the page recorded in
+`registry/config/vocabulary-sources.yaml`. Ingest verifies a pinned checksum when present and extracts
+the release into a versioned, ignored cache:
+
+```shell
+uv run rosetta vocabulary ingest omop ~/Downloads/athena-release.zip
+# or
+just ingest omop ~/Downloads/athena-release.zip
+```
+
+If the source has no pinned checksum, the command prints the computed SHA-256 for curator review.
+Cached releases with a pinned checksum require the original ZIP on every ingest so extracted files
+can be verified against a trusted artifact. Unpinned releases can be reused without the ZIP, using
+their local integrity manifest to detect accidental corruption. Use `--force` only when the cached
+release must be replaced. See `registry/README.md` for the source catalogue, cache layout, and table
+contracts.
+
+Build the OMOP graph after ingesting its Athena release:
+
+```shell
+uv run rosetta vocabulary build-omop
+# or
+just build-omop
+```
+
+This writes deterministic `omop.ttl` and `omop.meta.json` artifacts under
+`registry/data/vocabulary-graphs/`.
+
+Build the DHD diagnosis and procedure thesauri with an explicit validity date:
+
+```shell
+uv run rosetta vocabulary build-dhd-diagnosethesaurus --as-of 20260910
+uv run rosetta vocabulary build-dhd-verrichtingenthesaurus --as-of 20260910
+```
+
+The DT graph links concepts to SNOMED CT with `skos:exactMatch` and to ICD-10 and
+specialty-scoped DBC identifiers with `skos:closeMatch`. The VT graph contains SNOMED CT links
+only. Both provenance sidecars record the effective `as_of` date.
+
+Build the optional RF2 extension and International backbone, then merge every
+registered vocabulary graph:
+
+```shell
+uv run rosetta vocabulary build-loinc-snomed
+uv run rosetta vocabulary build-snomed-international
+uv run rosetta vocabulary merge
+```
+
+RF2 readers preserve identifiers as text, use active Snapshot rows, and derive
+preferred labels, synonyms, and is-a edges. SNOMED International file selection
+is constrained to the configured English Snapshot tables. The merged
+`vocabularies.ttl` is an atomic union with duplicate triples collapsed.
+
+Vocabulary provenance sidecars include `omissions`, grouped by template and
+optional parameter. Populated optional fields are reported with a zero count;
+missing values are never hidden by an absent report.
+
+## Compare local artifact versions
+
+Register produced files in the ignored, content-addressed local catalogue:
+
+```shell
+uv run rosetta artifact register omop-graph registry/data/vocabulary-graphs/omop.ttl \
+  --kind rdf --source-name omop --source-version unversioned
+uv run rosetta artifact list omop-graph
+uv run rosetta artifact diff omop-graph <base-version> <head-version>
+```
+
+Commands print JSON. Versions are SHA-256 identities over kind-scoped canonical
+content. Text normalizes line endings, trailing whitespace, and final blank
+lines; JSON and YAML normalize parsed values; RDF uses canonical N-Triples so
+prefixes, ordering, and blank-node labels do not create false versions. Table
+diffs stop at incompatible schemas, then compare declared keys. SSSOM uses
+subject, predicate, and object identity, while RDF reports canonical added and
+removed triples.
+
+Catalogue entries live under
+`registry/data/artifacts/<name>/<version>/` as a canonical artifact plus a
+plain JSON manifest. See [the capability matrix](docs/development/capability-matrix.md)
+for retained workflows and intentional differences.
+
+## Explore interactively
+
+```shell
+just notebook
+```
+
+Opens `notebooks/quickstart_nb.py`, a [marimo](https://marimo.io) notebook that explores the
+`omop-onz-g` mapping set and builds OMOP, DHD, and RF2 vocabulary graphs from synthetic release tables.
+The notebook runs offline without a licensed vocabulary release.
+
+The same mapping-only flow is available as a normal script:
+
+```shell
+uv run python examples/build_preserved_mapping_set.py
+```

@@ -1,0 +1,6 @@
+ConceptID,Omschrijving,TaalCode,TypeTerm,SnomedID,Begindatum,Einddatum
+"0000000001","Cyst (disorder)","en-GB","FSN","39462005","20260101",""
+"0000000001","Cyste, ""nader omschreven""","nl-NL","FSN","39462005","20260101",""
+"0000000001","Synoniem","nl-NL","SYN","99999999","20260101",""
+"0000000002","Fracture (disorder)","en-GB","FSN","125605004","20250101",""
+"0000000002","Oude breuk","nl-NL","FSN","125605004","20200101","20210101"
